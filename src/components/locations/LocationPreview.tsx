@@ -24,7 +24,9 @@ export const LocationPreview = ({ location }: LocationPreviewProps) => {
             <MapPin className="h-4 w-4 text-muted-foreground" />
           </div>
           <div className="text-sm text-muted-foreground mt-1">
-            {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
+            {typeof location.lat === 'number' && typeof location.lng === 'number' ? 
+              `${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}` : 
+              'Coordinates not available'}
           </div>
         </div>
       </HoverCardTrigger>
@@ -35,7 +37,9 @@ export const LocationPreview = ({ location }: LocationPreviewProps) => {
             <div>
               <h4 className="text-sm font-semibold">{location.name}</h4>
               <p className="text-xs text-muted-foreground">
-                Coordinates: {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
+                {typeof location.lat === 'number' && typeof location.lng === 'number' ? 
+                  `Coordinates: ${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}` : 
+                  'Coordinates not available'}
               </p>
             </div>
           </div>
