@@ -17,7 +17,7 @@ export const MapContainer = ({ locations, className }: MapContainerProps) => {
 
   if (!apiKey) {
     return (
-      <div className="flex items-center justify-center h-[300px] md:h-[500px] bg-muted rounded-xl">
+      <div className="flex items-center justify-center h-[500px] bg-muted rounded-xl">
         <p className="text-muted-foreground">Please set your Google Maps API key first</p>
       </div>
     );
@@ -31,10 +31,11 @@ export const MapContainer = ({ locations, className }: MapContainerProps) => {
       <div 
         ref={mapRef} 
         className={cn(
-          "w-full rounded-xl overflow-hidden touch-pan-y",
+          "w-full rounded-xl overflow-hidden",
           "transition-all duration-300",
           "shadow-lg border border-purple-100",
-          "min-h-[300px]", // Ensure minimum height on mobile
+          "h-[500px]", // Fixed height to ensure visibility
+          "md:h-[600px]", // Taller on larger screens
           className
         )}
         role="region"
