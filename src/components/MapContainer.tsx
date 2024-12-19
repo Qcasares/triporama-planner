@@ -1,8 +1,9 @@
-import React, { useCallback, useMemo } from 'react';
-import { GoogleMap, useLoadScript, Marker, DirectionsRenderer } from '@react-google-maps/api';
+import React, { useCallback, useMemo, useState } from 'react';
+import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api';
 import { Location } from './TripPlanner';
 import { cn } from '@/lib/utils';
 import { Skeleton } from './ui/skeleton';
+import { ApiKeyInput } from './ApiKeyInput';
 
 interface MapContainerProps {
   locations: Location[];
@@ -15,20 +16,21 @@ const mapContainerStyle = {
 };
 
 const defaultCenter = {
-  lat: 37.7749, // San Francisco coordinates as default
+  lat: 37.7749,
   lng: -122.4194,
 };
 
 export const MapContainer = ({ locations }: MapContainerProps) => {
+  const [apiKey] = useState(() => localStorage.getItem('googleMapsApiKey') || '');
+  
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY || '',
+    googleMapsApiKey: apiKey,
     libraries: ['places'],
   });
 
   const center = useMemo(() => {
     if (locations.length === 0) return defaultCenter;
     
-    // Calculate the center point of all locations
     const bounds = new google.maps.LatLngBounds();
     locations.forEach(location => {
       bounds.extend({ lat: location.lat, lng: location.lng });
@@ -46,6 +48,10 @@ export const MapContainer = ({ locations }: MapContainerProps) => {
       map.fitBounds(bounds);
     }
   }, [locations]);
+
+  if (!apiKey) {
+    return <ApiKeyInput />;
+  }
 
   if (loadError) {
     return (
