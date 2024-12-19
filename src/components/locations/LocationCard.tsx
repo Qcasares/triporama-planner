@@ -10,13 +10,15 @@ interface LocationCardProps {
   isSelected?: boolean;
   onSelect?: () => void;
   onRemove?: () => void;
+  onUpdateDates?: (locationId: string, startDate?: Date, endDate?: Date) => void;
 }
 
 export const LocationCard = ({
   location,
   isSelected,
   onSelect,
-  onRemove
+  onRemove,
+  onUpdateDates
 }: LocationCardProps) => {
   return (
     <div 
