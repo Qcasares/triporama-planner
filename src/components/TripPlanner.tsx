@@ -137,17 +137,15 @@ export const TripPlanner = () => {
               />
             </div>
             
-            <ScrollArea className="h-[calc(100vh-600px)] md:h-[calc(100vh-700px)]">
-              <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100/50 bg-white transition-all duration-300 hover:shadow-xl">
-                {selectedLocation ? (
-                  <TravelRecommendations location={selectedLocation} />
-                ) : (
-                  <div className="flex items-center justify-center h-32 text-muted-foreground bg-white/50 backdrop-blur-sm animate-in fade-in-50">
-                    Select a location to see travel recommendations
-                  </div>
-                )}
-              </div>
-            </ScrollArea>
+            <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100/50 bg-white transition-all duration-300 hover:shadow-xl">
+              {selectedLocation ? (
+                <TravelRecommendations location={selectedLocation} />
+              ) : (
+                <div className="flex items-center justify-center h-32 text-muted-foreground bg-white/50 backdrop-blur-sm animate-in fade-in-50">
+                  Select a location to see travel recommendations
+                </div>
+              )}
+            </div>
           </main>
           
           {!isMobile && (
