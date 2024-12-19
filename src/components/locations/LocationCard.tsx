@@ -1,9 +1,11 @@
 import React from 'react';
 import { Location } from '@/types/location';
 import { Button } from '@/components/ui/button';
-import { Trash2, MapPin, Flag, Star } from 'lucide-react';
+import { Trash2, MapPin, Flag, Star, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 
 interface LocationCardProps {
   location: Location;
@@ -22,6 +24,7 @@ export const LocationCard = ({
   isEnd,
   onSelect,
   onRemove,
+  onUpdateDates,
 }: LocationCardProps) => {
   return (
     <div 
@@ -67,7 +70,49 @@ export const LocationCard = ({
           )}
         </div>
 
-        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-2">
+          {onUpdateDates && (
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Calendar className="h-4 w-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Select Dates</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4">
+                  <div>
+                    <h4 className="font-medium mb-2">Start Date</h4>
+                    <CalendarComponent
+                      mode="single"
+                      selected={location.startDate}
+                      onSelect={(date) =>
+                        onUpdateDates(location.id, date, location.endDate)
+                      }
+                    />
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-2">End Date</h4>
+                    <CalendarComponent
+                      mode="single"
+                      selected={location.endDate}
+                      onSelect={(date) =>
+                        onUpdateDates(location.id, location.startDate, date)
+                      }
+                    />
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+          
           {onRemove && (
             <Button
               variant="ghost"

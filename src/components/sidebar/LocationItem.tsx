@@ -1,7 +1,9 @@
 import React from 'react';
 import { Draggable } from '@hello-pangea/dnd';
 import { Button } from '../ui/button';
-import { Trash2, GripVertical } from 'lucide-react';
+import { Calendar, Trash2, GripVertical } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
+import { Calendar as CalendarComponent } from '../ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Location } from '@/types/location';
@@ -13,7 +15,7 @@ interface LocationItemProps {
   onUpdateDates: (locationId: string, startDate?: Date, endDate?: Date) => void;
 }
 
-export const LocationItem = ({ location, index, onRemoveLocation }: LocationItemProps) => {
+export const LocationItem = ({ location, index, onRemoveLocation, onUpdateDates }: LocationItemProps) => {
   return (
     <Draggable key={location.id} draggableId={location.id} index={index}>
       {(provided, snapshot) => (
@@ -48,11 +50,47 @@ export const LocationItem = ({ location, index, onRemoveLocation }: LocationItem
                 )}
               </div>
             </div>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                >
+                  <Calendar className="h-4 w-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Select Dates</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4">
+                  <div>
+                    <h4 className="font-medium mb-2">Start Date</h4>
+                    <CalendarComponent
+                      mode="single"
+                      selected={location.startDate}
+                      onSelect={(date) =>
+                        onUpdateDates(location.id, date, location.endDate)
+                      }
+                    />
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-2">End Date</h4>
+                    <CalendarComponent
+                      mode="single"
+                      selected={location.endDate}
+                      onSelect={(date) =>
+                        onUpdateDates(location.id, location.startDate, date)
+                      }
+                    />
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => onRemoveLocation(location.id)}
-              className="opacity-0 group-hover:opacity-100"
             >
               <Trash2 className="h-4 w-4" />
             </Button>
