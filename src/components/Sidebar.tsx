@@ -13,6 +13,10 @@ interface SidebarProps {
   onAddLocation?: () => void;
   onRemoveLocation?: (id: string) => void;
   onSelectLocation?: (location: Location) => void;
+  onReorderLocations?: (startIndex: number, endIndex: number) => void;
+  onUpdateDates?: (locationId: string, startDate?: Date, endDate?: Date) => void;
+  isSummaryOpen?: boolean;
+  toggleSummary?: () => void;
 }
 
 export const Sidebar = ({
@@ -22,6 +26,10 @@ export const Sidebar = ({
   onAddLocation,
   onRemoveLocation,
   onSelectLocation,
+  onReorderLocations,
+  onUpdateDates,
+  isSummaryOpen,
+  toggleSummary,
 }: SidebarProps) => {
   return (
     <div className="w-full md:w-80 bg-background">
@@ -53,6 +61,7 @@ export const Sidebar = ({
                 isSelected={selectedLocation?.id === location.id}
                 onSelect={() => onSelectLocation?.(location)}
                 onRemove={() => onRemoveLocation?.(location.id)}
+                onUpdateDates={onUpdateDates}
               />
             ))
           )}
