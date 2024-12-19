@@ -204,6 +204,7 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
       filterOptions={filterOptions}
       isCustomPlaceDialogOpen={isCustomPlaceDialogOpen}
       customPlace={customPlace}
+      placeTypes={placeTypes}
       onToggleFavorite={toggleFavorite}
       onFilterChange={(newOptions) => setFilterOptions(prev => ({ ...prev, ...newOptions }))}
       onCustomPlaceDialogOpenChange={setIsCustomPlaceDialogOpen}

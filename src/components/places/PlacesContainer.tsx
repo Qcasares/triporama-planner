@@ -17,6 +17,7 @@ interface PlacesContainerProps {
   filterOptions: FilterOptions;
   isCustomPlaceDialogOpen: boolean;
   customPlace: { name: string; type: string; notes: string };
+  placeTypes: Record<string, string>;
   onToggleFavorite: (placeId: string) => void;
   onFilterChange: (newOptions: Partial<FilterOptions>) => void;
   onCustomPlaceDialogOpenChange: (open: boolean) => void;
@@ -33,6 +34,7 @@ export const PlacesContainer = ({
   filterOptions,
   isCustomPlaceDialogOpen,
   customPlace,
+  placeTypes,
   onToggleFavorite,
   onFilterChange,
   onCustomPlaceDialogOpenChange,
@@ -63,6 +65,7 @@ export const PlacesContainer = ({
           customPlace={customPlace}
           onCustomPlaceChange={onCustomPlaceChange}
           onAddCustomPlace={onAddCustomPlace}
+          placeTypes={placeTypes}
         />
 
         <DragDropContext onDragEnd={onDragEnd}>
