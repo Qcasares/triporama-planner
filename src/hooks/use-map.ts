@@ -18,7 +18,7 @@ export const useMap = (locations: Location[]) => {
 
   // Initialize map
   useEffect(() => {
-    if (!mapRef.current) return;
+    if (!mapRef.current || !window.google) return;
 
     const map = new google.maps.Map(mapRef.current, {
       ...mapOptions,
@@ -31,7 +31,7 @@ export const useMap = (locations: Location[]) => {
     const directionsRenderer = new google.maps.DirectionsRenderer({
       suppressMarkers: true,
       polylineOptions: {
-        strokeColor: '#84cc16', // sage-500
+        strokeColor: '#84cc16',
         strokeOpacity: 0.8,
         strokeWeight: 4
       }
@@ -44,11 +44,11 @@ export const useMap = (locations: Location[]) => {
       markers: [],
       directionsRenderer
     });
-  }, []);
+  }, [locations]);
 
   // Update markers when locations change
   useEffect(() => {
-    if (!mapState.map) return;
+    if (!mapState.map || !window.google) return;
 
     // Clear existing markers
     mapState.markers.forEach(marker => marker.setMap(null));
@@ -79,7 +79,7 @@ export const useMap = (locations: Location[]) => {
       marker.addListener('mouseover', () => {
         marker.setIcon({
           ...marker.getIcon() as google.maps.Symbol,
-          fillColor: '#65a30d', // sage-600
+          fillColor: '#65a30d',
           scale: 14
         });
       });
@@ -87,7 +87,7 @@ export const useMap = (locations: Location[]) => {
       marker.addListener('mouseout', () => {
         marker.setIcon({
           ...marker.getIcon() as google.maps.Symbol,
-          fillColor: '#84cc16', // sage-500
+          fillColor: '#84cc16',
           scale: 12
         });
       });
@@ -104,13 +104,13 @@ export const useMap = (locations: Location[]) => {
     if (newMarkers.length > 0) {
       const bounds = new google.maps.LatLngBounds();
       newMarkers.forEach(marker => bounds.extend(marker.getPosition()!));
-      mapState.map.fitBounds(bounds, 50); // 50px padding
+      mapState.map.fitBounds(bounds, 50);
     }
   }, [locations, mapState.map]);
 
   // Update directions when multiple locations exist
   useEffect(() => {
-    if (!mapState.map || !mapState.directionsRenderer || locations.length < 2) {
+    if (!mapState.map || !mapState.directionsRenderer || !window.google || locations.length < 2) {
       return;
     }
 
