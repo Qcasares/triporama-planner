@@ -1,19 +1,27 @@
 import { useEffect, useRef, useState } from 'react';
-import { mapOptions } from '@/config/map-styles';
 import { Location } from '@/types/location';
 
-interface MapState {
-  map: google.maps.Map | null;
-  markers: google.maps.Marker[];
-  directionsRenderer: google.maps.DirectionsRenderer | null;
-}
+const mapOptions: google.maps.MapOptions = {
+  zoom: 12,
+  disableDefaultUI: true,
+  zoomControl: true,
+  mapTypeControl: false,
+  scaleControl: true,
+  streetViewControl: false,
+  rotateControl: false,
+  fullscreenControl: true,
+};
 
 export const useMap = (locations: Location[]) => {
   const mapRef = useRef<HTMLDivElement>(null);
-  const [mapState, setMapState] = useState<MapState>({
+  const [mapState, setMapState] = useState<{
+    map: google.maps.Map | null;
+    markers: google.maps.Marker[];
+    directionsRenderer: google.maps.DirectionsRenderer | null;
+  }>({
     map: null,
     markers: [],
-    directionsRenderer: null
+    directionsRenderer: null,
   });
 
   // Initialize map
@@ -22,16 +30,13 @@ export const useMap = (locations: Location[]) => {
 
     const map = new google.maps.Map(mapRef.current, {
       ...mapOptions,
-      center: locations[0] 
-        ? { lat: locations[0].lat, lng: locations[0].lng }
-        : { lat: 0, lng: 0 },
-      zoom: locations[0] ? 12 : 2
+      center: locations[0] ? { lat: locations[0].lat, lng: locations[0].lng } : { lat: 0, lng: 0 },
     });
 
     const directionsRenderer = new google.maps.DirectionsRenderer({
       suppressMarkers: true,
       polylineOptions: {
-        strokeColor: '#84cc16',
+        strokeColor: '#8b5cf6',
         strokeOpacity: 0.8,
         strokeWeight: 4
       }
@@ -55,31 +60,29 @@ export const useMap = (locations: Location[]) => {
 
     // Create new markers
     const newMarkers = locations.map((location, index) => {
+      const isFirst = index === 0;
+      const isLast = index === locations.length - 1;
+
       const marker = new google.maps.Marker({
         position: { lat: location.lat, lng: location.lng },
         map: mapState.map,
         title: location.name,
-        label: {
-          text: (index + 1).toString(),
-          color: '#ffffff',
-          fontWeight: 'bold'
-        },
         icon: {
           path: google.maps.SymbolPath.CIRCLE,
-          fillColor: '#84cc16',
+          scale: 12,
+          fillColor: '#8b5cf6',
           fillOpacity: 1,
-          strokeColor: '#ffffff',
           strokeWeight: 2,
-          scale: 12
+          strokeColor: '#ffffff',
         },
-        animation: google.maps.Animation.DROP
+        label: isFirst ? 'Start' : isLast ? 'End' : `${index + 1}`,
       });
 
-      // Add hover effect
+      // Add hover effects
       marker.addListener('mouseover', () => {
         marker.setIcon({
           ...marker.getIcon() as google.maps.Symbol,
-          fillColor: '#65a30d',
+          fillColor: '#7c3aed',
           scale: 14
         });
       });
@@ -87,7 +90,7 @@ export const useMap = (locations: Location[]) => {
       marker.addListener('mouseout', () => {
         marker.setIcon({
           ...marker.getIcon() as google.maps.Symbol,
-          fillColor: '#84cc16',
+          fillColor: '#8b5cf6',
           scale: 12
         });
       });
@@ -100,7 +103,7 @@ export const useMap = (locations: Location[]) => {
       markers: newMarkers
     }));
 
-    // Update map bounds to fit all markers
+    // Fit bounds to show all markers
     if (newMarkers.length > 0) {
       const bounds = new google.maps.LatLngBounds();
       newMarkers.forEach(marker => bounds.extend(marker.getPosition()!));
@@ -115,6 +118,9 @@ export const useMap = (locations: Location[]) => {
     }
 
     const directionsService = new google.maps.DirectionsService();
+
+    const origin = locations[0];
+    const destination = locations[locations.length - 1];
     const waypoints = locations.slice(1, -1).map(location => ({
       location: { lat: location.lat, lng: location.lng },
       stopover: true
@@ -122,14 +128,11 @@ export const useMap = (locations: Location[]) => {
 
     directionsService.route(
       {
-        origin: { lat: locations[0].lat, lng: locations[0].lng },
-        destination: { 
-          lat: locations[locations.length - 1].lat, 
-          lng: locations[locations.length - 1].lng 
-        },
+        origin: { lat: origin.lat, lng: origin.lng },
+        destination: { lat: destination.lat, lng: destination.lng },
         waypoints,
-        optimizeWaypoints: false,
-        travelMode: google.maps.TravelMode.DRIVING
+        optimizeWaypoints: true,
+        travelMode: google.maps.TravelMode.DRIVING,
       },
       (result, status) => {
         if (status === google.maps.DirectionsStatus.OK && result) {

@@ -9,7 +9,7 @@ interface MapContainerProps {
   className?: string;
 }
 
-const libraries: ("places" | "drawing" | "geometry" | "localContext" | "visualization")[] = ["places"];
+const libraries: ("places" | "drawing" | "geometry" | "visualization")[] = ["places"];
 
 export const MapContainer = ({ locations, className }: MapContainerProps) => {
   const [apiKey] = React.useState(() => localStorage.getItem('googleMapsApiKey') || '');
@@ -33,7 +33,7 @@ export const MapContainer = ({ locations, className }: MapContainerProps) => {
         className={cn(
           "w-full h-full min-h-[400px] rounded-xl overflow-hidden",
           "transition-all duration-300",
-          "shadow-inner border border-sage-100",
+          "shadow-inner border border-purple-100",
           className
         )}
         role="region"
