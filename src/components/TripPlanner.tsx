@@ -37,7 +37,7 @@ export const TripPlanner = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-sage-50">
       <Sidebar
         isOpen={isSidebarOpen}
         onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -47,7 +47,9 @@ export const TripPlanner = () => {
         onReorderLocations={handleReorderLocations}
       />
       <main className={`flex-1 p-6 transition-all duration-300 ${isSidebarOpen ? 'ml-96' : 'ml-0'}`}>
-        <MapContainer locations={locations} />
+        <div className="h-[calc(100vh-3rem)] rounded-xl overflow-hidden shadow-lg border border-sage-100">
+          <MapContainer locations={locations} />
+        </div>
       </main>
     </div>
   );
