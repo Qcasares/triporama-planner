@@ -10,7 +10,6 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { Location } from './TripPlanner';
-import { Table, TableBody, TableCell, TableRow } from './ui/table';
 
 interface Place {
   id: string;
@@ -224,65 +223,99 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
     const priceLevel = '💰'.repeat(place.priceLevel || 1);
 
     return (
-      <Card key={place.id} className="mb-4">
-        <Table>
-          <TableBody>
-            <TableRow>
-              <TableCell className="w-2/3">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">{place.name}</h3>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => toggleFavorite(place.id)}
-                    >
-                      {isFavorite ? (
-                        <Heart className="h-4 w-4 fill-red-500 text-red-500" />
-                      ) : (
-                        <HeartOff className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span>{'⭐'.repeat(Math.round(place.rating))}</span>
-                    <span className="text-sage-500">{priceLevel}</span>
-                  </div>
-                  <p className="text-sm text-sage-600">{place.vicinity}</p>
-                  {place.reviews && place.reviews.length > 0 && (
-                    <div className="mt-2">
-                      <p className="text-sm font-medium">Latest Review:</p>
-                      <p className="text-sm text-sage-600">
-                        "{place.reviews[0].text?.slice(0, 100)}..."
-                      </p>
-                    </div>
-                  )}
-                  {place.website && (
+      <Card key={place.id} className="mb-4 overflow-hidden hover:shadow-lg transition-shadow duration-300">
+        <div className="flex flex-col md:flex-row">
+          <div className="md:w-1/3 relative">
+            {photoUrl ? (
+              <div className="relative h-48 md:h-full">
+                <img
+                  src={photoUrl}
+                  alt={place.name}
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              </div>
+            ) : (
+              <div className="h-48 md:h-full bg-gray-200 flex items-center justify-center">
+                <Building2 className="h-12 w-12 text-gray-400" />
+              </div>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-2 right-2 bg-white/80 hover:bg-white shadow-sm"
+              onClick={() => toggleFavorite(place.id)}
+            >
+              {isFavorite ? (
+                <Heart className="h-4 w-4 fill-red-500 text-red-500" />
+              ) : (
+                <HeartOff className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+          
+          <div className="flex-1 p-6">
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-xl font-semibold tracking-tight">{place.name}</h3>
+                <p className="text-sm text-muted-foreground mt-1">{place.vicinity}</p>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1">
+                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                  <span className="text-sm font-medium">{place.rating.toFixed(1)}</span>
+                </div>
+                <span className="text-sm font-medium text-emerald-600">{priceLevel}</span>
+                {place.openingHours?.isOpen !== undefined && (
+                  <span className={`text-sm font-medium ${place.openingHours.isOpen ? 'text-green-600' : 'text-red-600'}`}>
+                    {place.openingHours.isOpen ? 'Open Now' : 'Closed'}
+                  </span>
+                )}
+              </div>
+
+              {place.reviews && place.reviews.length > 0 && (
+                <div className="bg-muted/50 p-3 rounded-lg">
+                  <p className="text-sm italic text-muted-foreground">
+                    "{place.reviews[0].text?.slice(0, 100)}..."
+                  </p>
+                </div>
+              )}
+
+              <div className="flex items-center gap-2 pt-2">
+                {place.website && (
+                  <Button variant="outline" size="sm" asChild>
                     <a
                       href={place.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-blue-600 hover:underline"
+                      className="inline-flex items-center gap-2"
                     >
                       Visit Website
                     </a>
-                  )}
-                </div>
-              </TableCell>
-              <TableCell className="w-1/3">
-                {photoUrl && (
-                  <div className="relative h-32 w-full">
-                    <img
-                      src={photoUrl}
-                      alt={place.name}
-                      className="absolute inset-0 h-full w-full object-cover rounded-lg"
-                    />
-                  </div>
+                  </Button>
                 )}
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
+                {place.openingHours?.weekdayText && (
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="sm">Hours</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Opening Hours</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-2">
+                        {place.openingHours.weekdayText.map((text, i) => (
+                          <p key={i} className="text-sm">{text}</p>
+                        ))}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       </Card>
     );
   };
@@ -294,22 +327,19 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
             <Card key={i}>
-              <Table>
-                <TableBody>
-                  <TableRow>
-                    <TableCell className="w-2/3">
-                      <div className="space-y-2">
-                        <Skeleton className="h-6 w-2/3" />
-                        <Skeleton className="h-4 w-1/2" />
-                        <Skeleton className="h-4 w-3/4" />
-                      </div>
-                    </TableCell>
-                    <TableCell className="w-1/3">
-                      <Skeleton className="h-32 w-full" />
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
+              <div className="flex flex-col md:flex-row">
+                <div className="md:w-1/3">
+                  <Skeleton className="h-48 md:h-full" />
+                </div>
+                <div className="flex-1 p-6">
+                  <div className="space-y-4">
+                    <Skeleton className="h-6 w-2/3" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-20 w-full" />
+                  </div>
+                </div>
+              </div>
             </Card>
           ))}
         </div>
@@ -318,51 +348,76 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
 
     return (
       <div className="space-y-4">
-        <div className="flex items-center gap-4 p-4 bg-sage-50 rounded-lg">
-          <Select
-            value={filterOptions.sortBy}
-            onValueChange={(value) =>
-              setFilterOptions(prev => ({ ...prev, sortBy: value as 'rating' | 'distance' | 'price' }))
-            }
-          >
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="rating">Rating</SelectItem>
-              <SelectItem value="price">Price</SelectItem>
-              <SelectItem value="distance">Distance</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <div className="flex items-center gap-2">
-            <span className="text-sm">Price:</span>
-            <Slider
-              min={1}
-              max={4}
-              step={1}
-              value={[filterOptions.minPrice, filterOptions.maxPrice]}
-              onValueChange={([min, max]) =>
-                setFilterOptions(prev => ({ ...prev, minPrice: min, maxPrice: max }))
-              }
-              className="w-32"
-            />
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <span className="text-sm">Min Rating:</span>
-            <Slider
-              min={0}
-              max={5}
-              step={0.5}
-              value={[filterOptions.minRating]}
-              onValueChange={([value]) =>
-                setFilterOptions(prev => ({ ...prev, minRating: value }))
-              }
-              className="w-32"
-            />
-          </div>
-        </div>
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Filter className="h-5 w-5" />
+              Filters & Sort
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Sort By</label>
+                <Select
+                  value={filterOptions.sortBy}
+                  onValueChange={(value) =>
+                    setFilterOptions(prev => ({ ...prev, sortBy: value as 'rating' | 'distance' | 'price' }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="rating">Rating</SelectItem>
+                    <SelectItem value="price">Price</SelectItem>
+                    <SelectItem value="distance">Distance</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Price Range</label>
+                <div className="pt-2">
+                  <Slider
+                    min={1}
+                    max={4}
+                    step={1}
+                    value={[filterOptions.minPrice, filterOptions.maxPrice]}
+                    onValueChange={([min, max]) =>
+                      setFilterOptions(prev => ({ ...prev, minPrice: min, maxPrice: max }))
+                    }
+                    className="w-full"
+                  />
+                  <div className="flex justify-between mt-1">
+                    <span className="text-sm text-muted-foreground">Budget</span>
+                    <span className="text-sm text-muted-foreground">Luxury</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Minimum Rating</label>
+                <div className="pt-2">
+                  <Slider
+                    min={0}
+                    max={5}
+                    step={0.5}
+                    value={[filterOptions.minRating]}
+                    onValueChange={([value]) =>
+                      setFilterOptions(prev => ({ ...prev, minRating: value }))
+                    }
+                    className="w-full"
+                  />
+                  <div className="flex justify-between mt-1">
+                    <span className="text-sm text-muted-foreground">Any</span>
+                    <span className="text-sm text-muted-foreground">5 Stars</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <ScrollArea className="h-[calc(100vh-22rem)]">
           <div className="p-1">
@@ -374,69 +429,86 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
   };
 
   return (
-    <div className="space-y-8 p-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Places Near {location.name}</h2>
+    <div className="p-6 max-w-7xl mx-auto">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Places Near {location.name}</h2>
+          <p className="text-muted-foreground mt-1">Discover the best local spots and attractions</p>
+        </div>
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="outline">Add Custom Place</Button>
+            <Button className="shrink-0">
+              <Building2 className="h-4 w-4 mr-2" />
+              Add Custom Place
+            </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Add Custom Place</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
-              <Input
-                placeholder="Place Name"
-                value={customPlace.name}
-                onChange={(e) => setCustomPlace(prev => ({ ...prev, name: e.target.value }))}
-              />
-              <Select
-                value={customPlace.type}
-                onValueChange={(value) => setCustomPlace(prev => ({ ...prev, type: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.keys(placeTypes).map(type => (
-                    <SelectItem key={type} value={type}>
-                      {type.charAt(0).toUpperCase() + type.slice(1)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Input
-                placeholder="Notes"
-                value={customPlace.notes}
-                onChange={(e) => setCustomPlace(prev => ({ ...prev, notes: e.target.value }))}
-              />
-              <Button onClick={handleAddCustomPlace}>Add Place</Button>
+            <div className="space-y-4 pt-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Place Name</label>
+                <Input
+                  placeholder="Enter place name"
+                  value={customPlace.name}
+                  onChange={(e) => setCustomPlace(prev => ({ ...prev, name: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Category</label>
+                <Select
+                  value={customPlace.type}
+                  onValueChange={(value) => setCustomPlace(prev => ({ ...prev, type: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.keys(placeTypes).map(type => (
+                      <SelectItem key={type} value={type}>
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Notes</label>
+                <Input
+                  placeholder="Add any notes about this place"
+                  value={customPlace.notes}
+                  onChange={(e) => setCustomPlace(prev => ({ ...prev, notes: e.target.value }))}
+                />
+              </div>
+              <Button onClick={handleAddCustomPlace} className="w-full">
+                Add Place
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
       </div>
 
       <Tabs defaultValue="hotels" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="hotels" className="flex items-center gap-2">
-            <Building2 className="h-4 w-4" />
+        <TabsList className="w-full inline-flex h-14 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground mb-6">
+          <TabsTrigger value="hotels" className="inline-flex items-center justify-center whitespace-nowrap rounded-md px-6 py-3 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
+            <Building2 className="h-4 w-4 mr-2" />
             Hotels
           </TabsTrigger>
-          <TabsTrigger value="restaurants" className="flex items-center gap-2">
-            <UtensilsCrossed className="h-4 w-4" />
+          <TabsTrigger value="restaurants" className="inline-flex items-center justify-center whitespace-nowrap rounded-md px-6 py-3 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
+            <UtensilsCrossed className="h-4 w-4 mr-2" />
             Restaurants
           </TabsTrigger>
-          <TabsTrigger value="attractions" className="flex items-center gap-2">
-            <Landmark className="h-4 w-4" />
+          <TabsTrigger value="attractions" className="inline-flex items-center justify-center whitespace-nowrap rounded-md px-6 py-3 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
+            <Landmark className="h-4 w-4 mr-2" />
             Attractions
           </TabsTrigger>
-          <TabsTrigger value="shopping" className="flex items-center gap-2">
-            <ShoppingBag className="h-4 w-4" />
+          <TabsTrigger value="shopping" className="inline-flex items-center justify-center whitespace-nowrap rounded-md px-6 py-3 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
+            <ShoppingBag className="h-4 w-4 mr-2" />
             Shopping
           </TabsTrigger>
-          <TabsTrigger value="entertainment" className="flex items-center gap-2">
-            <Theater className="h-4 w-4" />
+          <TabsTrigger value="entertainment" className="inline-flex items-center justify-center whitespace-nowrap rounded-md px-6 py-3 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
+            <Theater className="h-4 w-4 mr-2" />
             Entertainment
           </TabsTrigger>
         </TabsList>
