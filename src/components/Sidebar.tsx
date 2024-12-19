@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Calendar as CalendarComponent } from './ui/calendar';
 import { format } from 'date-fns';
-import { Sidebar as ShadcnSidebar, SidebarContent, SidebarTrigger } from './sidebar/components/base';
+import { Sidebar as ShadcnSidebar } from './ui/sidebar';
 
 interface SidebarProps {
   locations: Location[];
@@ -33,10 +33,13 @@ export const Sidebar = ({
 
   return (
     <ShadcnSidebar>
-      <SidebarContent>
+      <div className="flex flex-col h-full">
         <div className="flex items-center justify-between border-b p-4">
           <h2 className="text-lg font-semibold">Trip Itinerary</h2>
-          <SidebarTrigger />
+          <Button variant="ghost" size="icon" className="h-7 w-7">
+            <ChevronLeft />
+            <span className="sr-only">Toggle Sidebar</span>
+          </Button>
         </div>
 
         <div className="p-4">
@@ -142,7 +145,7 @@ export const Sidebar = ({
             </Droppable>
           </DragDropContext>
         </ScrollArea>
-      </SidebarContent>
+      </div>
     </ShadcnSidebar>
   );
 };
