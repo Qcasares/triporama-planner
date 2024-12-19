@@ -4,7 +4,7 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
 import { LocationSearch } from './LocationSearch';
-import { Location } from './TripPlanner';
+import { Location } from '@/types/location';
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Calendar as CalendarComponent } from './ui/calendar';

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Location } from './TripPlanner';
+import { Location } from '@/types/location';
 import { format } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { ScrollArea } from './ui/scroll-area';

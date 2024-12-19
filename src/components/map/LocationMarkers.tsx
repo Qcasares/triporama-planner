@@ -1,5 +1,5 @@
 import { Marker } from '@react-google-maps/api';
-import { Location } from '../TripPlanner';
+import { Location } from '@/types/location';
 
 interface LocationMarkersProps {
   locations: Location[];
