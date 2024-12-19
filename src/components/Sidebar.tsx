@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronLeft, GripVertical, Trash2, Calendar } from 'lucide-react';
+import { ChevronLeft, GripVertical, Trash2, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
@@ -10,6 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Calendar as CalendarComponent } from './ui/calendar';
 import { format } from 'date-fns';
 import { Sidebar as ShadcnSidebar } from './ui/sidebar';
+import { TripSummary } from './TripSummary';
 
 interface SidebarProps {
   locations: Location[];
@@ -17,6 +18,8 @@ interface SidebarProps {
   onRemoveLocation: (locationId: string) => void;
   onReorderLocations: (startIndex: number, endIndex: number) => void;
   onUpdateDates: (locationId: string, startDate?: Date, endDate?: Date) => void;
+  isSummaryOpen: boolean;
+  toggleSummary: () => void;
 }
 
 export const Sidebar = ({
@@ -25,6 +28,8 @@ export const Sidebar = ({
   onRemoveLocation,
   onReorderLocations,
   onUpdateDates,
+  isSummaryOpen,
+  toggleSummary,
 }: SidebarProps) => {
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
@@ -145,6 +150,25 @@ export const Sidebar = ({
             </Droppable>
           </DragDropContext>
         </ScrollArea>
+
+        <div className="border-t p-4">
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={toggleSummary}
+          >
+            {isSummaryOpen ? (
+              <>Hide Trip Summary <ChevronUp className="ml-2 h-4 w-4" /></>
+            ) : (
+              <>Show Trip Summary <ChevronDown className="ml-2 h-4 w-4" /></>
+            )}
+          </Button>
+          {isSummaryOpen && (
+            <div className="mt-4">
+              <TripSummary locations={locations} />
+            </div>
+          )}
+        </div>
       </div>
     </ShadcnSidebar>
   );

@@ -2,7 +2,6 @@ import React from 'react';
 import { MapContainer } from '@/components/MapContainer';
 import { Sidebar } from '@/components/Sidebar';
 import { TravelRecommendations } from '@/components/TravelRecommendations';
-import { TripSummary } from '@/components/TripSummary';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { SidebarProvider } from '@/components/ui/sidebar';
@@ -54,36 +53,22 @@ export const TripPlanner = () => {
             onRemoveLocation={removeLocation}
             onReorderLocations={reorderLocations}
             onUpdateDates={updateDates}
+            isSummaryOpen={isSummaryOpen}
+            toggleSummary={toggleSummary}
           />
           <main className="flex-1 p-6">
-            <div className="grid grid-rows-[1fr,auto,1fr] gap-6 h-[calc(100vh-3rem)]">
+            <div className="grid grid-rows-[1fr,auto] gap-6 h-[calc(100vh-3rem)]">
               <div className="rounded-xl overflow-hidden shadow-lg border border-sage-100">
                 <MapContainer locations={locations} />
               </div>
               
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={toggleSummary}
-              >
-                {isSummaryOpen ? (
-                  <>Hide Trip Summary <ChevronUp className="ml-2 h-4 w-4" /></>
-                ) : (
-                  <>Show Trip Summary <ChevronDown className="ml-2 h-4 w-4" /></>
-                )}
-              </Button>
-
               <div className="rounded-xl overflow-hidden shadow-lg border border-sage-100">
-                {isSummaryOpen ? (
-                  <TripSummary locations={locations} />
+                {selectedLocation ? (
+                  <TravelRecommendations location={selectedLocation} />
                 ) : (
-                  selectedLocation ? (
-                    <TravelRecommendations location={selectedLocation} />
-                  ) : (
-                    <div className="flex items-center justify-center h-full text-sage-500">
-                      Select a location to see travel recommendations
-                    </div>
-                  )
+                  <div className="flex items-center justify-center h-full text-sage-500">
+                    Select a location to see travel recommendations
+                  </div>
                 )}
               </div>
             </div>
