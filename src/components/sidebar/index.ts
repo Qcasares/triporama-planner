@@ -1,3 +1,5 @@
 export * from './SidebarProvider';
-export * from './SidebarComponents';
-export * from './SidebarMenu';
+export * from './components/base';
+export * from './components/layout';
+export * from './components/group';
+export * from './components/menu';
