@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
+import { GoogleMap, useLoadScript, Marker, DirectionsRenderer } from '@react-google-maps/api';
 import { Location } from './TripPlanner';
 import { cn } from '@/lib/utils';
 import { Skeleton } from './ui/skeleton';
@@ -22,6 +22,7 @@ const defaultCenter = {
 
 export const MapContainer = ({ locations }: MapContainerProps) => {
   const [apiKey] = useState(() => localStorage.getItem('googleMapsApiKey') || '');
+  const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
   
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: apiKey,
@@ -38,6 +39,42 @@ export const MapContainer = ({ locations }: MapContainerProps) => {
     
     return bounds.getCenter().toJSON();
   }, [locations]);
+
+  useEffect(() => {
+    if (!isLoaded || locations.length < 2) {
+      setDirections(null);
+      return;
+    }
+
+    const fetchDirections = async () => {
+      const directionsService = new google.maps.DirectionsService();
+      
+      try {
+        const waypoints = locations.slice(1, -1).map(location => ({
+          location: { lat: location.lat, lng: location.lng },
+          stopover: true
+        }));
+
+        const result = await directionsService.route({
+          origin: { lat: locations[0].lat, lng: locations[0].lng },
+          destination: { 
+            lat: locations[locations.length - 1].lat, 
+            lng: locations[locations.length - 1].lng 
+          },
+          waypoints,
+          travelMode: google.maps.TravelMode.DRIVING,
+          optimizeWaypoints: false,
+        });
+        
+        setDirections(result);
+      } catch (error) {
+        console.error('Error fetching directions:', error);
+        setDirections(null);
+      }
+    };
+
+    fetchDirections();
+  }, [locations, isLoaded]);
 
   const onLoad = useCallback((map: google.maps.Map) => {
     if (locations.length > 0) {
@@ -101,7 +138,7 @@ export const MapContainer = ({ locations }: MapContainerProps) => {
           fullscreenControl: true,
         }}
       >
-        {locations.map((location, index) => (
+        {!directions && locations.map((location, index) => (
           <Marker
             key={location.id}
             position={{ lat: location.lat, lng: location.lng }}
@@ -113,6 +150,18 @@ export const MapContainer = ({ locations }: MapContainerProps) => {
             title={location.name}
           />
         ))}
+        {directions && (
+          <DirectionsRenderer
+            directions={directions}
+            options={{
+              suppressMarkers: false,
+              polylineOptions: {
+                strokeColor: '#4A90E2',
+                strokeWeight: 4,
+              },
+            }}
+          />
+        )}
       </GoogleMap>
     </div>
   );
