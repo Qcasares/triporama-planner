@@ -5,6 +5,7 @@ import { ScrollArea } from './ui/scroll-area';
 import { Skeleton } from './ui/skeleton';
 import { Building2, UtensilsCrossed, Landmark } from 'lucide-react';
 import { Location } from './TripPlanner';
+import { Table, TableBody, TableCell, TableRow } from './ui/table';
 
 interface Place {
   name: string;
@@ -43,7 +44,7 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
         location: { lat: location.lat, lng: location.lng },
         radius: 16000, // 10 miles in meters
         type,
-        rankBy: google.maps.places.RankBy.RATING,
+        rankBy: google.maps.places.RankBy.DISTANCE,
       };
 
       return new Promise<Place[]>((resolve, reject) => {
@@ -90,26 +91,34 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
     const priceLevel = '💰'.repeat(place.priceLevel || 1);
 
     return (
-      <Card key={place.name} className="overflow-hidden">
-        {photoUrl && (
-          <div className="relative h-48 w-full">
-            <img
-              src={photoUrl}
-              alt={place.name}
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-          </div>
-        )}
-        <CardHeader>
-          <CardTitle className="text-lg">{place.name}</CardTitle>
-          <CardDescription>
-            <div className="flex items-center gap-2">
-              <span>{'⭐'.repeat(Math.round(place.rating))}</span>
-              <span className="text-sage-500">{priceLevel}</span>
-            </div>
-            <p className="mt-1 text-sm text-sage-600">{place.vicinity}</p>
-          </CardDescription>
-        </CardHeader>
+      <Card key={place.name} className="mb-4">
+        <Table>
+          <TableBody>
+            <TableRow>
+              <TableCell className="w-2/3">
+                <div className="space-y-2">
+                  <h3 className="text-lg font-semibold">{place.name}</h3>
+                  <div className="flex items-center gap-2">
+                    <span>{'⭐'.repeat(Math.round(place.rating))}</span>
+                    <span className="text-sage-500">{priceLevel}</span>
+                  </div>
+                  <p className="text-sm text-sage-600">{place.vicinity}</p>
+                </div>
+              </TableCell>
+              <TableCell className="w-1/3">
+                {photoUrl && (
+                  <div className="relative h-32 w-full">
+                    <img
+                      src={photoUrl}
+                      alt={place.name}
+                      className="absolute inset-0 h-full w-full object-cover rounded-lg"
+                    />
+                  </div>
+                )}
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
       </Card>
     );
   };
@@ -117,14 +126,25 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
   const renderPlacesSection = (places: Place[], icon: React.ReactNode) => {
     if (loading) {
       return (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <Card key={i} className="overflow-hidden">
-              <Skeleton className="h-48 w-full" />
-              <CardHeader>
-                <Skeleton className="h-6 w-2/3" />
-                <Skeleton className="h-4 w-1/2" />
-              </CardHeader>
+            <Card key={i}>
+              <Table>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="w-2/3">
+                      <div className="space-y-2">
+                        <Skeleton className="h-6 w-2/3" />
+                        <Skeleton className="h-4 w-1/2" />
+                        <Skeleton className="h-4 w-3/4" />
+                      </div>
+                    </TableCell>
+                    <TableCell className="w-1/3">
+                      <Skeleton className="h-32 w-full" />
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             </Card>
           ))}
         </div>
@@ -133,7 +153,7 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
 
     return (
       <ScrollArea className="h-[calc(100vh-15rem)]">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 p-1">
+        <div className="p-1">
           {places.map(renderPlaceCard)}
         </div>
       </ScrollArea>
