@@ -58,17 +58,7 @@ export const TripPlanner = () => {
           <main className="flex-1 p-6">
             <div className="grid grid-rows-[1fr,auto,1fr] gap-6 h-[calc(100vh-3rem)]">
               <div className="rounded-xl overflow-hidden shadow-lg border border-sage-100">
-                {isSummaryOpen ? (
-                  <TravelRecommendations location={selectedLocation} />
-                ) : (
-                  selectedLocation ? (
-                    <TripSummary locations={locations} />
-                  ) : (
-                    <div className="flex items-center justify-center h-full text-sage-500">
-                      Select a location to see travel recommendations
-                    </div>
-                  )
-                )}
+                <MapContainer locations={locations} />
               </div>
               
               <Button
@@ -84,7 +74,17 @@ export const TripPlanner = () => {
               </Button>
 
               <div className="rounded-xl overflow-hidden shadow-lg border border-sage-100">
-                <MapContainer locations={locations} />
+                {isSummaryOpen ? (
+                  <TripSummary locations={locations} />
+                ) : (
+                  selectedLocation ? (
+                    <TravelRecommendations location={selectedLocation} />
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-sage-500">
+                      Select a location to see travel recommendations
+                    </div>
+                  )
+                )}
               </div>
             </div>
           </main>
