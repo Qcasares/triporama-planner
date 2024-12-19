@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Building2, UtensilsCrossed, Landmark, ShoppingBag, Theater } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -13,35 +13,66 @@ interface PlacesContainerProps {
   location: Location;
   places: Record<string, Place[]>;
   loading: boolean;
-  favorites: Set<string>;
-  filterOptions: FilterOptions;
-  isCustomPlaceDialogOpen: boolean;
   customPlace: { name: string; type: string; notes: string };
-  placeTypes: Record<string, string>;
-  onToggleFavorite: (placeId: string) => void;
-  onFilterChange: (newOptions: Partial<FilterOptions>) => void;
+  isCustomPlaceDialogOpen: boolean;
   onCustomPlaceDialogOpenChange: (open: boolean) => void;
   onCustomPlaceChange: (field: string, value: string) => void;
   onAddCustomPlace: () => void;
-  onDragEnd: (result: any) => void;
 }
 
 export const PlacesContainer = ({
   location,
   places,
   loading,
-  favorites,
-  filterOptions,
-  isCustomPlaceDialogOpen,
   customPlace,
-  placeTypes,
-  onToggleFavorite,
-  onFilterChange,
+  isCustomPlaceDialogOpen,
   onCustomPlaceDialogOpenChange,
   onCustomPlaceChange,
   onAddCustomPlace,
-  onDragEnd,
 }: PlacesContainerProps) => {
+  const [favorites, setFavorites] = useState<Set<string>>(() => 
+    new Set(JSON.parse(localStorage.getItem('favorites') || '[]'))
+  );
+
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
+    minPrice: 1,
+    maxPrice: 4,
+    minRating: 0,
+    sortBy: 'rating'
+  });
+
+  const toggleFavorite = (placeId: string) => {
+    setFavorites(prev => {
+      const newFavorites = new Set(prev);
+      if (newFavorites.has(placeId)) {
+        newFavorites.delete(placeId);
+      } else {
+        newFavorites.add(placeId);
+      }
+      localStorage.setItem('favorites', JSON.stringify(Array.from(newFavorites)));
+      return newFavorites;
+    });
+  };
+
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return;
+    
+    const sourceIndex = result.source.index;
+    const destinationIndex = result.destination.index;
+    
+    if (sourceIndex === destinationIndex) return;
+    
+    // Handle reordering logic here
+  };
+
+  const placeTypes = {
+    hotels: 'lodging',
+    restaurants: 'restaurant',
+    attractions: 'tourist_attraction',
+    shopping: 'shopping_mall',
+    entertainment: 'movie_theater'
+  };
+
   return (
     <div className="min-h-screen w-full bg-background">
       <div className="container mx-auto px-4 py-6">
@@ -68,7 +99,7 @@ export const PlacesContainer = ({
           placeTypes={placeTypes}
         />
 
-        <DragDropContext onDragEnd={onDragEnd}>
+        <DragDropContext onDragEnd={handleDragEnd}>
           <Tabs defaultValue="hotels" className="w-full">
             <TabsList className="w-full inline-flex h-14 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground mb-6">
               <TabsTrigger value="hotels" className="inline-flex items-center justify-center whitespace-nowrap rounded-md px-6 py-3 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
@@ -101,8 +132,8 @@ export const PlacesContainer = ({
                   categoryId={category}
                   favorites={favorites}
                   filterOptions={filterOptions}
-                  onToggleFavorite={onToggleFavorite}
-                  onFilterChange={onFilterChange}
+                  onToggleFavorite={toggleFavorite}
+                  onFilterChange={setFilterOptions}
                 />
               </TabsContent>
             ))}
