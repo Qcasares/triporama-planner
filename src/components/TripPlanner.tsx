@@ -2,6 +2,7 @@ import React from 'react';
 import { MapContainer } from '@/components/MapContainer';
 import { Sidebar } from '@/components/Sidebar';
 import { TravelRecommendations } from '@/components/TravelRecommendations';
+import { CommandMenu } from '@/components/CommandMenu';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { useGeolocation } from '@/hooks/use-geolocation';
 import { useTripPlanner } from '@/hooks/use-trip-planner';
@@ -44,6 +45,12 @@ export const TripPlanner = () => {
 
   return (
     <div className="flex min-h-screen bg-background">
+      <CommandMenu
+        locations={locations}
+        onAddLocation={addLocation}
+        isSummaryOpen={isSummaryOpen}
+        toggleSummary={toggleSummary}
+      />
       <SidebarProvider>
         <div className="flex w-full">
           <Sidebar
