@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer } from './MapContainer';
-import { Sidebar } from './Sidebar';
+import { Sidebar } from './sidebar';
 import { TravelRecommendations } from './TravelRecommendations';
 import { TripSummary } from './TripSummary';
 import { useToast } from '@/hooks/use-toast';
