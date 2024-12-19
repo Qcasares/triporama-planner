@@ -9,6 +9,7 @@ interface MapContainerProps {
   className?: string;
 }
 
+// Define libraries array outside component to prevent unnecessary reloads
 const libraries: ("places" | "drawing" | "geometry" | "visualization")[] = ["places"];
 
 export const MapContainer = ({ locations, className }: MapContainerProps) => {
