@@ -3,6 +3,7 @@ import { Draggable, Droppable } from '@hello-pangea/dnd';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Place } from '@/types/place';
+import { FilterOptions } from '@/types/filters';
 import { PlaceCard } from './PlaceCard';
 import { PlaceFilters } from './PlaceFilters';
 
@@ -11,13 +12,8 @@ interface PlacesListProps {
   categoryId: string;
   favorites: Set<string>;
   onToggleFavorite: (placeId: string) => void;
-  filterOptions: {
-    minPrice: number;
-    maxPrice: number;
-    minRating: number;
-    sortBy: 'rating' | 'distance' | 'price';
-  };
-  onFilterChange: (newOptions: Partial<typeof filterOptions>) => void;
+  filterOptions: FilterOptions;
+  onFilterChange: (newOptions: Partial<FilterOptions>) => void;
 }
 
 export const PlacesList = ({
@@ -52,7 +48,7 @@ export const PlacesList = ({
   const rowVirtualizer = useVirtualizer({
     count: filteredPlaces.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 200, // Estimated height of each place card
+    estimateSize: () => 200,
     overscan: 5,
   });
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Place } from '@/types/place';
+import { FilterOptions } from '@/types/filters';
 import { PlacesList } from './PlacesList';
 
 interface PlacesSectionProps {
@@ -9,14 +10,9 @@ interface PlacesSectionProps {
   categoryPlaces: Place[];
   categoryId: string;
   favorites: Set<string>;
-  filterOptions: {
-    minPrice: number;
-    maxPrice: number;
-    minRating: number;
-    sortBy: 'rating' | 'distance' | 'price';
-  };
+  filterOptions: FilterOptions;
   onToggleFavorite: (placeId: string) => void;
-  onFilterChange: (newOptions: Partial<typeof filterOptions>) => void;
+  onFilterChange: (newOptions: Partial<FilterOptions>) => void;
 }
 
 export const PlacesSection = ({
