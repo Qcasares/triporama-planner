@@ -3,6 +3,7 @@ import { LoadScript } from '@react-google-maps/api';
 import { useMap } from '@/hooks/use-map';
 import { Location } from '@/types/location';
 import { cn } from '@/lib/utils';
+import { MapPin } from 'lucide-react';
 
 interface MapContainerProps {
   locations: Location[];
@@ -17,8 +18,12 @@ export const MapContainer = ({ locations, className }: MapContainerProps) => {
 
   if (!apiKey) {
     return (
-      <div className="flex items-center justify-center h-[500px] bg-muted rounded-xl">
-        <p className="text-muted-foreground">Please set your Google Maps API key first</p>
+      <div className="flex flex-col items-center justify-center h-[500px] bg-[#F1F0FB] rounded-xl p-8 text-center">
+        <MapPin className="h-12 w-12 text-muted-foreground/50 mb-4" />
+        <h3 className="text-lg font-medium mb-2">Google Maps API Key Required</h3>
+        <p className="text-muted-foreground max-w-md">
+          Please set your Google Maps API key in the settings menu to enable map functionality
+        </p>
       </div>
     );
   }
@@ -33,9 +38,9 @@ export const MapContainer = ({ locations, className }: MapContainerProps) => {
         className={cn(
           "w-full rounded-xl overflow-hidden",
           "transition-all duration-300",
-          "shadow-lg border border-purple-100",
-          "h-[500px]", // Fixed height to ensure visibility
-          "md:h-[600px]", // Taller on larger screens
+          "shadow-lg border border-purple-100/50",
+          "h-[500px]",
+          "md:h-[600px]",
           className
         )}
         role="region"

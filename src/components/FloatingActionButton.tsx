@@ -10,7 +10,7 @@ export const FloatingActionButton = ({ onAddLocation }: FloatingActionButtonProp
   return (
     <Button
       size="icon"
-      className="fixed right-4 bottom-4 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 animate-in fade-in slide-in-from-bottom-5"
+      className="fixed right-4 bottom-4 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 animate-in fade-in slide-in-from-bottom-5 bg-[#0EA5E9] hover:bg-[#0EA5E9]/90"
       onClick={() => {
         onAddLocation({
           id: String(Date.now()),

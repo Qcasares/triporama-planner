@@ -40,7 +40,6 @@ export const TripPlanner = () => {
     if (currentLocation && locations.length === 0) {
       addLocation(currentLocation);
     }
-    // Simulate loading for demonstration
     const timer = setTimeout(() => setLoading(false), 1000);
     return () => clearTimeout(timer);
   }, [currentLocation, locations.length, addLocation]);
@@ -98,7 +97,7 @@ export const TripPlanner = () => {
   }
 
   return (
-    <div className="flex min-h-screen bg-background animate-in fade-in-50">
+    <div className="flex min-h-screen bg-[#F1F0FB] animate-in fade-in-50">
       <CommandMenu
         locations={locations}
         onAddLocation={handleAddLocation}
@@ -113,31 +112,33 @@ export const TripPlanner = () => {
                 <Button 
                   variant="ghost" 
                   size="icon"
-                  className="fixed left-4 top-4 z-50 md:hidden animate-in fade-in-50"
+                  className="fixed left-4 top-4 z-50 md:hidden animate-in fade-in-50 bg-white/80 backdrop-blur-sm hover:bg-white/90"
                 >
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-[300px] p-0">
+              <SheetContent side="left" className="w-[300px] p-0 bg-white">
                 <SidebarContent />
               </SheetContent>
             </Sheet>
           ) : (
-            <SidebarContent />
+            <div className="w-80 bg-white border-r border-gray-100 shadow-sm">
+              <SidebarContent />
+            </div>
           )}
           
-          <main className="flex-1 space-y-6 p-4 md:p-8 bg-gray-50/50">
+          <main className="flex-1 space-y-6 p-4 md:p-8">
             <NavigationBreadcrumb />
             
-            <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100 bg-white transition-all duration-300 hover:shadow-xl">
+            <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100/50 bg-white transition-all duration-300 hover:shadow-xl">
               <MapContainer 
                 locations={locations} 
-                className="h-[300px] md:h-[400px] w-full transition-all duration-300"
+                className="h-[400px] md:h-[500px] w-full transition-all duration-300"
               />
             </div>
             
-            <ScrollArea className="h-[calc(100vh-450px)] md:h-[calc(100vh-520px)]">
-              <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100 bg-white transition-all duration-300 hover:shadow-xl">
+            <ScrollArea className="h-[calc(100vh-600px)] md:h-[calc(100vh-700px)]">
+              <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100/50 bg-white transition-all duration-300 hover:shadow-xl">
                 {selectedLocation ? (
                   <TravelRecommendations location={selectedLocation} />
                 ) : (
@@ -149,7 +150,11 @@ export const TripPlanner = () => {
             </ScrollArea>
           </main>
           
-          {!isMobile && <FloatingActionButton onAddLocation={handleAddLocation} />}
+          {!isMobile && (
+            <FloatingActionButton 
+              onAddLocation={handleAddLocation} 
+            />
+          )}
         </div>
       </SidebarProvider>
     </div>
