@@ -1,45 +1,63 @@
 import React from 'react';
 import { Location } from '@/types/location';
-import { Sidebar as ShadcnSidebar } from '@/components/ui/sidebar';
-import { SidebarHeader } from './sidebar/SidebarHeader';
-import { LocationList } from './sidebar/LocationList';
-import { SidebarFooter } from './sidebar/SidebarFooter';
+import { LocationCard } from './locations/LocationCard';
+import { LocationCardSkeleton } from './locations/LocationCardSkeleton';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 
 interface SidebarProps {
   locations: Location[];
-  onAddLocation: (location: Location) => void;
-  onRemoveLocation: (locationId: string) => void;
-  onReorderLocations: (startIndex: number, endIndex: number) => void;
-  onUpdateDates: (locationId: string, startDate?: Date, endDate?: Date) => void;
-  isSummaryOpen: boolean;
-  toggleSummary: () => void;
+  selectedLocation?: Location;
+  loading?: boolean;
+  onAddLocation?: () => void;
+  onRemoveLocation?: (id: string) => void;
+  onSelectLocation?: (location: Location) => void;
 }
 
 export const Sidebar = ({
   locations,
+  selectedLocation,
+  loading = false,
   onAddLocation,
   onRemoveLocation,
-  onReorderLocations,
-  onUpdateDates,
-  isSummaryOpen,
-  toggleSummary,
+  onSelectLocation,
 }: SidebarProps) => {
   return (
-    <ShadcnSidebar>
-      <div className="flex flex-col h-full">
-        <SidebarHeader onAddLocation={onAddLocation} />
-        <LocationList
-          locations={locations}
-          onRemoveLocation={onRemoveLocation}
-          onReorderLocations={onReorderLocations}
-          onUpdateDates={onUpdateDates}
-        />
-        <SidebarFooter
-          locations={locations}
-          isSummaryOpen={isSummaryOpen}
-          toggleSummary={toggleSummary}
-        />
+    <div className="w-80 border-r bg-background p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-lg font-semibold">Locations</h2>
+        {onAddLocation && (
+          <Button
+            size="sm"
+            onClick={onAddLocation}
+            className="animate-in fade-in-50"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Location
+          </Button>
+        )}
       </div>
-    </ShadcnSidebar>
+
+      <ScrollArea className="h-[calc(100vh-120px)]">
+        <div className="space-y-4 pr-4">
+          {loading ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <LocationCardSkeleton key={i} />
+            ))
+          ) : (
+            locations.map((location) => (
+              <LocationCard
+                key={location.id}
+                location={location}
+                isSelected={selectedLocation?.id === location.id}
+                onSelect={() => onSelectLocation?.(location)}
+                onRemove={() => onRemoveLocation?.(location.id)}
+              />
+            ))
+          )}
+        </div>
+      </ScrollArea>
+    </div>
   );
 };
