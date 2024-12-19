@@ -1,18 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
+import { DragDropContext } from '@hello-pangea/dnd';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Building2, UtensilsCrossed, Landmark, ShoppingBag, Theater } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card } from '@/components/ui/card';
 import { Location } from '@/types/location';
 import { Place } from '@/types/place';
-import { PlaceCard } from './places/PlaceCard';
-import { PlaceFilters } from './places/PlaceFilters';
+import { PlacesSection } from './places/PlacesSection';
+import { CustomPlaceDialog } from './places/CustomPlaceDialog';
+import { useToast } from '@/hooks/use-toast';
 
 interface FilterOptions {
   minPrice: number;
@@ -43,6 +38,8 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
     sortBy: 'rating'
   });
   const [customPlace, setCustomPlace] = useState({ name: '', type: '', notes: '' });
+  const [isCustomPlaceDialogOpen, setIsCustomPlaceDialogOpen] = useState(false);
+  const { toast } = useToast();
 
   const placeTypes = {
     hotels: 'lodging',
@@ -180,25 +177,6 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
     });
   };
 
-  const filterAndSortPlaces = (places: Place[]) => {
-    return places
-      .filter(place => 
-        place.priceLevel >= filterOptions.minPrice &&
-        place.priceLevel <= filterOptions.maxPrice &&
-        place.rating >= filterOptions.minRating
-      )
-      .sort((a, b) => {
-        switch (filterOptions.sortBy) {
-          case 'rating':
-            return b.rating - a.rating;
-          case 'price':
-            return a.priceLevel - b.priceLevel;
-          default:
-            return 0;
-        }
-      });
-  };
-
   const handleAddCustomPlace = () => {
     const newPlace: Place = {
       id: `custom-${Date.now()}`,
@@ -216,74 +194,16 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
     }));
 
     setCustomPlace({ name: '', type: '', notes: '' });
+    setIsCustomPlaceDialogOpen(false);
+    
+    toast({
+      title: "Custom place added",
+      description: `${newPlace.name} has been added to your places.`,
+    });
   };
 
-  const renderPlacesSection = (categoryPlaces: Place[], icon: React.ReactNode) => {
-    const filteredPlaces = filterAndSortPlaces(categoryPlaces);
-    
-    if (loading) {
-      return (
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <Card key={i}>
-              <div className="flex flex-col md:flex-row">
-                <div className="md:w-1/3">
-                  <Skeleton className="h-48 md:h-full" />
-                </div>
-                <div className="flex-1 p-6">
-                  <div className="space-y-4">
-                    <Skeleton className="h-6 w-2/3" />
-                    <Skeleton className="h-4 w-1/2" />
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-20 w-full" />
-                  </div>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      );
-    }
-
-    return (
-      <div className="space-y-4">
-        <PlaceFilters
-          filterOptions={filterOptions}
-          onFilterChange={(newOptions) => setFilterOptions(prev => ({ ...prev, ...newOptions }))}
-        />
-        
-        <ScrollArea className="h-[calc(100vh-22rem)]">
-          <Droppable droppableId={categoryPlaces[0]?.types[0] || 'default'}>
-            {(provided) => (
-              <div
-                ref={provided.innerRef}
-                {...provided.droppableProps}
-                className="p-1"
-              >
-                {filteredPlaces.map((place, index) => (
-                  <Draggable key={place.id} draggableId={place.id} index={index}>
-                    {(provided) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                      >
-                        <PlaceCard
-                          place={place}
-                          isFavorite={favorites.has(place.id)}
-                          onToggleFavorite={toggleFavorite}
-                        />
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </ScrollArea>
-      </div>
-    );
+  const handleCustomPlaceChange = (field: string, value: string) => {
+    setCustomPlace(prev => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -293,59 +213,23 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
           <h2 className="text-2xl font-bold tracking-tight">Places Near {location.name}</h2>
           <p className="text-muted-foreground mt-1">Discover the best local spots and attractions</p>
         </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="shrink-0">
-              <Building2 className="h-4 w-4 mr-2" />
-              Add Custom Place
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add Custom Place</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 pt-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Place Name</label>
-                <Input
-                  placeholder="Enter place name"
-                  value={customPlace.name}
-                  onChange={(e) => setCustomPlace(prev => ({ ...prev, name: e.target.value }))}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Category</label>
-                <Select
-                  value={customPlace.type}
-                  onValueChange={(value) => setCustomPlace(prev => ({ ...prev, type: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.keys(placeTypes).map(type => (
-                      <SelectItem key={type} value={type}>
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Notes</label>
-                <Input
-                  placeholder="Add any notes about this place"
-                  value={customPlace.notes}
-                  onChange={(e) => setCustomPlace(prev => ({ ...prev, notes: e.target.value }))}
-                />
-              </div>
-              <Button onClick={handleAddCustomPlace} className="w-full">
-                Add Place
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <Button 
+          className="shrink-0"
+          onClick={() => setIsCustomPlaceDialogOpen(true)}
+        >
+          <Building2 className="h-4 w-4 mr-2" />
+          Add Custom Place
+        </Button>
       </div>
+
+      <CustomPlaceDialog
+        open={isCustomPlaceDialogOpen}
+        onOpenChange={setIsCustomPlaceDialogOpen}
+        customPlace={customPlace}
+        onCustomPlaceChange={handleCustomPlaceChange}
+        onAddCustomPlace={handleAddCustomPlace}
+        placeTypes={placeTypes}
+      />
 
       <DragDropContext onDragEnd={handleDragEnd}>
         <Tabs defaultValue="hotels" className="w-full">
@@ -374,7 +258,15 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
 
           {Object.entries(places).map(([category, categoryPlaces]) => (
             <TabsContent key={category} value={category} className="mt-6">
-              {renderPlacesSection(categoryPlaces, <Building2 />)}
+              <PlacesSection
+                loading={loading}
+                categoryPlaces={categoryPlaces}
+                categoryId={category}
+                favorites={favorites}
+                filterOptions={filterOptions}
+                onToggleFavorite={toggleFavorite}
+                onFilterChange={(newOptions) => setFilterOptions(prev => ({ ...prev, ...newOptions }))}
+              />
             </TabsContent>
           ))}
         </Tabs>
