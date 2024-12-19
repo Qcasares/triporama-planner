@@ -1,25 +1,113 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
+import { GoogleMap, useLoadScript, Marker, DirectionsRenderer } from '@react-google-maps/api';
 import { Location } from './TripPlanner';
-import { MapPin } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Skeleton } from './ui/skeleton';
 
 interface MapContainerProps {
   locations: Location[];
 }
 
+const mapContainerStyle = {
+  width: '100%',
+  height: '100%',
+  borderRadius: '0.75rem',
+};
+
+const defaultCenter = {
+  lat: 37.7749, // San Francisco coordinates as default
+  lng: -122.4194,
+};
+
 export const MapContainer = ({ locations }: MapContainerProps) => {
-  return (
-    <div className="map-container relative">
-      <div className="absolute inset-0 bg-gradient-to-br from-sage-50 to-sage-100 rounded-xl flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <MapPin className="w-12 h-12 text-sage-500 mx-auto animate-bounce" />
-          <div className="space-y-2">
-            <p className="text-xl font-semibold text-sage-700">Map Integration Coming Soon</p>
-            <p className="text-sage-500 max-w-md mx-auto">
-              Add locations from the sidebar to start planning your journey
-            </p>
-          </div>
-        </div>
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY || '',
+    libraries: ['places'],
+  });
+
+  const center = useMemo(() => {
+    if (locations.length === 0) return defaultCenter;
+    
+    // Calculate the center point of all locations
+    const bounds = new google.maps.LatLngBounds();
+    locations.forEach(location => {
+      bounds.extend({ lat: location.lat, lng: location.lng });
+    });
+    
+    return bounds.getCenter().toJSON();
+  }, [locations]);
+
+  const onLoad = useCallback((map: google.maps.Map) => {
+    if (locations.length > 0) {
+      const bounds = new google.maps.LatLngBounds();
+      locations.forEach(location => {
+        bounds.extend({ lat: location.lat, lng: location.lng });
+      });
+      map.fitBounds(bounds);
+    }
+  }, [locations]);
+
+  if (loadError) {
+    return (
+      <div className="map-container flex items-center justify-center bg-destructive/10">
+        <p className="text-destructive">Error loading maps</p>
       </div>
+    );
+  }
+
+  if (!isLoaded) {
+    return (
+      <div className="map-container">
+        <Skeleton className="w-full h-full" />
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn("map-container relative")}>
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        zoom={locations.length === 0 ? 12 : undefined}
+        center={center}
+        onLoad={onLoad}
+        options={{
+          styles: [
+            {
+              featureType: "all",
+              elementType: "geometry",
+              stylers: [{ color: "#f5f5f5" }],
+            },
+            {
+              featureType: "water",
+              elementType: "geometry",
+              stylers: [{ color: "#c8d7d4" }],
+            },
+            {
+              featureType: "water",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#515c6d" }],
+            },
+          ],
+          disableDefaultUI: false,
+          zoomControl: true,
+          mapTypeControl: false,
+          streetViewControl: true,
+          fullscreenControl: true,
+        }}
+      >
+        {locations.map((location, index) => (
+          <Marker
+            key={location.id}
+            position={{ lat: location.lat, lng: location.lng }}
+            label={{
+              text: (index + 1).toString(),
+              color: '#ffffff',
+              fontWeight: 'bold',
+            }}
+            title={location.name}
+          />
+        ))}
+      </GoogleMap>
     </div>
   );
 };
