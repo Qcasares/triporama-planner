@@ -10,10 +10,11 @@ interface MapContainerProps {
   className?: string;
 }
 
-// Move libraries array outside component to prevent unnecessary reloads
+// Define libraries array outside component to prevent unnecessary reloads
 const GOOGLE_MAPS_LIBRARIES: ("places" | "drawing" | "geometry" | "visualization")[] = ["places"];
 
 export const MapContainer = ({ locations, className }: MapContainerProps) => {
+  // Use state to store API key but don't update it
   const [apiKey] = React.useState(() => localStorage.getItem('googleMapsApiKey') || '');
   const { mapRef } = useMap(locations);
 

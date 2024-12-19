@@ -9,15 +9,19 @@ interface LocationSearchProps {
   onLocationSelect: (location: Location) => void;
 }
 
+// Define libraries array outside component to prevent unnecessary reloads
+const GOOGLE_MAPS_LIBRARIES: ("places" | "drawing" | "geometry" | "visualization")[] = ["places"];
+
 export const LocationSearch = ({ onLocationSelect }: LocationSearchProps) => {
   const [searchInput, setSearchInput] = useState('');
   const autoCompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  // Use state to store API key but don't update it
   const [apiKey] = useState(() => localStorage.getItem('googleMapsApiKey') || '');
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: apiKey,
-    libraries: ['places'],
+    libraries: GOOGLE_MAPS_LIBRARIES,
   });
 
   useEffect(() => {
