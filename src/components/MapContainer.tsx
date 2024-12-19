@@ -1,27 +1,16 @@
 import React, { useCallback, useMemo, useState, useEffect } from 'react';
-import { GoogleMap, useLoadScript, Marker, DirectionsRenderer } from '@react-google-maps/api';
+import { GoogleMap, useLoadScript } from '@react-google-maps/api';
 import { Location } from './TripPlanner';
 import { cn } from '@/lib/utils';
 import { Skeleton } from './ui/skeleton';
 import { ApiKeyInput } from './ApiKeyInput';
+import { libraries, mapContainerStyle, defaultCenter, mapOptions } from './map/MapConfig';
+import { DirectionsLayer } from './map/DirectionsLayer';
+import { LocationMarkers } from './map/LocationMarkers';
 
 interface MapContainerProps {
   locations: Location[];
 }
-
-const mapContainerStyle = {
-  width: '100%',
-  height: '100%',
-  borderRadius: '0.75rem',
-};
-
-const defaultCenter = {
-  lat: 37.7749,
-  lng: -122.4194,
-};
-
-// Define libraries array outside component to prevent unnecessary reloads
-const libraries: ("places")[] = ["places"];
 
 export const MapContainer = ({ locations }: MapContainerProps) => {
   const [apiKey] = useState(() => localStorage.getItem('googleMapsApiKey') || '');
@@ -116,55 +105,10 @@ export const MapContainer = ({ locations }: MapContainerProps) => {
         zoom={locations.length === 0 ? 12 : undefined}
         center={center}
         onLoad={onLoad}
-        options={{
-          styles: [
-            {
-              featureType: "all",
-              elementType: "geometry",
-              stylers: [{ color: "#f5f5f5" }],
-            },
-            {
-              featureType: "water",
-              elementType: "geometry",
-              stylers: [{ color: "#c8d7d4" }],
-            },
-            {
-              featureType: "water",
-              elementType: "labels.text.fill",
-              stylers: [{ color: "#515c6d" }],
-            },
-          ],
-          disableDefaultUI: false,
-          zoomControl: true,
-          mapTypeControl: false,
-          streetViewControl: true,
-          fullscreenControl: true,
-        }}
+        options={mapOptions}
       >
-        {!directions && locations.map((location, index) => (
-          <Marker
-            key={location.id}
-            position={{ lat: location.lat, lng: location.lng }}
-            label={{
-              text: (index + 1).toString(),
-              color: '#ffffff',
-              fontWeight: 'bold',
-            }}
-            title={location.name}
-          />
-        ))}
-        {directions && (
-          <DirectionsRenderer
-            directions={directions}
-            options={{
-              suppressMarkers: false,
-              polylineOptions: {
-                strokeColor: '#4A90E2',
-                strokeWeight: 4,
-              },
-            }}
-          />
-        )}
+        {!directions && <LocationMarkers locations={locations} />}
+        {directions && <DirectionsLayer directions={directions} />}
       </GoogleMap>
     </div>
   );
