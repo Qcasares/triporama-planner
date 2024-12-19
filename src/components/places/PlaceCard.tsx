@@ -2,16 +2,17 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Building2, Heart, HeartOff, Star } from 'lucide-react';
+import { Building2, Heart, HeartOff, Star, MapPin } from 'lucide-react';
 import { Place } from '@/types/place';
 
 interface PlaceCardProps {
   place: Place;
   isFavorite: boolean;
   onToggleFavorite: (placeId: string) => void;
+  distance?: number;
 }
 
-export const PlaceCard = ({ place, isFavorite, onToggleFavorite }: PlaceCardProps) => {
+export const PlaceCard = ({ place, isFavorite, onToggleFavorite, distance }: PlaceCardProps) => {
   const photoUrl = place.photos?.[0]?.getUrl({ maxWidth: 400, maxHeight: 300 });
   const priceLevel = '💰'.repeat(place.priceLevel || 1);
 
@@ -54,12 +55,18 @@ export const PlaceCard = ({ place, isFavorite, onToggleFavorite }: PlaceCardProp
               <p className="text-sm text-muted-foreground mt-1">{place.vicinity}</p>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
               <div className="flex items-center gap-1">
                 <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                 <span className="text-sm font-medium">{place.rating.toFixed(1)}</span>
               </div>
               <span className="text-sm font-medium text-emerald-600">{priceLevel}</span>
+              {distance !== undefined && distance !== Infinity && (
+                <div className="flex items-center gap-1 text-blue-600">
+                  <MapPin className="h-4 w-4" />
+                  <span className="text-sm font-medium">{distance.toFixed(1)} km</span>
+                </div>
+              )}
               {place.openingHours?.isOpen !== undefined && (
                 <span className={`text-sm font-medium ${place.openingHours.isOpen ? 'text-green-600' : 'text-red-600'}`}>
                   {place.openingHours.isOpen ? 'Open Now' : 'Closed'}
