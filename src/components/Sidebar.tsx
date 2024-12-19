@@ -1,6 +1,6 @@
 import React from 'react';
 import { ChevronLeft, GripVertical, Trash2, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
 import { LocationSearch } from './LocationSearch';
@@ -31,9 +31,15 @@ export const Sidebar = ({
   isSummaryOpen,
   toggleSummary,
 }: SidebarProps) => {
-  const handleDragEnd = (result: any) => {
+  const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
-    onReorderLocations(result.source.index, result.destination.index);
+    
+    const sourceIndex = result.source.index;
+    const destinationIndex = result.destination.index;
+    
+    if (sourceIndex === destinationIndex) return;
+    
+    onReorderLocations(sourceIndex, destinationIndex);
   };
 
   return (
@@ -55,7 +61,11 @@ export const Sidebar = ({
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="locations">
               {(provided) => (
-                <div {...provided.droppableProps} ref={provided.innerRef}>
+                <div 
+                  {...provided.droppableProps} 
+                  ref={provided.innerRef}
+                  className="space-y-3"
+                >
                   {locations.map((location, index) => (
                     <Draggable
                       key={location.id}
@@ -67,7 +77,7 @@ export const Sidebar = ({
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           className={cn(
-                            'group mb-3 rounded-lg border bg-card p-4 shadow-sm transition-all',
+                            'group rounded-lg border bg-card p-4 shadow-sm transition-all',
                             snapshot.isDragging && 'rotate-2 scale-105'
                           )}
                         >
