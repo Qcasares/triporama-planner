@@ -26,13 +26,26 @@ export const PlacesList = ({
 }: PlacesListProps) => {
   const parentRef = React.useRef<HTMLDivElement>(null);
 
+  console.log('PlacesList - Initial places:', places);
+  console.log('PlacesList - Filter options:', filterOptions);
+
   const filteredPlaces = React.useMemo(() => {
-    return places
-      .filter(place => 
-        place.priceLevel >= filterOptions.minPrice &&
-        place.priceLevel <= filterOptions.maxPrice &&
-        place.rating >= filterOptions.minRating
-      )
+    const filtered = places
+      .filter(place => {
+        const meetsPrice = place.priceLevel >= filterOptions.minPrice &&
+                          place.priceLevel <= filterOptions.maxPrice;
+        const meetsRating = place.rating >= filterOptions.minRating;
+        
+        console.log('Filtering place:', {
+          name: place.name,
+          priceLevel: place.priceLevel,
+          rating: place.rating,
+          meetsPrice,
+          meetsRating
+        });
+        
+        return meetsPrice && meetsRating;
+      })
       .sort((a, b) => {
         switch (filterOptions.sortBy) {
           case 'rating':
@@ -43,6 +56,9 @@ export const PlacesList = ({
             return 0;
         }
       });
+
+    console.log('PlacesList - Filtered places:', filtered);
+    return filtered;
   }, [places, filterOptions]);
 
   const rowVirtualizer = useVirtualizer({
@@ -51,6 +67,28 @@ export const PlacesList = ({
     estimateSize: () => 200,
     overscan: 5,
   });
+
+  if (places.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        No places found in this area
+      </div>
+    );
+  }
+
+  if (filteredPlaces.length === 0) {
+    return (
+      <div className="space-y-4">
+        <PlaceFilters
+          filterOptions={filterOptions}
+          onFilterChange={onFilterChange}
+        />
+        <div className="text-center py-8 text-muted-foreground">
+          No places match the current filters
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
