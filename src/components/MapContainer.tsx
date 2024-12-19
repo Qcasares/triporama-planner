@@ -20,13 +20,16 @@ const defaultCenter = {
   lng: -122.4194,
 };
 
+// Define libraries array outside component to prevent unnecessary reloads
+const libraries: ("places")[] = ["places"];
+
 export const MapContainer = ({ locations }: MapContainerProps) => {
   const [apiKey] = useState(() => localStorage.getItem('googleMapsApiKey') || '');
   const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
   
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: apiKey,
-    libraries: ['places'],
+    libraries,
   });
 
   const center = useMemo(() => {
