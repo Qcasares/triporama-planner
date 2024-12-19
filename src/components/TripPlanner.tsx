@@ -2,8 +2,6 @@ import React from 'react';
 import { MapContainer } from '@/components/MapContainer';
 import { Sidebar } from '@/components/Sidebar';
 import { TravelRecommendations } from '@/components/TravelRecommendations';
-import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp } from 'lucide-react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { useGeolocation } from '@/hooks/use-geolocation';
 import { useTripPlanner } from '@/hooks/use-trip-planner';
@@ -44,7 +42,7 @@ export const TripPlanner = () => {
   }, [geoError, toast]);
 
   return (
-    <div className="flex min-h-screen bg-sage-50">
+    <div className="flex min-h-screen bg-background">
       <SidebarProvider>
         <div className="flex w-full">
           <Sidebar
@@ -57,16 +55,14 @@ export const TripPlanner = () => {
             toggleSummary={toggleSummary}
           />
           <main className="flex-1 p-6">
-            <div className="grid grid-rows-[1fr,auto] gap-6 h-[calc(100vh-3rem)]">
-              <div className="rounded-xl overflow-hidden shadow-lg border border-sage-100">
-                <MapContainer locations={locations} />
-              </div>
+            <div className="space-y-6">
+              <MapContainer locations={locations} />
               
-              <div className="rounded-xl overflow-hidden shadow-lg border border-sage-100">
+              <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100 bg-white p-4">
                 {selectedLocation ? (
                   <TravelRecommendations location={selectedLocation} />
                 ) : (
-                  <div className="flex items-center justify-center h-full text-sage-500">
+                  <div className="flex items-center justify-center h-32 text-muted-foreground">
                     Select a location to see travel recommendations
                   </div>
                 )}

@@ -18,7 +18,7 @@ export const MapContainer = ({ locations, className }: MapContainerProps) => {
 
   if (!apiKey) {
     return (
-      <div className="flex items-center justify-center h-full bg-muted rounded-xl">
+      <div className="flex items-center justify-center h-[500px] bg-muted rounded-xl">
         <p className="text-muted-foreground">Please set your Google Maps API key first</p>
       </div>
     );
@@ -32,9 +32,9 @@ export const MapContainer = ({ locations, className }: MapContainerProps) => {
       <div 
         ref={mapRef} 
         className={cn(
-          "w-full h-full min-h-[400px] rounded-xl overflow-hidden",
+          "w-full h-[500px] rounded-xl overflow-hidden",
           "transition-all duration-300",
-          "shadow-inner border border-purple-100",
+          "shadow-lg border border-purple-100",
           className
         )}
         role="region"
