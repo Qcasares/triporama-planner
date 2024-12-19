@@ -51,25 +51,33 @@ export const useMap = (locations: Location[]) => {
     });
   }, [locations]);
 
-  // Update markers when locations change
+  // Update markers and bounds when locations change
   useEffect(() => {
     if (!mapState.map || !window.google) return;
 
     // Clear existing markers
     mapState.markers.forEach(marker => marker.setMap(null));
 
-    // Create new markers
+    if (locations.length === 0) return;
+
+    // Create bounds object
+    const bounds = new google.maps.LatLngBounds();
+
+    // Create new markers and extend bounds
     const newMarkers = locations.map((location, index) => {
       if (typeof location.lat !== 'number' || typeof location.lng !== 'number') {
         console.error('Invalid coordinates for location:', location);
         return null;
       }
 
+      const position = new google.maps.LatLng(location.lat, location.lng);
+      bounds.extend(position);
+
       const isFirst = index === 0;
       const isLast = index === locations.length - 1;
 
       return new google.maps.Marker({
-        position: { lat: location.lat, lng: location.lng },
+        position,
         map: mapState.map,
         title: location.name,
         icon: {
@@ -89,16 +97,14 @@ export const useMap = (locations: Location[]) => {
       markers: newMarkers
     }));
 
-    // Fit bounds to show all markers
+    // Fit bounds with padding
     if (newMarkers.length > 0) {
-      const bounds = new google.maps.LatLngBounds();
-      newMarkers.forEach(marker => {
-        const position = marker.getPosition();
-        if (position) {
-          bounds.extend(position);
-        }
+      mapState.map.fitBounds(bounds, {
+        top: 50,
+        right: 50,
+        bottom: 50,
+        left: 50
       });
-      mapState.map.fitBounds(bounds, 50);
     }
   }, [locations, mapState.map]);
 
