@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapContainer } from './MapContainer';
 import { Sidebar } from './Sidebar';
 import { TravelRecommendations } from './TravelRecommendations';
@@ -18,6 +18,60 @@ export const TripPlanner = () => {
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const { latitude, longitude } = position.coords;
+            const response = await fetch(
+              `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${localStorage.getItem('googleMapsApiKey')}`
+            );
+            const data = await response.json();
+            
+            if (data.results && data.results[0]) {
+              const currentLocation: Location = {
+                id: 'current-location',
+                name: data.results[0].formatted_address,
+                lat: latitude,
+                lng: longitude,
+              };
+              
+              setLocations([currentLocation]);
+              setSelectedLocation(currentLocation);
+              
+              toast({
+                title: "Location detected",
+                description: "Your current location has been added as the starting point.",
+              });
+            }
+          } catch (error) {
+            console.error('Error getting location details:', error);
+            toast({
+              title: "Location error",
+              description: "Could not determine your current location.",
+              variant: "destructive",
+            });
+          }
+        },
+        (error) => {
+          console.error('Geolocation error:', error);
+          toast({
+            title: "Location access denied",
+            description: "Please enable location access to use your current position.",
+            variant: "destructive",
+          });
+        }
+      );
+    } else {
+      toast({
+        title: "Geolocation not supported",
+        description: "Your browser doesn't support geolocation.",
+        variant: "destructive",
+      });
+    }
+  }, [toast]);
 
   const handleAddLocation = (location: Location) => {
     setLocations([...locations, location]);
