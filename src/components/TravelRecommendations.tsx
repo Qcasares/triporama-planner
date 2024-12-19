@@ -415,7 +415,7 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Places Near {location.name}</h2>
+          <h2 className="text-2xl font-bold tracking-tight">Places Near {location.name}</h2>
           <p className="text-muted-foreground mt-1">Discover the best local spots and attractions</p>
         </div>
         <Dialog>
