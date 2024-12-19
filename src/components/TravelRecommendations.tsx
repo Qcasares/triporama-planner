@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { ScrollArea } from './ui/scroll-area';
 import { Skeleton } from './ui/skeleton';
 import { Building2, UtensilsCrossed, Landmark } from 'lucide-react';
 import { Location } from './TripPlanner';
@@ -41,7 +42,7 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
       const request = {
         location: { lat: location.lat, lng: location.lng },
         radius: 16000, // 10 miles in meters
-        type: type as google.maps.places.PlaceType,
+        type,
         rankBy: google.maps.places.RankBy.RATING,
       };
 
@@ -131,9 +132,11 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
     }
 
     return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {places.map(renderPlaceCard)}
-      </div>
+      <ScrollArea className="h-[calc(100vh-15rem)]">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 p-1">
+          {places.map(renderPlaceCard)}
+        </div>
+      </ScrollArea>
     );
   };
 
