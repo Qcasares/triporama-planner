@@ -41,6 +41,13 @@ export const PlacesContainer = ({
     sortBy: 'rating'
   });
 
+  const handleFilterChange = (newOptions: Partial<FilterOptions>) => {
+    setFilterOptions(prev => ({
+      ...prev,
+      ...newOptions
+    }));
+  };
+
   const toggleFavorite = (placeId: string) => {
     setFavorites(prev => {
       const newFavorites = new Set(prev);
@@ -61,8 +68,6 @@ export const PlacesContainer = ({
     const destinationIndex = result.destination.index;
     
     if (sourceIndex === destinationIndex) return;
-    
-    // Handle reordering logic here
   };
 
   const placeTypes = {
@@ -133,7 +138,7 @@ export const PlacesContainer = ({
                   favorites={favorites}
                   filterOptions={filterOptions}
                   onToggleFavorite={toggleFavorite}
-                  onFilterChange={setFilterOptions}
+                  onFilterChange={handleFilterChange}
                 />
               </TabsContent>
             ))}
