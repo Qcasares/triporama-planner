@@ -27,6 +27,7 @@ interface Place {
   types: string[];
   reviews?: google.maps.places.PlaceReview[];
   userRating?: number;
+  notes?: string;
 }
 
 interface FilterOptions {
@@ -101,7 +102,7 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
         location: { lat: location.lat, lng: location.lng },
         radius: 16000, // 10 miles in meters
         type,
-        rankBy: google.maps.places.RankBy.RATING,
+        rankBy: google.maps.places.RankBy.PROMINENCE,
       };
 
       return new Promise<Place[]>(async (resolve, reject) => {
