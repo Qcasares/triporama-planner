@@ -9,10 +9,9 @@ import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Calendar as CalendarComponent } from './ui/calendar';
 import { format } from 'date-fns';
+import { Sidebar as ShadcnSidebar, SidebarContent, SidebarTrigger } from './sidebar/components/base';
 
 interface SidebarProps {
-  isOpen: boolean;
-  onToggle: () => void;
   locations: Location[];
   onAddLocation: (location: Location) => void;
   onRemoveLocation: (locationId: string) => void;
@@ -21,8 +20,6 @@ interface SidebarProps {
 }
 
 export const Sidebar = ({
-  isOpen,
-  onToggle,
   locations,
   onAddLocation,
   onRemoveLocation,
@@ -35,18 +32,11 @@ export const Sidebar = ({
   };
 
   return (
-    <aside
-      className={cn(
-        'fixed left-0 top-0 z-30 h-screen w-96 transform bg-background transition-transform duration-300 ease-in-out',
-        isOpen ? 'translate-x-0' : '-translate-x-full'
-      )}
-    >
-      <div className="flex h-full flex-col border-r">
+    <ShadcnSidebar>
+      <SidebarContent>
         <div className="flex items-center justify-between border-b p-4">
           <h2 className="text-lg font-semibold">Trip Itinerary</h2>
-          <Button variant="ghost" size="icon" onClick={onToggle}>
-            <ChevronLeft className="h-5 w-5" />
-          </Button>
+          <SidebarTrigger />
         </div>
 
         <div className="p-4">
@@ -152,7 +142,7 @@ export const Sidebar = ({
             </Droppable>
           </DragDropContext>
         </ScrollArea>
-      </div>
-    </aside>
+      </SidebarContent>
+    </ShadcnSidebar>
   );
 };
