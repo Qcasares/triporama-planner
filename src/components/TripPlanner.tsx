@@ -6,6 +6,7 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { useGeolocation } from '@/hooks/use-geolocation';
 import { useTripPlanner } from '@/hooks/use-trip-planner';
 import { useToast } from '@/hooks/use-toast';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export const TripPlanner = () => {
   const { currentLocation, error: geoError } = useGeolocation();
@@ -54,20 +55,25 @@ export const TripPlanner = () => {
             isSummaryOpen={isSummaryOpen}
             toggleSummary={toggleSummary}
           />
-          <main className="flex-1 p-6">
-            <div className="space-y-6">
-              <MapContainer locations={locations} />
-              
-              <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100 bg-white p-4">
+          <main className="flex-1 space-y-6 p-8 bg-gray-50/50">
+            <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100 bg-white">
+              <MapContainer 
+                locations={locations} 
+                className="h-[400px] w-full transition-all duration-300 hover:shadow-xl"
+              />
+            </div>
+            
+            <ScrollArea className="h-[calc(100vh-520px)]">
+              <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100 bg-white">
                 {selectedLocation ? (
                   <TravelRecommendations location={selectedLocation} />
                 ) : (
-                  <div className="flex items-center justify-center h-32 text-muted-foreground">
+                  <div className="flex items-center justify-center h-32 text-muted-foreground bg-white/50 backdrop-blur-sm">
                     Select a location to see travel recommendations
                   </div>
                 )}
               </div>
-            </div>
+            </ScrollArea>
           </main>
         </div>
       </SidebarProvider>
