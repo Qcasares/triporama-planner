@@ -1,8 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from '@/components/ui/command';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Map, List, Home, Settings } from 'lucide-react';
 import { Location } from '@/types/location';
+import { useToast } from '@/hooks/use-toast';
 
 interface CommandMenuProps {
   locations: Location[];
@@ -14,6 +15,7 @@ interface CommandMenuProps {
 export const CommandMenu = ({ locations, onAddLocation, isSummaryOpen, toggleSummary }: CommandMenuProps) => {
   const [open, setOpen] = React.useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -21,17 +23,50 @@ export const CommandMenu = ({ locations, onAddLocation, isSummaryOpen, toggleSum
         e.preventDefault();
         setOpen((open) => !open);
       }
+      // Add location shortcut
+      if (e.key === 'n' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        onAddLocation({
+          id: String(Date.now()),
+          name: 'New Location',
+          lat: 0,
+          lng: 0,
+        });
+        toast({
+          title: "Shortcut activated",
+          description: "New location added (Cmd/Ctrl + N)",
+        });
+      }
+      // Toggle summary shortcut
+      if (e.key === 's' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        toggleSummary();
+        toast({
+          title: "Shortcut activated",
+          description: "Summary toggled (Cmd/Ctrl + S)",
+        });
+      }
     };
 
     document.addEventListener('keydown', down);
     return () => document.removeEventListener('keydown', down);
-  }, []);
+  }, [onAddLocation, toggleSummary, toast]);
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
       <CommandInput placeholder="Type a command or search..." />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
+
+        <CommandGroup heading="Navigation">
+          <CommandItem onSelect={() => {
+            setOpen(false);
+            navigate('/');
+          }}>
+            <Home className="mr-2 h-4 w-4" />
+            Go to Home
+          </CommandItem>
+        </CommandGroup>
 
         <CommandGroup heading="Actions">
           <CommandItem
@@ -46,7 +81,7 @@ export const CommandMenu = ({ locations, onAddLocation, isSummaryOpen, toggleSum
             }}
           >
             <PlusCircle className="mr-2 h-4 w-4" />
-            Add New Location
+            Add New Location (⌘/Ctrl + N)
           </CommandItem>
 
           <CommandItem
@@ -55,7 +90,8 @@ export const CommandMenu = ({ locations, onAddLocation, isSummaryOpen, toggleSum
               toggleSummary();
             }}
           >
-            Toggle Summary
+            <List className="mr-2 h-4 w-4" />
+            Toggle Summary (⌘/Ctrl + S)
           </CommandItem>
         </CommandGroup>
       </CommandList>

@@ -3,6 +3,8 @@ import { MapContainer } from '@/components/MapContainer';
 import { Sidebar } from '@/components/Sidebar';
 import { TravelRecommendations } from '@/components/TravelRecommendations';
 import { CommandMenu } from '@/components/CommandMenu';
+import { NavigationBreadcrumb } from '@/components/NavigationBreadcrumb';
+import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { useGeolocation } from '@/hooks/use-geolocation';
 import { useTripPlanner } from '@/hooks/use-trip-planner';
@@ -125,6 +127,8 @@ export const TripPlanner = () => {
           )}
           
           <main className="flex-1 space-y-6 p-4 md:p-8 bg-gray-50/50">
+            <NavigationBreadcrumb />
+            
             <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100 bg-white transition-all duration-300 hover:shadow-xl">
               <MapContainer 
                 locations={locations} 
@@ -144,6 +148,8 @@ export const TripPlanner = () => {
               </div>
             </ScrollArea>
           </main>
+          
+          {!isMobile && <FloatingActionButton onAddLocation={handleAddLocation} />}
         </div>
       </SidebarProvider>
     </div>
