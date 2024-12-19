@@ -13,6 +13,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Progress } from '@/components/ui/progress';
 
 export const TripPlanner = () => {
   const { currentLocation, error: geoError } = useGeolocation();
@@ -31,11 +32,15 @@ export const TripPlanner = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = React.useState(false);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     if (currentLocation && locations.length === 0) {
       addLocation(currentLocation);
     }
+    // Simulate loading for demonstration
+    const timer = setTimeout(() => setLoading(false), 1000);
+    return () => clearTimeout(timer);
   }, [currentLocation, locations.length, addLocation]);
 
   React.useEffect(() => {
@@ -48,18 +53,28 @@ export const TripPlanner = () => {
     }
   }, [geoError, toast]);
 
-  const handleAddLocation = (location: Location) => {
+  const handleAddLocation = React.useCallback((location: Location) => {
     addLocation(location);
+    toast({
+      title: "Location added",
+      description: `${location.name} has been added to your trip.`,
+      className: "animate-in fade-in-50 slide-in-from-bottom-5",
+    });
     if (isMobile) {
       setIsOpen(false);
     }
-  };
+  }, [addLocation, isMobile, toast]);
 
   const SidebarContent = () => (
     <Sidebar
       locations={locations}
       selectedLocation={selectedLocation}
-      onAddLocation={handleAddLocation}
+      onAddLocation={() => handleAddLocation({
+        id: String(Date.now()),
+        name: 'New Location',
+        lat: 0,
+        lng: 0,
+      })}
       onRemoveLocation={removeLocation}
       onSelectLocation={selectLocation}
       onReorderLocations={reorderLocations}
@@ -69,8 +84,19 @@ export const TripPlanner = () => {
     />
   );
 
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <div className="w-full max-w-md space-y-4">
+          <Progress value={33} className="animate-pulse" />
+          <h2 className="text-center text-lg font-medium">Loading your trip planner...</h2>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen bg-background animate-in fade-in-50">
       <CommandMenu
         locations={locations}
         onAddLocation={handleAddLocation}
@@ -85,7 +111,7 @@ export const TripPlanner = () => {
                 <Button 
                   variant="ghost" 
                   size="icon"
-                  className="fixed left-4 top-4 z-50 md:hidden"
+                  className="fixed left-4 top-4 z-50 md:hidden animate-in fade-in-50"
                 >
                   <Menu className="h-5 w-5" />
                 </Button>
@@ -99,19 +125,19 @@ export const TripPlanner = () => {
           )}
           
           <main className="flex-1 space-y-6 p-4 md:p-8 bg-gray-50/50">
-            <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100 bg-white">
+            <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100 bg-white transition-all duration-300 hover:shadow-xl">
               <MapContainer 
                 locations={locations} 
-                className="h-[300px] md:h-[400px] w-full transition-all duration-300 hover:shadow-xl"
+                className="h-[300px] md:h-[400px] w-full transition-all duration-300"
               />
             </div>
             
             <ScrollArea className="h-[calc(100vh-450px)] md:h-[calc(100vh-520px)]">
-              <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100 bg-white">
+              <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100 bg-white transition-all duration-300 hover:shadow-xl">
                 {selectedLocation ? (
                   <TravelRecommendations location={selectedLocation} />
                 ) : (
-                  <div className="flex items-center justify-center h-32 text-muted-foreground bg-white/50 backdrop-blur-sm">
+                  <div className="flex items-center justify-center h-32 text-muted-foreground bg-white/50 backdrop-blur-sm animate-in fade-in-50">
                     Select a location to see travel recommendations
                   </div>
                 )}
