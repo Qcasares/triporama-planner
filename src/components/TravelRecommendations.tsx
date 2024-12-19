@@ -1,23 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Location } from '@/types/location';
 import { Place } from '@/types/place';
 import { FilterOptions } from '@/types/filters';
 import { useToast } from '@/hooks/use-toast';
 import { PlacesContainer } from './places/PlacesContainer';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface TravelRecommendationsProps {
   location: Location;
 }
 
 export const TravelRecommendations = ({ location }: TravelRecommendationsProps) => {
-  const [places, setPlaces] = useState<Record<string, Place[]>>({
-    hotels: [],
-    restaurants: [],
-    attractions: [],
-    shopping: [],
-    entertainment: []
-  });
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [apiKey] = useState(() => localStorage.getItem('googleMapsApiKey') || '');
   const [favorites, setFavorites] = useState<Set<string>>(new Set(JSON.parse(localStorage.getItem('favorites') || '[]')));
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
@@ -69,7 +63,7 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
 
     const request = {
       location: { lat: location.lat, lng: location.lng },
-      radius: 16000, // 10 miles in meters
+      radius: 16000,
       type,
       rankBy: google.maps.places.RankBy.PROMINENCE,
     };
@@ -89,6 +83,8 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
                   vicinity: place.vicinity || '',
                   photos: place.photos,
                   types: place.types || [],
+                  lat: place.geometry?.location?.lat(),
+                  lng: place.geometry?.location?.lng(),
                   ...details
                 } as Place;
               } catch (error) {
@@ -101,6 +97,8 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
                   vicinity: place.vicinity || '',
                   photos: place.photos,
                   types: place.types || [],
+                  lat: place.geometry?.location?.lat(),
+                  lng: place.geometry?.location?.lng(),
                 } as Place;
               }
             })
@@ -113,46 +111,22 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
     });
   };
 
-  const loadPlaces = async () => {
-    setLoading(true);
-    try {
+  const { data: places = {}, isLoading: loading } = useQuery({
+    queryKey: ['places', location.id, apiKey],
+    queryFn: async () => {
       const results = await Promise.all(
         Object.entries(placeTypes).map(async ([key, type]) => {
           const places = await fetchPlaces(type);
           return [key, places];
         })
       );
-      
-      setPlaces(Object.fromEntries(results));
-    } catch (error) {
-      console.error('Error fetching places:', error);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    loadPlaces();
-  }, [location, apiKey]);
-
-  useEffect(() => {
-    localStorage.setItem('favorites', JSON.stringify(Array.from(favorites)));
-  }, [favorites]);
-
-  const handleDragEnd = (result: any) => {
-    if (!result.destination) return;
-
-    const { source, destination } = result;
-    const category = source.droppableId;
-    
-    const items = Array.from(places[category]);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    setPlaces(prev => ({
-      ...prev,
-      [category]: items
-    }));
-  };
+      return Object.fromEntries(results) as Record<string, Place[]>;
+    },
+    enabled: !!location && !!apiKey,
+    staleTime: 5 * 60 * 1000, // Consider data stale after 5 minutes
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+  });
 
   const toggleFavorite = (placeId: string) => {
     setFavorites(prev => {
@@ -162,6 +136,7 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
       } else {
         newFavorites.add(placeId);
       }
+      localStorage.setItem('favorites', JSON.stringify(Array.from(newFavorites)));
       return newFavorites;
     });
   };
@@ -174,12 +149,14 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
       priceLevel: 0,
       vicinity: 'Custom Place',
       types: [customPlace.type],
-      notes: customPlace.notes
+      notes: customPlace.notes,
+      lat: location.lat,
+      lng: location.lng,
     };
 
-    setPlaces(prev => ({
-      ...prev,
-      [customPlace.type]: [...(prev[customPlace.type] || []), newPlace]
+    queryClient.setQueryData(['places', location.id, apiKey], (oldData: any) => ({
+      ...oldData,
+      [customPlace.type]: [...(oldData?.[customPlace.type] || []), newPlace]
     }));
 
     setCustomPlace({ name: '', type: '', notes: '' });
@@ -191,8 +168,20 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
     });
   };
 
-  const handleCustomPlaceChange = (field: string, value: string) => {
-    setCustomPlace(prev => ({ ...prev, [field]: value }));
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return;
+
+    const { source, destination } = result;
+    const category = source.droppableId;
+    
+    const items = Array.from(places[category] || []);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    queryClient.setQueryData(['places', location.id, apiKey], (oldData: any) => ({
+      ...oldData,
+      [category]: items
+    }));
   };
 
   return (
@@ -208,7 +197,7 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
       onToggleFavorite={toggleFavorite}
       onFilterChange={(newOptions) => setFilterOptions(prev => ({ ...prev, ...newOptions }))}
       onCustomPlaceDialogOpenChange={setIsCustomPlaceDialogOpen}
-      onCustomPlaceChange={handleCustomPlaceChange}
+      onCustomPlaceChange={(field, value) => setCustomPlace(prev => ({ ...prev, [field]: value }))}
       onAddCustomPlace={handleAddCustomPlace}
       onDragEnd={handleDragEnd}
     />
