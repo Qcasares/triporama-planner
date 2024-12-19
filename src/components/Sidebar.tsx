@@ -1,11 +1,14 @@
 import React from 'react';
-import { ChevronLeft, GripVertical, Trash2 } from 'lucide-react';
+import { ChevronLeft, GripVertical, Trash2, Calendar } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
 import { LocationSearch } from './LocationSearch';
 import { Location } from './TripPlanner';
 import { cn } from '@/lib/utils';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Calendar as CalendarComponent } from './ui/calendar';
+import { format } from 'date-fns';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -14,6 +17,7 @@ interface SidebarProps {
   onAddLocation: (location: Location) => void;
   onRemoveLocation: (locationId: string) => void;
   onReorderLocations: (startIndex: number, endIndex: number) => void;
+  onUpdateDates: (locationId: string, startDate?: Date, endDate?: Date) => void;
 }
 
 export const Sidebar = ({
@@ -23,6 +27,7 @@ export const Sidebar = ({
   onAddLocation,
   onRemoveLocation,
   onReorderLocations,
+  onUpdateDates,
 }: SidebarProps) => {
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
@@ -77,7 +82,57 @@ export const Sidebar = ({
                             </div>
                             <div className="flex-1">
                               <div className="font-medium">{location.name}</div>
+                              <div className="text-sm text-muted-foreground mt-1">
+                                {location.startDate && (
+                                  <span>
+                                    {format(location.startDate, 'MMM d, yyyy')}
+                                    {location.endDate && ' - '}
+                                  </span>
+                                )}
+                                {location.endDate && (
+                                  <span>
+                                    {format(location.endDate, 'MMM d, yyyy')}
+                                  </span>
+                                )}
+                              </div>
                             </div>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="opacity-0 group-hover:opacity-100"
+                                >
+                                  <Calendar className="h-4 w-4" />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="end">
+                                <div className="grid gap-2">
+                                  <div className="p-2">
+                                    <div className="space-y-2">
+                                      <h4 className="font-medium">Start Date</h4>
+                                      <CalendarComponent
+                                        mode="single"
+                                        selected={location.startDate}
+                                        onSelect={(date) =>
+                                          onUpdateDates(location.id, date, location.endDate)
+                                        }
+                                      />
+                                    </div>
+                                    <div className="space-y-2 mt-4">
+                                      <h4 className="font-medium">End Date</h4>
+                                      <CalendarComponent
+                                        mode="single"
+                                        selected={location.endDate}
+                                        onSelect={(date) =>
+                                          onUpdateDates(location.id, location.startDate, date)
+                                        }
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </PopoverContent>
+                            </Popover>
                             <Button
                               variant="ghost"
                               size="icon"
