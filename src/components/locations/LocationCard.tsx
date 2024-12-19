@@ -4,8 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Trash2, MapPin, Flag, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
 
 interface LocationCardProps {
   location: Location;
@@ -24,7 +22,6 @@ export const LocationCard = ({
   isEnd,
   onSelect,
   onRemove,
-  onUpdateDates,
 }: LocationCardProps) => {
   return (
     <div 
@@ -71,45 +68,6 @@ export const LocationCard = ({
         </div>
 
         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Calendar className="h-4 w-4" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="end">
-              <div className="grid gap-2">
-                <div className="p-2">
-                  <div className="space-y-2">
-                    <h4 className="font-medium">Start Date</h4>
-                    <Calendar
-                      mode="single"
-                      selected={location.startDate}
-                      onSelect={(date) =>
-                        onUpdateDates?.(location.id, date, location.endDate)
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2 mt-4">
-                    <h4 className="font-medium">End Date</h4>
-                    <Calendar
-                      mode="single"
-                      selected={location.endDate}
-                      onSelect={(date) =>
-                        onUpdateDates?.(location.id, location.startDate, date)
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-          
           {onRemove && (
             <Button
               variant="ghost"

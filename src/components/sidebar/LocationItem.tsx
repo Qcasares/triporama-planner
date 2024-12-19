@@ -1,9 +1,7 @@
 import React from 'react';
 import { Draggable } from '@hello-pangea/dnd';
 import { Button } from '../ui/button';
-import { Calendar, Trash2, GripVertical } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { Calendar as CalendarComponent } from '../ui/calendar';
+import { Trash2, GripVertical } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Location } from '@/types/location';
@@ -15,7 +13,7 @@ interface LocationItemProps {
   onUpdateDates: (locationId: string, startDate?: Date, endDate?: Date) => void;
 }
 
-export const LocationItem = ({ location, index, onRemoveLocation, onUpdateDates }: LocationItemProps) => {
+export const LocationItem = ({ location, index, onRemoveLocation }: LocationItemProps) => {
   return (
     <Draggable key={location.id} draggableId={location.id} index={index}>
       {(provided, snapshot) => (
@@ -50,43 +48,6 @@ export const LocationItem = ({ location, index, onRemoveLocation, onUpdateDates 
                 )}
               </div>
             </div>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="opacity-0 group-hover:opacity-100"
-                >
-                  <Calendar className="h-4 w-4" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="end">
-                <div className="grid gap-2">
-                  <div className="p-2">
-                    <div className="space-y-2">
-                      <h4 className="font-medium">Start Date</h4>
-                      <CalendarComponent
-                        mode="single"
-                        selected={location.startDate}
-                        onSelect={(date) =>
-                          onUpdateDates(location.id, date, location.endDate)
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2 mt-4">
-                      <h4 className="font-medium">End Date</h4>
-                      <CalendarComponent
-                        mode="single"
-                        selected={location.endDate}
-                        onSelect={(date) =>
-                          onUpdateDates(location.id, location.startDate, date)
-                        }
-                      />
-                    </div>
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
             <Button
               variant="ghost"
               size="icon"
