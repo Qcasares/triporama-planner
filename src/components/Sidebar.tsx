@@ -5,12 +5,13 @@ import { LocationCardSkeleton } from './locations/LocationCardSkeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Plus, MapPin } from 'lucide-react';
+import { LocationSearch } from './LocationSearch';
 
 interface SidebarProps {
   locations: Location[];
   selectedLocation?: Location;
   loading?: boolean;
-  onAddLocation?: () => void;
+  onAddLocation?: (location: Location) => void;
   onRemoveLocation?: (id: string) => void;
   onSelectLocation?: (location: Location) => void;
   onReorderLocations?: (startIndex: number, endIndex: number) => void;
@@ -33,22 +34,30 @@ export const Sidebar = ({
 }: SidebarProps) => {
   return (
     <div className="w-full h-full flex flex-col bg-white">
-      <div className="flex items-center justify-between p-4 md:p-6 border-b">
-        <div>
-          <h2 className="text-lg font-semibold">Your Trip</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            {locations.length} {locations.length === 1 ? 'destination' : 'destinations'}
-          </p>
+      <div className="flex flex-col gap-4 p-4 md:p-6 border-b">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold">Your Trip</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              {locations.length} {locations.length === 1 ? 'destination' : 'destinations'}
+            </p>
+          </div>
+          {onAddLocation && (
+            <Button
+              onClick={() => onAddLocation({
+                id: String(Date.now()),
+                name: 'New Location',
+                lat: 0,
+                lng: 0,
+              })}
+              className="animate-in fade-in-50 bg-[#0EA5E9] hover:bg-[#0EA5E9]/90"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Stop
+            </Button>
+          )}
         </div>
-        {onAddLocation && (
-          <Button
-            onClick={onAddLocation}
-            className="animate-in fade-in-50 bg-[#0EA5E9] hover:bg-[#0EA5E9]/90"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Stop
-          </Button>
-        )}
+        <LocationSearch onLocationSelect={onAddLocation || (() => {})} />
       </div>
 
       <ScrollArea className="flex-1">
@@ -66,7 +75,12 @@ export const Sidebar = ({
               </p>
               {onAddLocation && (
                 <Button
-                  onClick={onAddLocation}
+                  onClick={() => onAddLocation({
+                    id: String(Date.now()),
+                    name: 'New Location',
+                    lat: 0,
+                    lng: 0,
+                  })}
                   variant="outline"
                   className="animate-in fade-in-50"
                 >
