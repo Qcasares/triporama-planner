@@ -4,33 +4,39 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 60 33% 97%; /* #F9F9F7 */
     --foreground: 0 0% 3.9%;
 
-    --card: 0 0% 100%;
+    --card: 60 33% 97%;
     --card-foreground: 0 0% 3.9%;
 
-    --popover: 0 0% 100%;
+    --popover: 60 33% 97%;
     --popover-foreground: 0 0% 3.9%;
 
-    --primary: 265 89% 66%;
+    --primary: 204 100% 40%; /* #007ACC */
     --primary-foreground: 0 0% 98%;
 
-    --secondary: 0 0% 96.1%;
+    --secondary: 180 100% 33%; /* #00A8A8 */
     --secondary-foreground: 0 0% 9%;
 
-    --muted: 0 0% 96.1%;
+    --success: 122 61% 49%; /* #4CAF50 */
+    --success-foreground: 0 0% 98%;
+
+    --warning: 45 100% 51%; /* #FFC107 */
+    --warning-foreground: 0 0% 9%;
+
+    --destructive: 0 63% 51%; /* #D32F2F */
+    --destructive-foreground: 0 0% 98%;
+
+    --muted: 60 33% 90%;
     --muted-foreground: 0 0% 45.1%;
 
-    --accent: 265 89% 66%;
+    --accent: 204 100% 40%;
     --accent-foreground: 0 0% 9%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
 
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
-    --ring: 265 89% 66%;
+    --ring: 204 100% 40%;
 
     --radius: 0.75rem;
   }
@@ -86,11 +92,11 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-purple-200 rounded-full;
+    @apply bg-primary/20 rounded-full;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-purple-300;
+    @apply bg-primary/30;
   }
 
   /* Map styles */
@@ -99,11 +105,11 @@
   }
 
   .location-card {
-    @apply bg-white rounded-lg p-4 mb-4 shadow-sm border border-purple-100 transition-all duration-300;
+    @apply bg-white rounded-lg p-4 mb-4 shadow-sm border border-secondary/20 transition-all duration-300;
   }
 
   .location-card:hover {
-    @apply shadow-md transform -translate-y-0.5;
+    @apply shadow-md transform -translate-y-0.5 border-secondary/30;
   }
 
   /* Animations */
