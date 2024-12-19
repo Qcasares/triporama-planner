@@ -8,6 +8,7 @@ import { useGeolocation } from '@/hooks/use-geolocation';
 import { useTripPlanner } from '@/hooks/use-trip-planner';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Location } from '@/types/location';
 
 export const TripPlanner = () => {
   const { currentLocation, error: geoError } = useGeolocation();
@@ -41,11 +42,15 @@ export const TripPlanner = () => {
     }
   }, [geoError, toast]);
 
+  const handleAddLocation = (location: Location) => {
+    addLocation(location);
+  };
+
   return (
     <div className="flex min-h-screen bg-background">
       <CommandMenu
         locations={locations}
-        onAddLocation={addLocation}
+        onAddLocation={handleAddLocation}
         isSummaryOpen={isSummaryOpen}
         toggleSummary={toggleSummary}
       />
@@ -53,7 +58,7 @@ export const TripPlanner = () => {
         <div className="flex w-full">
           <Sidebar
             locations={locations}
-            onAddLocation={addLocation}
+            onAddLocation={handleAddLocation}
             onRemoveLocation={removeLocation}
             onReorderLocations={reorderLocations}
             onUpdateDates={updateDates}

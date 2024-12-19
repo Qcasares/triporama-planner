@@ -60,10 +60,15 @@ export const useMap = (locations: Location[]) => {
 
     // Create new markers
     const newMarkers = locations.map((location, index) => {
+      if (typeof location.lat !== 'number' || typeof location.lng !== 'number') {
+        console.error('Invalid coordinates for location:', location);
+        return null;
+      }
+
       const isFirst = index === 0;
       const isLast = index === locations.length - 1;
 
-      const marker = new google.maps.Marker({
+      return new google.maps.Marker({
         position: { lat: location.lat, lng: location.lng },
         map: mapState.map,
         title: location.name,
@@ -77,26 +82,7 @@ export const useMap = (locations: Location[]) => {
         },
         label: isFirst ? 'Start' : isLast ? 'End' : `${index + 1}`,
       });
-
-      // Add hover effects
-      marker.addListener('mouseover', () => {
-        marker.setIcon({
-          ...marker.getIcon() as google.maps.Symbol,
-          fillColor: '#7c3aed',
-          scale: 14
-        });
-      });
-
-      marker.addListener('mouseout', () => {
-        marker.setIcon({
-          ...marker.getIcon() as google.maps.Symbol,
-          fillColor: '#8b5cf6',
-          scale: 12
-        });
-      });
-
-      return marker;
-    });
+    }).filter((marker): marker is google.maps.Marker => marker !== null);
 
     setMapState(prev => ({
       ...prev,
@@ -106,7 +92,12 @@ export const useMap = (locations: Location[]) => {
     // Fit bounds to show all markers
     if (newMarkers.length > 0) {
       const bounds = new google.maps.LatLngBounds();
-      newMarkers.forEach(marker => bounds.extend(marker.getPosition()!));
+      newMarkers.forEach(marker => {
+        const position = marker.getPosition();
+        if (position) {
+          bounds.extend(position);
+        }
+      });
       mapState.map.fitBounds(bounds, 50);
     }
   }, [locations, mapState.map]);
@@ -125,6 +116,8 @@ export const useMap = (locations: Location[]) => {
       location: { lat: location.lat, lng: location.lng },
       stopover: true
     }));
+
+    if (!origin || !destination) return;
 
     directionsService.route(
       {
