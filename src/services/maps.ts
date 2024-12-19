@@ -42,3 +42,34 @@ export class MapsService {
     });
   }
 }
+
+// Create a singleton instance
+const mapsService = new MapsService();
+
+export const getLocationDetails = async (lat: number, lng: number): Promise<{
+  formatted_address: string;
+  lat: number;
+  lng: number;
+}> => {
+  const geocoder = new google.maps.Geocoder();
+  
+  return new Promise((resolve, reject) => {
+    geocoder.geocode(
+      { location: { lat, lng } },
+      (results, status) => {
+        if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
+          resolve({
+            formatted_address: results[0].formatted_address,
+            lat,
+            lng,
+          });
+        } else {
+          console.error('Reverse geocoding failed:', status);
+          reject(new Error('Failed to get location details'));
+        }
+      }
+    );
+  });
+};
+
+export default mapsService;
