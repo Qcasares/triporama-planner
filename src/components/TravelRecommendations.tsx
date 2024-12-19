@@ -1,33 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { ScrollArea } from './ui/scroll-area';
-import { Skeleton } from './ui/skeleton';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Building2, UtensilsCrossed, Landmark, ShoppingBag, Theater, Heart, HeartOff, Star, Filter } from 'lucide-react';
-import { Slider } from './ui/slider';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
-import { Location } from './TripPlanner';
-
-interface Place {
-  id: string;
-  name: string;
-  rating: number;
-  priceLevel: number;
-  vicinity: string;
-  photos?: google.maps.places.PlacePhoto[];
-  website?: string;
-  openingHours?: {
-    weekdayText: string[];
-    isOpen: boolean;
-  };
-  types: string[];
-  reviews?: google.maps.places.PlaceReview[];
-  userRating?: number;
-  notes?: string;
-}
+import { Slider } from '@/components/ui/slider';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Location } from '@/types/location';
+import { Place } from '@/types/place';
 
 interface FilterOptions {
   minPrice: number;
@@ -68,7 +51,7 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
   };
 
   useEffect(() => {
-    const fetchPlaceDetails = async (placeId: string, service: google.maps.places.PlacesService): Promise<Place> => {
+    const fetchPlaceDetails = async (placeId: string, service: google.maps.places.PlacesService): Promise<Partial<Place>> => {
       return new Promise((resolve, reject) => {
         service.getDetails(
           { placeId, fields: ['reviews', 'website', 'opening_hours'] },
@@ -81,7 +64,7 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
                   weekdayText: result.opening_hours.weekday_text || [],
                   isOpen: result.opening_hours.isOpen?.() || false
                 } : undefined
-              } as Place);
+              });
             } else {
               reject(new Error('Failed to fetch place details'));
             }
@@ -120,7 +103,7 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
                     photos: place.photos,
                     types: place.types || [],
                     ...details
-                  };
+                  } as Place;
                 } catch (error) {
                   console.error('Error fetching place details:', error);
                   return {
@@ -131,7 +114,7 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
                     vicinity: place.vicinity || '',
                     photos: place.photos,
                     types: place.types || [],
-                  };
+                  } as Place;
                 }
               })
             );

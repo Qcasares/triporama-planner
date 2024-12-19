@@ -1,113 +1,48 @@
-import React, { useState, useEffect } from 'react';
-import { MapContainer } from './MapContainer';
-import { Sidebar } from './Sidebar';
-import { TravelRecommendations } from './TravelRecommendations';
-import { TripSummary } from './TripSummary';
-import { useToast } from '@/hooks/use-toast';
-import { Button } from './ui/button';
+import React from 'react';
+import { MapContainer } from '@/components/MapContainer';
+import { Sidebar } from '@/components/Sidebar';
+import { TravelRecommendations } from '@/components/TravelRecommendations';
+import { TripSummary } from '@/components/TripSummary';
+import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { SidebarProvider } from './ui/sidebar';
-
-export interface Location {
-  id: string;
-  name: string;
-  lat: number;
-  lng: number;
-  startDate?: Date;
-  endDate?: Date;
-}
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { useGeolocation } from '@/hooks/use-geolocation';
+import { useTripPlanner } from '@/hooks/use-trip-planner';
+import { useToast } from '@/hooks/use-toast';
 
 export const TripPlanner = () => {
-  const [locations, setLocations] = useState<Location[]>([]);
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isSummaryOpen, setIsSummaryOpen] = useState(false);
+  const { currentLocation, error: geoError } = useGeolocation();
+  const {
+    locations,
+    selectedLocation,
+    isSummaryOpen,
+    addLocation,
+    removeLocation,
+    selectLocation,
+    reorderLocations,
+    updateDates,
+    toggleSummary,
+  } = useTripPlanner();
+
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          try {
-            const { latitude, longitude } = position.coords;
-            const response = await fetch(
-              `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${localStorage.getItem('googleMapsApiKey')}`
-            );
-            const data = await response.json();
-            
-            if (data.results && data.results[0]) {
-              const currentLocation: Location = {
-                id: 'current-location',
-                name: data.results[0].formatted_address,
-                lat: latitude,
-                lng: longitude,
-              };
-              
-              setLocations([currentLocation]);
-              setSelectedLocation(currentLocation);
-              
-              toast({
-                title: "Location detected",
-                description: "Your current location has been added as the starting point.",
-              });
-            }
-          } catch (error) {
-            console.error('Error getting location details:', error);
-            toast({
-              title: "Location error",
-              description: "Could not determine your current location.",
-              variant: "destructive",
-            });
-          }
-        },
-        (error) => {
-          console.error('Geolocation error:', error);
-          toast({
-            title: "Location access denied",
-            description: "Please enable location access to use your current position.",
-            variant: "destructive",
-          });
-        }
-      );
-    } else {
+  // Add current location when available
+  React.useEffect(() => {
+    if (currentLocation && locations.length === 0) {
+      addLocation(currentLocation);
+    }
+  }, [currentLocation, locations.length, addLocation]);
+
+  // Show geolocation errors
+  React.useEffect(() => {
+    if (geoError) {
       toast({
-        title: "Geolocation not supported",
-        description: "Your browser doesn't support geolocation.",
+        title: "Location error",
+        description: geoError,
         variant: "destructive",
       });
     }
-  }, [toast]);
-
-  const handleAddLocation = (location: Location) => {
-    setLocations([...locations, location]);
-    setSelectedLocation(location);
-    toast({
-      title: "Location added",
-      description: `${location.name} has been added to your trip.`,
-    });
-  };
-
-  const handleRemoveLocation = (locationId: string) => {
-    setLocations(locations.filter((loc) => loc.id !== locationId));
-    if (selectedLocation?.id === locationId) {
-      setSelectedLocation(null);
-    }
-  };
-
-  const handleReorderLocations = (startIndex: number, endIndex: number) => {
-    const result = Array.from(locations);
-    const [removed] = result.splice(startIndex, 1);
-    result.splice(endIndex, 0, removed);
-    setLocations(result);
-  };
-
-  const handleUpdateDates = (locationId: string, startDate?: Date, endDate?: Date) => {
-    setLocations(locations.map(loc => 
-      loc.id === locationId 
-        ? { ...loc, startDate, endDate }
-        : loc
-    ));
-  };
+  }, [geoError, toast]);
 
   return (
     <div className="flex min-h-screen bg-sage-50">
@@ -115,10 +50,10 @@ export const TripPlanner = () => {
         <div className="flex w-full">
           <Sidebar
             locations={locations}
-            onAddLocation={handleAddLocation}
-            onRemoveLocation={handleRemoveLocation}
-            onReorderLocations={handleReorderLocations}
-            onUpdateDates={handleUpdateDates}
+            onAddLocation={addLocation}
+            onRemoveLocation={removeLocation}
+            onReorderLocations={reorderLocations}
+            onUpdateDates={updateDates}
           />
           <main className="flex-1 p-6">
             <div className="grid grid-rows-[1fr,auto,1fr] gap-6 h-[calc(100vh-3rem)]">
@@ -129,7 +64,7 @@ export const TripPlanner = () => {
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={() => setIsSummaryOpen(!isSummaryOpen)}
+                onClick={toggleSummary}
               >
                 {isSummaryOpen ? (
                   <>Hide Trip Summary <ChevronUp className="ml-2 h-4 w-4" /></>
