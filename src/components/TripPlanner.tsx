@@ -25,14 +25,12 @@ export const TripPlanner = () => {
 
   const { toast } = useToast();
 
-  // Add current location when available
   React.useEffect(() => {
     if (currentLocation && locations.length === 0) {
       addLocation(currentLocation);
     }
   }, [currentLocation, locations.length, addLocation]);
 
-  // Show geolocation errors
   React.useEffect(() => {
     if (geoError) {
       toast({
