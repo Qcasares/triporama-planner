@@ -3,6 +3,7 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Search } from 'lucide-react';
 import { Location } from './TripPlanner';
+import { useLoadScript } from '@react-google-maps/api';
 
 interface LocationSearchProps {
   onLocationSelect: (location: Location) => void;
@@ -12,9 +13,15 @@ export const LocationSearch = ({ onLocationSelect }: LocationSearchProps) => {
   const [searchInput, setSearchInput] = useState('');
   const autoCompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [apiKey] = useState(() => localStorage.getItem('googleMapsApiKey') || '');
+
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: apiKey,
+    libraries: ['places'],
+  });
 
   useEffect(() => {
-    if (!inputRef.current) return;
+    if (!isLoaded || !inputRef.current) return;
 
     autoCompleteRef.current = new google.maps.places.Autocomplete(inputRef.current, {
       types: ['geocode'],
@@ -44,7 +51,28 @@ export const LocationSearch = ({ onLocationSelect }: LocationSearchProps) => {
         google.maps.event.clearInstanceListeners(autoCompleteRef.current);
       }
     };
-  }, [onLocationSelect]);
+  }, [isLoaded, onLocationSelect]);
+
+  if (!isLoaded) {
+    return (
+      <div className="relative">
+        <Input
+          type="text"
+          placeholder="Loading places search..."
+          disabled
+          className="pr-10"
+        />
+        <Button
+          size="icon"
+          variant="ghost"
+          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+          disabled
+        >
+          <Search className="h-4 w-4 text-muted-foreground" />
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="relative">
