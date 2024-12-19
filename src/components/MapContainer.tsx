@@ -9,7 +9,6 @@ interface MapContainerProps {
   className?: string;
 }
 
-// Define libraries array outside component to prevent unnecessary reloads
 const libraries: ("places" | "drawing" | "geometry" | "visualization")[] = ["places"];
 
 export const MapContainer = ({ locations, className }: MapContainerProps) => {
@@ -18,7 +17,7 @@ export const MapContainer = ({ locations, className }: MapContainerProps) => {
 
   if (!apiKey) {
     return (
-      <div className="flex items-center justify-center h-[500px] bg-muted rounded-xl">
+      <div className="flex items-center justify-center h-[300px] md:h-[500px] bg-muted rounded-xl">
         <p className="text-muted-foreground">Please set your Google Maps API key first</p>
       </div>
     );
@@ -32,9 +31,10 @@ export const MapContainer = ({ locations, className }: MapContainerProps) => {
       <div 
         ref={mapRef} 
         className={cn(
-          "w-full h-[500px] rounded-xl overflow-hidden",
+          "w-full rounded-xl overflow-hidden touch-pan-y",
           "transition-all duration-300",
           "shadow-lg border border-purple-100",
+          "min-h-[300px]", // Ensure minimum height on mobile
           className
         )}
         role="region"

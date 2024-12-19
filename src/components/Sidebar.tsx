@@ -24,8 +24,8 @@ export const Sidebar = ({
   onSelectLocation,
 }: SidebarProps) => {
   return (
-    <div className="w-80 border-r bg-background p-6">
-      <div className="flex items-center justify-between mb-6">
+    <div className="w-full md:w-80 bg-background">
+      <div className="flex items-center justify-between p-4 md:p-6 border-b">
         <h2 className="text-lg font-semibold">Locations</h2>
         {onAddLocation && (
           <Button
@@ -39,8 +39,8 @@ export const Sidebar = ({
         )}
       </div>
 
-      <ScrollArea className="h-[calc(100vh-120px)]">
-        <div className="space-y-4 pr-4">
+      <ScrollArea className="h-[calc(100vh-80px)] md:h-[calc(100vh-120px)]">
+        <div className="space-y-2 md:space-y-4 p-4 md:pr-4">
           {loading ? (
             Array.from({ length: 3 }).map((_, i) => (
               <LocationCardSkeleton key={i} />

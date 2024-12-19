@@ -9,6 +9,10 @@ import { useTripPlanner } from '@/hooks/use-trip-planner';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Location } from '@/types/location';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Menu } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export const TripPlanner = () => {
   const { currentLocation, error: geoError } = useGeolocation();
@@ -25,6 +29,8 @@ export const TripPlanner = () => {
   } = useTripPlanner();
 
   const { toast } = useToast();
+  const isMobile = useIsMobile();
+  const [isOpen, setIsOpen] = React.useState(false);
 
   React.useEffect(() => {
     if (currentLocation && locations.length === 0) {
@@ -44,7 +50,24 @@ export const TripPlanner = () => {
 
   const handleAddLocation = (location: Location) => {
     addLocation(location);
+    if (isMobile) {
+      setIsOpen(false);
+    }
   };
+
+  const SidebarContent = () => (
+    <Sidebar
+      locations={locations}
+      selectedLocation={selectedLocation}
+      onAddLocation={handleAddLocation}
+      onRemoveLocation={removeLocation}
+      onSelectLocation={selectLocation}
+      onReorderLocations={reorderLocations}
+      onUpdateDates={updateDates}
+      isSummaryOpen={isSummaryOpen}
+      toggleSummary={toggleSummary}
+    />
+  );
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -56,24 +79,34 @@ export const TripPlanner = () => {
       />
       <SidebarProvider>
         <div className="flex w-full">
-          <Sidebar
-            locations={locations}
-            onAddLocation={handleAddLocation}
-            onRemoveLocation={removeLocation}
-            onReorderLocations={reorderLocations}
-            onUpdateDates={updateDates}
-            isSummaryOpen={isSummaryOpen}
-            toggleSummary={toggleSummary}
-          />
-          <main className="flex-1 space-y-6 p-8 bg-gray-50/50">
+          {isMobile ? (
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <SheetTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="fixed left-4 top-4 z-50 md:hidden"
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[300px] p-0">
+                <SidebarContent />
+              </SheetContent>
+            </Sheet>
+          ) : (
+            <SidebarContent />
+          )}
+          
+          <main className="flex-1 space-y-6 p-4 md:p-8 bg-gray-50/50">
             <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100 bg-white">
               <MapContainer 
                 locations={locations} 
-                className="h-[400px] w-full transition-all duration-300 hover:shadow-xl"
+                className="h-[300px] md:h-[400px] w-full transition-all duration-300 hover:shadow-xl"
               />
             </div>
             
-            <ScrollArea className="h-[calc(100vh-520px)]">
+            <ScrollArea className="h-[calc(100vh-450px)] md:h-[calc(100vh-520px)]">
               <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100 bg-white">
                 {selectedLocation ? (
                   <TravelRecommendations location={selectedLocation} />
