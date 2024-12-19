@@ -1,20 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { DragDropContext } from '@hello-pangea/dnd';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building2, UtensilsCrossed, Landmark, ShoppingBag, Theater } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Location } from '@/types/location';
 import { Place } from '@/types/place';
-import { PlacesSection } from './places/PlacesSection';
-import { CustomPlaceDialog } from './places/CustomPlaceDialog';
+import { FilterOptions } from '@/types/filters';
 import { useToast } from '@/hooks/use-toast';
-
-interface FilterOptions {
-  minPrice: number;
-  maxPrice: number;
-  minRating: number;
-  sortBy: 'rating' | 'distance' | 'price';
-}
+import { PlacesContainer } from './places/PlacesContainer';
 
 interface TravelRecommendationsProps {
   location: Location;
@@ -207,70 +196,20 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Places Near {location.name}</h2>
-          <p className="text-muted-foreground mt-1">Discover the best local spots and attractions</p>
-        </div>
-        <Button 
-          className="shrink-0"
-          onClick={() => setIsCustomPlaceDialogOpen(true)}
-        >
-          <Building2 className="h-4 w-4 mr-2" />
-          Add Custom Place
-        </Button>
-      </div>
-
-      <CustomPlaceDialog
-        open={isCustomPlaceDialogOpen}
-        onOpenChange={setIsCustomPlaceDialogOpen}
-        customPlace={customPlace}
-        onCustomPlaceChange={handleCustomPlaceChange}
-        onAddCustomPlace={handleAddCustomPlace}
-        placeTypes={placeTypes}
-      />
-
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <Tabs defaultValue="hotels" className="w-full">
-          <TabsList className="w-full inline-flex h-14 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground mb-6">
-            <TabsTrigger value="hotels" className="inline-flex items-center justify-center whitespace-nowrap rounded-md px-6 py-3 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
-              <Building2 className="h-4 w-4 mr-2" />
-              Hotels
-            </TabsTrigger>
-            <TabsTrigger value="restaurants">
-              <UtensilsCrossed className="h-4 w-4 mr-2" />
-              Restaurants
-            </TabsTrigger>
-            <TabsTrigger value="attractions">
-              <Landmark className="h-4 w-4 mr-2" />
-              Attractions
-            </TabsTrigger>
-            <TabsTrigger value="shopping">
-              <ShoppingBag className="h-4 w-4 mr-2" />
-              Shopping
-            </TabsTrigger>
-            <TabsTrigger value="entertainment">
-              <Theater className="h-4 w-4 mr-2" />
-              Entertainment
-            </TabsTrigger>
-          </TabsList>
-
-          {Object.entries(places).map(([category, categoryPlaces]) => (
-            <TabsContent key={category} value={category} className="mt-6">
-              <PlacesSection
-                loading={loading}
-                categoryPlaces={categoryPlaces}
-                categoryId={category}
-                favorites={favorites}
-                filterOptions={filterOptions}
-                onToggleFavorite={toggleFavorite}
-                onFilterChange={(newOptions) => setFilterOptions(prev => ({ ...prev, ...newOptions }))}
-              />
-            </TabsContent>
-          ))}
-        </Tabs>
-      </DragDropContext>
-    </div>
+    <PlacesContainer
+      location={location}
+      places={places}
+      loading={loading}
+      favorites={favorites}
+      filterOptions={filterOptions}
+      isCustomPlaceDialogOpen={isCustomPlaceDialogOpen}
+      customPlace={customPlace}
+      onToggleFavorite={toggleFavorite}
+      onFilterChange={(newOptions) => setFilterOptions(prev => ({ ...prev, ...newOptions }))}
+      onCustomPlaceDialogOpenChange={setIsCustomPlaceDialogOpen}
+      onCustomPlaceChange={handleCustomPlaceChange}
+      onAddCustomPlace={handleAddCustomPlace}
+      onDragEnd={handleDragEnd}
+    />
   );
 };
