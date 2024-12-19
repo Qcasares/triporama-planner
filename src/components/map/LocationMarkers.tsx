@@ -16,8 +16,14 @@ export const LocationMarkers = ({ locations }: LocationMarkersProps) => {
             text: (index + 1).toString(),
             color: '#ffffff',
             fontWeight: 'bold',
+            className: 'marker-label'
           }}
           title={location.name}
+          options={{
+            optimized: true,
+            clickable: true,
+            visible: true,
+          }}
         />
       ))}
     </>

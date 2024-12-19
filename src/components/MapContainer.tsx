@@ -1,22 +1,34 @@
 import React from 'react';
-import { LoadScript } from '@react-google-maps/api';
+import { GoogleMap, LoadScript } from '@react-google-maps/api';
 import { useMap } from '@/hooks/use-map';
 import { Location } from '@/types/location';
 import { cn } from '@/lib/utils';
 import { MapPin } from 'lucide-react';
+import { LocationMarkers } from './map/LocationMarkers';
 
 interface MapContainerProps {
   locations: Location[];
   className?: string;
 }
 
-// Define libraries array outside component to prevent unnecessary reloads
 const GOOGLE_MAPS_LIBRARIES: ("places" | "drawing" | "geometry" | "visualization")[] = ["places"];
 
+const defaultCenter = {
+  lat: 37.7749,
+  lng: -122.4194,
+};
+
+const mapOptions = {
+  disableDefaultUI: false,
+  zoomControl: true,
+  mapTypeControl: false,
+  streetViewControl: true,
+  fullscreenControl: true,
+};
+
 export const MapContainer = ({ locations, className }: MapContainerProps) => {
-  // Use state to store API key but don't update it
   const [apiKey] = React.useState(() => localStorage.getItem('googleMapsApiKey') || '');
-  const { mapRef } = useMap(locations);
+  const { mapRef, onMapLoad } = useMap(locations);
 
   if (!apiKey) {
     return (
@@ -31,13 +43,9 @@ export const MapContainer = ({ locations, className }: MapContainerProps) => {
   }
 
   return (
-    <LoadScript
-      googleMapsApiKey={apiKey}
-      libraries={GOOGLE_MAPS_LIBRARIES}
-    >
-      <div 
-        ref={mapRef} 
-        className={cn(
+    <LoadScript googleMapsApiKey={apiKey} libraries={GOOGLE_MAPS_LIBRARIES}>
+      <GoogleMap
+        mapContainerClassName={cn(
           "w-full rounded-xl overflow-hidden",
           "transition-all duration-300",
           "shadow-lg border border-purple-100/50",
@@ -45,9 +53,13 @@ export const MapContainer = ({ locations, className }: MapContainerProps) => {
           "md:h-[600px]",
           className
         )}
-        role="region"
-        aria-label="Trip route map"
-      />
+        center={locations[0] || defaultCenter}
+        zoom={12}
+        options={mapOptions}
+        onLoad={onMapLoad}
+      >
+        <LocationMarkers locations={locations} />
+      </GoogleMap>
     </LoadScript>
   );
 };
