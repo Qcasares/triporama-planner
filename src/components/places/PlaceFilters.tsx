@@ -41,7 +41,7 @@ export const PlaceFilters = ({ filterOptions, onFilterChange }: PlaceFiltersProp
               <SelectContent>
                 <SelectItem value="rating">Rating</SelectItem>
                 <SelectItem value="price">Price</SelectItem>
-                <SelectItem value="distance">Distance</SelectItem>
+                <SelectItem value="distance">Distance From Current</SelectItem>
               </SelectContent>
             </Select>
           </div>

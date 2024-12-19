@@ -14,4 +14,6 @@ export interface Place {
   reviews?: google.maps.places.PlaceReview[];
   userRating?: number;
   notes?: string;
+  lat?: number;
+  lng?: number;
 }

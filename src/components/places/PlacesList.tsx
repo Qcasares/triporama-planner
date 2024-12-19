@@ -6,6 +6,7 @@ import { Place } from '@/types/place';
 import { FilterOptions } from '@/types/filters';
 import { PlaceCard } from './PlaceCard';
 import { PlaceFilters } from './PlaceFilters';
+import { useGeolocation } from '@/hooks/use-geolocation';
 
 interface PlacesListProps {
   places: Place[];
@@ -25,9 +26,21 @@ export const PlacesList = ({
   onFilterChange,
 }: PlacesListProps) => {
   const parentRef = React.useRef<HTMLDivElement>(null);
+  const { currentLocation } = useGeolocation();
 
-  console.log('PlacesList - Initial places:', places);
-  console.log('PlacesList - Filter options:', filterOptions);
+  const calculateDistance = (place: Place) => {
+    if (!currentLocation || !place.lat || !place.lng) return Infinity;
+    
+    const R = 6371; // Earth's radius in km
+    const dLat = (place.lat - currentLocation.lat) * Math.PI / 180;
+    const dLon = (place.lng - currentLocation.lng) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(currentLocation.lat * Math.PI / 180) * Math.cos(place.lat * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
 
   const filteredPlaces = React.useMemo(() => {
     const filtered = places
@@ -52,6 +65,8 @@ export const PlacesList = ({
             return b.rating - a.rating;
           case 'price':
             return a.priceLevel - b.priceLevel;
+          case 'distance':
+            return calculateDistance(a) - calculateDistance(b);
           default:
             return 0;
         }
@@ -59,7 +74,7 @@ export const PlacesList = ({
 
     console.log('PlacesList - Filtered places:', filtered);
     return filtered;
-  }, [places, filterOptions]);
+  }, [places, filterOptions, currentLocation]);
 
   const rowVirtualizer = useVirtualizer({
     count: filteredPlaces.length,
@@ -131,6 +146,7 @@ export const PlacesList = ({
                           place={place}
                           isFavorite={favorites.has(place.id)}
                           onToggleFavorite={onToggleFavorite}
+                          distance={calculateDistance(place)}
                         />
                       </div>
                     )}
