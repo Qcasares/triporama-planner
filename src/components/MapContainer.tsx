@@ -10,7 +10,8 @@ interface MapContainerProps {
   className?: string;
 }
 
-const libraries: ("places" | "drawing" | "geometry" | "visualization")[] = ["places"];
+// Move libraries array outside component to prevent unnecessary reloads
+const GOOGLE_MAPS_LIBRARIES: ("places" | "drawing" | "geometry" | "visualization")[] = ["places"];
 
 export const MapContainer = ({ locations, className }: MapContainerProps) => {
   const [apiKey] = React.useState(() => localStorage.getItem('googleMapsApiKey') || '');
@@ -31,7 +32,7 @@ export const MapContainer = ({ locations, className }: MapContainerProps) => {
   return (
     <LoadScript
       googleMapsApiKey={apiKey}
-      libraries={libraries}
+      libraries={GOOGLE_MAPS_LIBRARIES}
     >
       <div 
         ref={mapRef} 
