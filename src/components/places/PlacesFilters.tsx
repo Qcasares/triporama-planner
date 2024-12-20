@@ -9,7 +9,10 @@ interface FiltersProps {
     minRating: number;
     sortBy: 'rating' | 'distance';
   };
-  onFiltersChange: (filters: any) => void;
+  onFiltersChange: (filters: {
+    minRating: number;
+    sortBy: 'rating' | 'distance';
+  }) => void;
 }
 
 export const PlacesFilters = ({ filters, onFiltersChange }: FiltersProps) => {

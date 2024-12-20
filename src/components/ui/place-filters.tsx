@@ -39,7 +39,7 @@ export const PlaceFilters = ({
             </label>
             <Select
               value={sortBy}
-              onValueChange={(value) => onSortByChange(value as 'rating' | 'distance' | 'price')}
+              onValueChange={(value) => onSortByChange(value)}
             >
               <SelectTrigger id="sort-by" className="border-sage-200 hover:border-sage-300">
                 <SelectValue placeholder="Sort by" />

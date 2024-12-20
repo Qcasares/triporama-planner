@@ -23,7 +23,7 @@ export const PlacesContainer = ({
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const { filterOptions, updateMinRating, updateSortBy } = usePlaceFilters();
-  
+
   const {
     places,
     isLoading,
@@ -37,8 +37,11 @@ export const PlacesContainer = ({
     searchTerm: debouncedSearchTerm
   });
 
-  const handleFilterChange = (newFilters: any) => {
-    updateMinRating(newFilters.rating);
+  const handleFilterChange = (newFilters: {
+    minRating: number;
+    sortBy: 'rating' | 'distance';
+  }) => {
+    updateMinRating(newFilters.minRating);
     updateSortBy(newFilters.sortBy);
   };
 
