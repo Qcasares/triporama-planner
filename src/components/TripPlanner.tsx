@@ -34,14 +34,20 @@ export const TripPlanner = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
 
+  // Initialize with current location when available
   React.useEffect(() => {
     if (currentLocation && locations.length === 0) {
       addLocation(currentLocation);
+      toast({
+        title: "Location detected",
+        description: "Your current location has been added to the trip.",
+      });
     }
     const timer = setTimeout(() => setLoading(false), 1000);
     return () => clearTimeout(timer);
-  }, [currentLocation, locations.length, addLocation]);
+  }, [currentLocation, locations.length, addLocation, toast]);
 
+  // Handle geolocation errors
   React.useEffect(() => {
     if (geoError) {
       toast({
@@ -57,31 +63,19 @@ export const TripPlanner = () => {
     toast({
       title: "Location added",
       description: `${location.name} has been added to your trip.`,
-      className: "animate-in fade-in-50 slide-in-from-bottom-5",
     });
     if (isMobile) {
       setIsOpen(false);
     }
   }, [addLocation, isMobile, toast]);
 
-  const SidebarContent = () => (
-    <Sidebar
-      locations={locations}
-      selectedLocation={selectedLocation}
-      onAddLocation={() => handleAddLocation({
-        id: String(Date.now()),
-        name: 'New Location',
-        lat: 0,
-        lng: 0,
-      })}
-      onRemoveLocation={removeLocation}
-      onSelectLocation={selectLocation}
-      onReorderLocations={reorderLocations}
-      onUpdateDates={updateDates}
-      isSummaryOpen={isSummaryOpen}
-      toggleSummary={toggleSummary}
-    />
-  );
+  const handleRemoveLocation = React.useCallback((locationId: string) => {
+    removeLocation(locationId);
+    toast({
+      title: "Location removed",
+      description: "The location has been removed from your trip.",
+    });
+  }, [removeLocation, toast]);
 
   if (loading) {
     return (
@@ -116,12 +110,32 @@ export const TripPlanner = () => {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[300px] p-0 bg-white">
-                <SidebarContent />
+                <Sidebar
+                  locations={locations}
+                  selectedLocation={selectedLocation}
+                  onAddLocation={handleAddLocation}
+                  onRemoveLocation={handleRemoveLocation}
+                  onSelectLocation={selectLocation}
+                  onReorderLocations={reorderLocations}
+                  onUpdateDates={updateDates}
+                  isSummaryOpen={isSummaryOpen}
+                  toggleSummary={toggleSummary}
+                />
               </SheetContent>
             </Sheet>
           ) : (
             <div className="w-80 bg-white border-r border-gray-100 shadow-sm">
-              <SidebarContent />
+              <Sidebar
+                locations={locations}
+                selectedLocation={selectedLocation}
+                onAddLocation={handleAddLocation}
+                onRemoveLocation={handleRemoveLocation}
+                onSelectLocation={selectLocation}
+                onReorderLocations={reorderLocations}
+                onUpdateDates={updateDates}
+                isSummaryOpen={isSummaryOpen}
+                toggleSummary={toggleSummary}
+              />
             </div>
           )}
           
@@ -139,7 +153,7 @@ export const TripPlanner = () => {
             {selectedLocation && (
               <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100/50 bg-white p-6 transition-all duration-300 hover:shadow-xl">
                 <h2 className="text-xl font-semibold mb-4">Nearby Places in {selectedLocation.name}</h2>
-                <PlacesContainer selectedLocation={selectedLocation} />
+                <PlacesContainer selectedLocation={selectedLocation} onAddLocation={handleAddLocation} />
               </div>
             )}
           </main>
