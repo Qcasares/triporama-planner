@@ -107,35 +107,6 @@ export const MapContainer = ({ locations, className, onAddLocation }: MapContain
     }
   };
 
-  const handleLocate = () => {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        mapRef.current?.panTo({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
-        mapRef.current?.setZoom(MAP_CONSTANTS.DEFAULT_ZOOM);
-      },
-      (error) => {
-        toast({
-          title: "Error",
-          description: "Could not get your current location",
-          variant: "destructive",
-        });
-      }
-    );
-  };
-
-  const handleZoomIn = () => {
-    const currentZoom = mapRef.current?.getZoom() || 0;
-    mapRef.current?.setZoom(currentZoom + 1);
-  };
-
-  const handleZoomOut = () => {
-    const currentZoom = mapRef.current?.getZoom() || 0;
-    mapRef.current?.setZoom(currentZoom - 1);
-  };
-
   if (!apiKey) {
     return <NoApiKeyWarning />;
   }
@@ -158,11 +129,7 @@ export const MapContainer = ({ locations, className, onAddLocation }: MapContain
           onLoad={onMapLoad}
           onClick={handleMapClick}
         >
-          <MapControls
-            onLocate={handleLocate}
-            onZoomIn={handleZoomIn}
-            onZoomOut={handleZoomOut}
-          />
+          <MapControls mapRef={mapRef} />
 
           {directions ? (
             <DirectionsLayer directions={directions} />
