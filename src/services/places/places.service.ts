@@ -94,9 +94,9 @@ export class PlacesService {
 
     const request: google.maps.places.PlaceSearchRequest = {
       location: new window.google.maps.LatLng(location.lat, location.lng),
-      radius: 5000, // Reduced radius to 5km for more relevant results
-      type: type as google.maps.places.PlaceType,
-      rankBy: window.google.maps.places.RankBy.RATING // Changed to rank by rating
+      radius: 5000, // 5km radius
+      type: type,
+      rankBy: google.maps.places.RankBy.PROMINENCE // Changed back to PROMINENCE as RATING isn't compatible with radius
     };
 
     try {
@@ -115,8 +115,8 @@ export class PlacesService {
     } catch (error) {
       console.error('Error fetching places:', error);
       toast({
-        title: "Error fetching places",
-        description: "There was a problem loading nearby places",
+        title: "Error",
+        description: "Could not fetch nearby places",
         variant: "destructive",
       });
       return [];
