@@ -123,18 +123,19 @@ export const mockTrip: Trip = {
       id: '1',
       category: 'Essentials',
       items: [
-        { id: '1', name: 'Passport', checked: true },
-        { id: '2', name: 'Travel Insurance', checked: true },
-        { id: '3', name: 'Credit Cards', checked: false },
+        { id: '1', name: 'Passport', checked: true, category: 'Essentials' },
+        { id: '2', name: 'Travel Insurance', checked: true, category: 'Essentials' },
+        { id: '3', name: 'Credit Cards', checked: false, category: 'Essentials' },
       ],
     },
     {
       id: '2',
       category: 'Clothing',
       items: [
-        { id: '4', name: 'Walking Shoes', checked: false },
-        { id: '5', name: 'Rain Jacket', checked: false },
+        { id: '4', name: 'Walking Shoes', checked: false, category: 'Clothing' },
+        { id: '5', name: 'Rain Jacket', checked: false, category: 'Clothing' },
       ],
     },
   ],
+
 };

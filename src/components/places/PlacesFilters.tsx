@@ -17,7 +17,6 @@ interface FiltersProps {
 
 export const PlacesFilters = ({ filters, onFiltersChange }: FiltersProps) => {
   const handleSortByChange = (value: string) => {
-    // Validate that the value is one of the allowed options
     if (value === 'rating' || value === 'distance') {
       onFiltersChange({ ...filters, sortBy: value });
     }

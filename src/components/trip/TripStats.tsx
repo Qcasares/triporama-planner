@@ -29,7 +29,7 @@ export const TripStats = () => {
     return acc;
   }, [] as { category: string; amount: number }[]);
 
-  const progressValue = currentTrip.stats.numberOfStops > 0 
+  const progressValue = typeof currentTrip.stats.numberOfStops === 'number' 
     ? (currentTrip.stats.numberOfStops / 20) * 100 
     : 0;
 
