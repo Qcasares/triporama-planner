@@ -2,14 +2,13 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Locate, ZoomIn, ZoomOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { MAP_CONSTANTS } from '@/config/map-config';
 
 interface MapControlsProps {
-  onLocate: () => void;
-  onZoomIn: () => void;
-  onZoomOut: () => void;
+  mapRef: React.MutableRefObject<google.maps.Map | null>;
 }
 
-export const MapControls = ({ onLocate, onZoomIn, onZoomOut }: MapControlsProps) => {
+export const MapControls = ({ mapRef }: MapControlsProps) => {
   const { toast } = useToast();
 
   const handleLocate = () => {
@@ -21,7 +20,33 @@ export const MapControls = ({ onLocate, onZoomIn, onZoomOut }: MapControlsProps)
       });
       return;
     }
-    onLocate();
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        mapRef.current?.panTo({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+        mapRef.current?.setZoom(MAP_CONSTANTS.DEFAULT_ZOOM);
+      },
+      (error) => {
+        toast({
+          title: "Error",
+          description: "Could not get your current location",
+          variant: "destructive",
+        });
+      }
+    );
+  };
+
+  const handleZoomIn = () => {
+    const currentZoom = mapRef.current?.getZoom() || 0;
+    mapRef.current?.setZoom(currentZoom + 1);
+  };
+
+  const handleZoomOut = () => {
+    const currentZoom = mapRef.current?.getZoom() || 0;
+    mapRef.current?.setZoom(currentZoom - 1);
   };
 
   return (
@@ -37,7 +62,7 @@ export const MapControls = ({ onLocate, onZoomIn, onZoomOut }: MapControlsProps)
       <Button
         variant="secondary"
         size="icon"
-        onClick={onZoomIn}
+        onClick={handleZoomIn}
         className="bg-white/90 hover:bg-white shadow-md"
       >
         <ZoomIn className="h-4 w-4" />
@@ -45,7 +70,7 @@ export const MapControls = ({ onLocate, onZoomIn, onZoomOut }: MapControlsProps)
       <Button
         variant="secondary"
         size="icon"
-        onClick={onZoomOut}
+        onClick={handleZoomOut}
         className="bg-white/90 hover:bg-white shadow-md"
       >
         <ZoomOut className="h-4 w-4" />
