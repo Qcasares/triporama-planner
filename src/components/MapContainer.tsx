@@ -8,12 +8,13 @@ import { DirectionsLayer } from './map/DirectionsLayer';
 import { useToast } from '@/hooks/use-toast';
 import { NoApiKeyWarning } from './map/NoApiKeyWarning';
 import { MapClickInfoWindow } from './map/MapClickInfoWindow';
+import { MapControls } from './map/MapControls';
 import { 
-  mapContainerStyle, 
+  defaultMapOptions, 
   defaultCenter, 
-  mapOptions, 
-  GOOGLE_MAPS_LIBRARIES 
-} from './map/MapConfig';
+  GOOGLE_MAPS_LIBRARIES,
+  MAP_CONSTANTS 
+} from '@/config/map-config';
 
 interface MapContainerProps {
   locations: Location[];
@@ -106,42 +107,79 @@ export const MapContainer = ({ locations, className, onAddLocation }: MapContain
     }
   };
 
+  const handleLocate = () => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        mapRef.current?.panTo({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+        mapRef.current?.setZoom(MAP_CONSTANTS.DEFAULT_ZOOM);
+      },
+      (error) => {
+        toast({
+          title: "Error",
+          description: "Could not get your current location",
+          variant: "destructive",
+        });
+      }
+    );
+  };
+
+  const handleZoomIn = () => {
+    const currentZoom = mapRef.current?.getZoom() || 0;
+    mapRef.current?.setZoom(currentZoom + 1);
+  };
+
+  const handleZoomOut = () => {
+    const currentZoom = mapRef.current?.getZoom() || 0;
+    mapRef.current?.setZoom(currentZoom - 1);
+  };
+
   if (!apiKey) {
     return <NoApiKeyWarning />;
   }
 
   return (
     <LoadScript googleMapsApiKey={apiKey} libraries={GOOGLE_MAPS_LIBRARIES}>
-      <GoogleMap
-        mapContainerClassName={cn(
-          "w-full rounded-xl overflow-hidden",
-          "transition-all duration-300",
-          "shadow-lg border border-purple-100/50",
-          "h-[500px]",
-          "md:h-[600px]",
-          className
-        )}
-        center={locations[0] || defaultCenter}
-        zoom={12}
-        options={mapOptions}
-        onLoad={onMapLoad}
-        onClick={handleMapClick}
-      >
-        {directions ? (
-          <DirectionsLayer directions={directions} />
-        ) : (
-          <LocationMarkers locations={locations} />
-        )}
-
-        {clickedLocation && (
-          <MapClickInfoWindow
-            position={{ lat: clickedLocation.lat, lng: clickedLocation.lng }}
-            name={clickedLocation.name}
-            onClose={() => setClickedLocation(null)}
-            onAdd={handleAddLocation}
+      <div className="relative">
+        <GoogleMap
+          mapContainerClassName={cn(
+            "w-full rounded-xl overflow-hidden",
+            "transition-all duration-300",
+            "shadow-lg border border-purple-100/50",
+            "h-[500px]",
+            "md:h-[600px]",
+            className
+          )}
+          center={locations[0] || defaultCenter}
+          zoom={MAP_CONSTANTS.DEFAULT_ZOOM}
+          options={defaultMapOptions}
+          onLoad={onMapLoad}
+          onClick={handleMapClick}
+        >
+          <MapControls
+            onLocate={handleLocate}
+            onZoomIn={handleZoomIn}
+            onZoomOut={handleZoomOut}
           />
-        )}
-      </GoogleMap>
+
+          {directions ? (
+            <DirectionsLayer directions={directions} />
+          ) : (
+            <LocationMarkers locations={locations} />
+          )}
+
+          {clickedLocation && (
+            <MapClickInfoWindow
+              position={{ lat: clickedLocation.lat, lng: clickedLocation.lng }}
+              name={clickedLocation.name}
+              onClose={() => setClickedLocation(null)}
+              onAdd={handleAddLocation}
+            />
+          )}
+        </GoogleMap>
+      </div>
     </LoadScript>
   );
 };
