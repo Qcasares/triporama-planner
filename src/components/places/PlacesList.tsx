@@ -2,12 +2,15 @@ import React from 'react';
 import { Place } from '@/types/place';
 import { Location } from '@/types/location';
 import { PlaceCard } from '../ui/place-card';
-import { PlaceCardSkeleton } from '../ui/place-card-skeleton';
+import { PlaceCardSkeleton } from './PlaceCardSkeleton';
+import { AlertCircle, Search } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface PlacesListProps {
   places: Place[];
   isLoading?: boolean;
   isFetchingNext?: boolean;
+  error?: Error | null;
   onAddToItinerary?: (location: Location) => void;
 }
 
@@ -15,6 +18,7 @@ export const PlacesList = ({
   places, 
   isLoading,
   isFetchingNext,
+  error,
   onAddToItinerary
 }: PlacesListProps) => {
   const [favorites, setFavorites] = React.useState<Set<string>>(new Set());
@@ -31,12 +35,36 @@ export const PlacesList = ({
     });
   };
 
+  if (error) {
+    return (
+      <Alert variant="destructive" className="animate-in fade-in-50">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Error</AlertTitle>
+        <AlertDescription>
+          {error.message || 'Failed to load places. Please try again later.'}
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
   if (isLoading) {
     return (
-      <div className="space-y-4 animate-fade-in">
+      <div className="space-y-4 animate-in fade-in-50">
         {Array.from({ length: 3 }).map((_, index) => (
           <PlaceCardSkeleton key={index} />
         ))}
+      </div>
+    );
+  }
+
+  if (!places.length) {
+    return (
+      <div className="text-center py-12 animate-in fade-in-50">
+        <Search className="mx-auto h-12 w-12 text-muted-foreground/50" />
+        <h3 className="mt-4 text-lg font-semibold">No places found</h3>
+        <p className="text-muted-foreground mt-2">
+          Try adjusting your search or filters to find more places.
+        </p>
       </div>
     );
   }
@@ -46,7 +74,7 @@ export const PlacesList = ({
       {places.map((place, index) => (
         <div
           key={place.id}
-          className="animate-fade-in"
+          className="animate-in fade-in-50 slide-in-from-bottom-3"
           style={{ 
             animationDelay: `${index * 50}ms`,
             opacity: 0,
@@ -62,7 +90,7 @@ export const PlacesList = ({
         </div>
       ))}
       {isFetchingNext && (
-        <div className="space-y-4 animate-fade-in">
+        <div className="space-y-4 animate-in fade-in-50">
           {Array.from({ length: 2 }).map((_, index) => (
             <PlaceCardSkeleton key={`loading-${index}`} />
           ))}

@@ -27,6 +27,7 @@ export const PlacesContainer = ({
   const {
     places,
     isLoading,
+    error,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage
@@ -48,7 +49,7 @@ export const PlacesContainer = ({
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-in fade-in-50">
       <div className="flex items-center justify-between">
         <Input
           type="search"
@@ -81,6 +82,7 @@ export const PlacesContainer = ({
         <PlacesList 
           places={places} 
           isLoading={isLoading}
+          error={error}
           onAddToItinerary={onAddLocation}
           isFetchingNext={isFetchingNextPage}
         />
