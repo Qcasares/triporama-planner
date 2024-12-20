@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Filter } from 'lucide-react';
 
-interface PlaceFiltersProps {
+interface PlaceFilterCardProps {
   minPrice: number;
   maxPrice: number;
   minRating: number;
@@ -14,7 +14,7 @@ interface PlaceFiltersProps {
   onSortByChange: (sortBy: 'rating' | 'distance' | 'price') => void;
 }
 
-export const PlaceFilters = ({
+export const PlaceFilterCard = ({
   minPrice,
   maxPrice,
   minRating,
@@ -22,7 +22,7 @@ export const PlaceFilters = ({
   onPriceRangeChange,
   onMinRatingChange,
   onSortByChange,
-}: PlaceFiltersProps) => {
+}: PlaceFilterCardProps) => {
   return (
     <Card className="mb-6 border-sage-100">
       <CardHeader>
@@ -39,7 +39,7 @@ export const PlaceFilters = ({
             </label>
             <Select
               value={sortBy}
-              onValueChange={(value) => onSortByChange(value)}
+              onValueChange={onSortByChange}
             >
               <SelectTrigger id="sort-by" className="border-sage-200 hover:border-sage-300">
                 <SelectValue placeholder="Sort by" />
