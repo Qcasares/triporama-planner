@@ -5,17 +5,27 @@ import { toast } from '@/hooks/use-toast';
 export class PlacesService {
   private apiKey: string;
   private placesService: google.maps.places.PlacesService | null = null;
+  private map: google.maps.Map | null = null;
 
   constructor() {
     this.apiKey = localStorage.getItem('googleMapsApiKey') || '';
-    // Create a temporary div element to initialize the PlacesService
-    const mapDiv = document.createElement('div');
-    // Initialize a map instance (required for PlacesService)
-    const map = new google.maps.Map(mapDiv, {
-      center: { lat: 0, lng: 0 },
-      zoom: 1
-    });
-    this.placesService = new google.maps.places.PlacesService(map);
+    this.initializePlacesService();
+  }
+
+  private initializePlacesService() {
+    try {
+      // Create a temporary div element to initialize the PlacesService
+      const mapDiv = document.createElement('div');
+      // Initialize a map instance (required for PlacesService)
+      this.map = new window.google.maps.Map(mapDiv, {
+        center: { lat: 0, lng: 0 },
+        zoom: 1
+      });
+      this.placesService = new window.google.maps.places.PlacesService(this.map);
+    } catch (error) {
+      console.error('Failed to initialize Places service:', error);
+      this.placesService = null;
+    }
   }
 
   async searchNearby(location: Location, type: string): Promise<Place[]> {
@@ -30,9 +40,9 @@ export class PlacesService {
     }
 
     const request: google.maps.places.PlaceSearchRequest = {
-      location: new google.maps.LatLng(location.lat, location.lng),
+      location: new window.google.maps.LatLng(location.lat, location.lng),
       radius: 16000,
-      type: type as google.maps.places.PlaceType[keyof google.maps.places.PlaceType],
+      type: type as unknown as google.maps.places.PlaceType,
       rankBy: google.maps.places.RankBy.PROMINENCE,
     };
 
