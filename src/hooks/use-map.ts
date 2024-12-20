@@ -19,9 +19,12 @@ export const useMap = (locations: Location[]) => {
       }
     });
 
-    // Fit bounds with padding
+    // Fit bounds with padding - using the correct type format
     map.fitBounds(bounds, {
-      padding: { top: 50, right: 50, bottom: 50, left: 50 }
+      top: 50,
+      right: 50,
+      bottom: 50,
+      left: 50
     });
 
     // If there's only one location, set an appropriate zoom level
