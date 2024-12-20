@@ -36,7 +36,7 @@ class PlacesAPI {
       const request: google.maps.places.PlaceSearchRequest = {
         location: new google.maps.LatLng(params.lat, params.lng),
         radius: params.radius || 5000,
-        type: params.type as keyof typeof google.maps.places.PlaceType,
+        type: params.type,
         rankBy: google.maps.places.RankBy.PROMINENCE
       };
 
