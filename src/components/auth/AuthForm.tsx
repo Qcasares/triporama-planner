@@ -32,6 +32,9 @@ export const AuthForm = () => {
       if (isLogin) {
         await signIn(email, password);
       } else {
+        if (password.length < 6) {
+          throw new Error('Password must be at least 6 characters long');
+        }
         await signUp(email, password, {
           data: {
             first_name: firstName,
@@ -42,11 +45,39 @@ export const AuthForm = () => {
           title: "Success!",
           description: "Please check your email to confirm your account.",
         });
+        // Switch to login view after successful signup
+        setIsLogin(true);
       }
     } catch (error: any) {
+      let errorMessage = 'An unexpected error occurred';
+      
+      // Parse the error message if it's in JSON format
+      if (error.message.includes('body')) {
+        try {
+          const errorBody = JSON.parse(error.message);
+          if (errorBody.error_description) {
+            errorMessage = errorBody.error_description;
+          } else if (errorBody.msg) {
+            errorMessage = errorBody.msg;
+          }
+        } catch {
+          // If parsing fails, use the original error message
+          errorMessage = error.message;
+        }
+      } else {
+        errorMessage = error.message;
+      }
+
+      // Handle specific error cases
+      if (errorMessage.includes('invalid_credentials')) {
+        errorMessage = 'Invalid email or password';
+      } else if (errorMessage.includes('Email not confirmed')) {
+        errorMessage = 'Please confirm your email address before signing in';
+      }
+
       toast({
-        title: "Authentication error",
-        description: error.message,
+        title: isLogin ? "Login failed" : "Signup failed",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -146,6 +177,7 @@ export const AuthForm = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              minLength={6}
             />
           </div>
           <Button type="submit" className="w-full" disabled={isLoading}>
