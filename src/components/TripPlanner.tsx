@@ -1,14 +1,12 @@
 import React from 'react';
 import { MapContainer } from '@/components/MapContainer';
 import { Sidebar } from '@/components/Sidebar';
-import { TravelRecommendations } from '@/components/TravelRecommendations';
 import { CommandMenu } from '@/components/CommandMenu';
 import { NavigationBreadcrumb } from '@/components/NavigationBreadcrumb';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { useGeolocation } from '@/hooks/use-geolocation';
 import { useTripPlanner } from '@/hooks/use-trip-planner';
 import { useToast } from '@/hooks/use-toast';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Location } from '@/types/location';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react';
@@ -135,16 +133,6 @@ export const TripPlanner = () => {
                 className="h-[400px] md:h-[500px] w-full transition-all duration-300"
                 onAddLocation={handleAddLocation}
               />
-            </div>
-            
-            <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100/50 bg-white transition-all duration-300 hover:shadow-xl">
-              {selectedLocation ? (
-                <TravelRecommendations location={selectedLocation} />
-              ) : (
-                <div className="flex items-center justify-center h-32 text-muted-foreground bg-white/50 backdrop-blur-sm animate-in fade-in-50">
-                  Select a location to see travel recommendations
-                </div>
-              )}
             </div>
           </main>
         </div>
