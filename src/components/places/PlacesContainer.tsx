@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { Location } from '@/types/location';
 import { PlacesList } from './PlacesList';
 import { PlacesFilters } from './PlacesFilters';
@@ -15,7 +15,7 @@ interface PlacesContainerProps {
   onAddLocation?: (location: Location) => void;
 }
 
-export const PlacesContainer = ({ 
+export const PlacesContainer = memo(({ 
   selectedLocation,
   onAddLocation 
 }: PlacesContainerProps) => {
@@ -52,45 +52,68 @@ export const PlacesContainer = ({
     }
   };
 
-  return (
-    <div className="space-y-6 animate-in fade-in-50">
-      <div className="flex items-center justify-between">
-        <Input
-          type="search"
-          placeholder="Search places..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm transition-all duration-200 focus:ring-2"
-        />
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          className="ml-2"
-        >
-          {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center p-4 space-y-4">
+        <p className="text-destructive">Error loading places: {error?.message || 'Unknown error'}</p>
+        <Button onClick={() => window.location.reload()} variant="outline">
+          Retry
         </Button>
       </div>
+    );
+  }
 
-      <div className="transition-all duration-300 ease-in-out">
+  return (
+    <div className="h-full flex flex-col">
+      <div className="p-4 space-y-4">
+        <div className="flex items-center justify-between">
+          <Input
+            type="text"
+            placeholder="Search places..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="flex-1 mr-2"
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          >
+            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </Button>
+        </div>
         <PlacesFilters
-          filters={filterOptions}
-          onFiltersChange={handleFilterChange}
+          filterOptions={filterOptions}
+          onFilterChange={handleFilterChange}
         />
       </div>
 
-      <div 
-        className="space-y-4 max-h-[600px] overflow-y-auto pr-2"
-        onScroll={handleScroll}
-      >
-        <PlacesList 
-          places={places} 
-          isLoading={isLoading}
-          error={isError ? error : null}
-          onAddToItinerary={onAddLocation}
-          isFetchingNext={isFetchingNextPage}
-        />
+      <div className="flex-1 overflow-auto" onScroll={handleScroll}>
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center h-full space-y-4">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            <p className="text-muted-foreground">Loading places...</p>
+          </div>
+        ) : (
+          <PlacesList
+            places={places}
+            onAddLocation={onAddLocation}
+          />
+        )}
+        
+        {isFetchingNextPage && (
+          <div className="p-4 flex justify-center">
+            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        )}
       </div>
     </div>
   );
-};
+}, (prevProps, nextProps) => {
+  return (
+    prevProps.selectedLocation.id === nextProps.selectedLocation.id &&
+    prevProps.onAddLocation === nextProps.onAddLocation
+  );
+});
+
+PlacesContainer.displayName = 'PlacesContainer';

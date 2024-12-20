@@ -1,8 +1,15 @@
+export interface Coordinates {
+  lat: number;
+  lng: number;
+}
+
 export interface Location {
   id: string;
   name: string;
-  lat: number;
-  lng: number;
-  startDate?: Date;
-  endDate?: Date;
+  address: string;
+  coordinates: Coordinates;
+  type: string;
+  startTime?: string;
+  endTime?: string;
+  notes?: string;
 }
