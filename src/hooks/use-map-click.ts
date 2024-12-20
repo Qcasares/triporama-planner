@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Location } from '@/types/location';
-import { type ToastProps } from '@/components/ui/toast';
+import { type ToastProps } from '@/hooks/use-toast';
 
 interface ClickedLocation {
   lat: number;
