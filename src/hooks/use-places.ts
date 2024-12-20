@@ -16,6 +16,7 @@ export const usePlaces = (
     isFetchingNextPage,
     isLoading,
     isError,
+    error
   } = useInfiniteQuery({
     queryKey: ['places', selectedLocation.id, filters],
     queryFn: async ({ pageParam = 0 }) => {
@@ -48,6 +49,7 @@ export const usePlaces = (
     places,
     isLoading,
     isError,
+    error,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,

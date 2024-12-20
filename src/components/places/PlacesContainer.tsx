@@ -27,6 +27,7 @@ export const PlacesContainer = ({
   const {
     places,
     isLoading,
+    isError,
     error,
     fetchNextPage,
     hasNextPage,
@@ -82,7 +83,7 @@ export const PlacesContainer = ({
         <PlacesList 
           places={places} 
           isLoading={isLoading}
-          error={error}
+          error={isError ? error : null}
           onAddToItinerary={onAddLocation}
           isFetchingNext={isFetchingNextPage}
         />
