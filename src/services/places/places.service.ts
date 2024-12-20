@@ -9,14 +9,16 @@ export class PlacesService {
 
   constructor() {
     this.apiKey = localStorage.getItem('googleMapsApiKey') || '';
-    this.initializePlacesService();
+    if (typeof window !== 'undefined' && window.google) {
+      this.initializePlacesService();
+    } else {
+      console.warn('Google Maps API not loaded');
+    }
   }
 
   private initializePlacesService() {
     try {
-      // Create a temporary div element to initialize the PlacesService
       const mapDiv = document.createElement('div');
-      // Initialize a map instance (required for PlacesService)
       this.map = new window.google.maps.Map(mapDiv, {
         center: { lat: 0, lng: 0 },
         zoom: 1
@@ -35,15 +37,19 @@ export class PlacesService {
     }
 
     if (!this.placesService) {
-      console.error('Places service not initialized');
-      return [];
+      // Try to initialize again if it failed the first time
+      this.initializePlacesService();
+      if (!this.placesService) {
+        console.error('Places service not initialized');
+        return [];
+      }
     }
 
-    const request: google.maps.places.PlaceSearchRequest = {
+    const request = {
       location: new window.google.maps.LatLng(location.lat, location.lng),
-      radius: 16000,
-      type: type as unknown as google.maps.places.PlaceType,
-      rankBy: google.maps.places.RankBy.PROMINENCE,
+      radius: 16000, // 10 miles in meters
+      type: type as string, // Cast to string to avoid type issues
+      rankBy: window.google.maps.places.RankBy.PROMINENCE,
     };
 
     try {
@@ -72,7 +78,7 @@ export class PlacesService {
       }
 
       this.placesService.nearbySearch(request, (results, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+        if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
           resolve(results);
         } else {
           reject(new Error(`Places search failed: ${status}`));
@@ -122,7 +128,7 @@ export class PlacesService {
           fields: ['reviews', 'website', 'opening_hours', 'formatted_phone_number']
         },
         (result, status) => {
-          if (status === google.maps.places.PlacesServiceStatus.OK && result) {
+          if (status === window.google.maps.places.PlacesServiceStatus.OK && result) {
             resolve(result);
           } else {
             reject(new Error(`Place details fetch failed: ${status}`));
