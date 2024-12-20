@@ -1,31 +1,26 @@
 import React from 'react';
 import { InfoWindow } from '@react-google-maps/api';
-import { Button } from '../ui/button';
-import { Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Location } from '@/types/location';
 
-interface MapClickInfoWindowProps {
-  position: { lat: number; lng: number };
+export interface MapClickInfoWindowProps {
+  position: google.maps.LatLngLiteral;
   name: string;
   onClose: () => void;
   onAdd: () => void;
 }
 
-export const MapClickInfoWindow = ({ position, name, onClose, onAdd }: MapClickInfoWindowProps) => {
+export const MapClickInfoWindow = ({
+  position,
+  name,
+  onClose,
+  onAdd,
+}: MapClickInfoWindowProps) => {
   return (
-    <InfoWindow
-      position={position}
-      onCloseClick={onClose}
-    >
+    <InfoWindow position={position} onCloseClick={onClose}>
       <div className="p-2">
-        <p className="text-sm mb-2">{name}</p>
-        <Button 
-          size="sm" 
-          onClick={onAdd}
-          className="w-full flex items-center gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          Add to Itinerary
-        </Button>
+        <h3 className="font-medium mb-2">{name}</h3>
+        <Button onClick={onAdd} size="sm">Add to Trip</Button>
       </div>
     </InfoWindow>
   );

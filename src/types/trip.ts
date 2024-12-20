@@ -31,6 +31,7 @@ export interface PackingCategory {
 export interface TripDay {
   date: string;
   locations: Location[];
+  weather?: Weather;
 }
 
 export interface TripStats {
@@ -38,6 +39,7 @@ export interface TripStats {
   totalDistance: number;
   totalDuration: string;
   totalBudget: number;
+  totalCost: number;
 }
 
 export interface Collaborator {
@@ -45,6 +47,7 @@ export interface Collaborator {
   email: string;
   role: 'editor' | 'viewer';
   status: 'accepted' | 'pending' | 'rejected';
+  joinedAt?: string;
 }
 
 export interface Trip {
@@ -59,4 +62,5 @@ export interface Trip {
   stats: TripStats;
   weather: Weather[];
   packingList: PackingCategory[];
+  shareUrl?: string;
 }

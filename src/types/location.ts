@@ -1,14 +1,12 @@
-export interface Coordinates {
-  lat: number;
-  lng: number;
-}
-
 export interface Location {
   id: string;
   name: string;
-  address: string;
-  coordinates: Coordinates;
-  type: string;
+  lat: number;
+  lng: number;
+  address?: string;
+  startDate?: Date;
+  endDate?: Date;
+  type?: string;
   startTime?: string;
   endTime?: string;
   notes?: string;
