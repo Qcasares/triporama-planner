@@ -21,7 +21,7 @@ import {
 } from '@/config/map-config';
 
 interface MapContainerProps {
-  locations: Location[];
+  locations?: Location[];
   className?: string;
   onAddLocation?: (location: Location) => void;
 }
@@ -39,7 +39,7 @@ const MapSkeleton = () => (
 );
 
 export const MapContainer = React.memo(({ 
-  locations, 
+  locations = [], 
   className, 
   onAddLocation 
 }: MapContainerProps) => {
@@ -57,6 +57,8 @@ export const MapContainer = React.memo(({
   if (!apiKey) {
     return <NoApiKeyWarning />;
   }
+
+  const initialCenter = locations && locations.length > 0 ? locations[0] : defaultCenter;
 
   return (
     <MapErrorBoundary>
@@ -80,7 +82,7 @@ export const MapContainer = React.memo(({
               isLoading && "opacity-0",
               className
             )}
-            center={locations[0] || defaultCenter}
+            center={initialCenter}
             zoom={MAP_CONSTANTS.DEFAULT_ZOOM}
             options={{
               ...defaultMapOptions,

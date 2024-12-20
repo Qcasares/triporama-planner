@@ -7,7 +7,7 @@ import { MapPin } from 'lucide-react';
 import { LocationSearch } from './LocationSearch';
 
 interface SidebarProps {
-  locations: Location[];
+  locations?: Location[];
   selectedLocation?: Location;
   loading?: boolean;
   onAddLocation?: (location: Location) => void;
@@ -20,7 +20,7 @@ interface SidebarProps {
 }
 
 export const Sidebar = ({
-  locations,
+  locations = [],
   selectedLocation,
   loading = false,
   onAddLocation,
