@@ -7,6 +7,7 @@ export interface Place {
   };
   rating?: number;
   distance?: number;
+  priceLevel?: number;
   placeType?: string[];
   photos?: google.maps.places.PlacePhoto[];
   description?: string;
