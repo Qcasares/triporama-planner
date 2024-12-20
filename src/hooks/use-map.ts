@@ -9,17 +9,12 @@ export const useMap = (locations: Location[]) => {
 
     if (locations.length === 0) return;
 
-    // Create bounds object
     const bounds = new google.maps.LatLngBounds();
 
-    // Extend bounds with all locations
     locations.forEach(location => {
-      if (typeof location.lat === 'number' && typeof location.lng === 'number') {
-        bounds.extend({ lat: location.lat, lng: location.lng });
-      }
+      bounds.extend({ lat: location.lat, lng: location.lng });
     });
 
-    // Fit bounds with padding - using the correct type format
     map.fitBounds(bounds, {
       top: 50,
       right: 50,
@@ -27,7 +22,6 @@ export const useMap = (locations: Location[]) => {
       left: 50
     });
 
-    // If there's only one location, set an appropriate zoom level
     if (locations.length === 1) {
       map.setZoom(13);
     }
