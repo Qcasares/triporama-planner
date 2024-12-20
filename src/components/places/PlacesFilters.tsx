@@ -21,6 +21,9 @@ export const PlacesFilters = ({ filters, onFiltersChange }: FiltersProps) => {
     { value: 'shopping_mall', label: 'Shopping' },
   ];
 
+  // Convert meters to miles for display
+  const distanceInMiles = (filters.distance / 1609.34).toFixed(1);
+
   return (
     <Card className="p-4 space-y-4">
       <div className="grid gap-4 md:grid-cols-3">
@@ -46,7 +49,7 @@ export const PlacesFilters = ({ filters, onFiltersChange }: FiltersProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label>Minimum Rating</Label>
+          <Label>Minimum Rating ({filters.rating.toFixed(1)} stars)</Label>
           <Slider
             value={[filters.rating]}
             min={0}
@@ -59,7 +62,7 @@ export const PlacesFilters = ({ filters, onFiltersChange }: FiltersProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label>Distance (km)</Label>
+          <Label>Distance ({distanceInMiles} miles)</Label>
           <Slider
             value={[filters.distance / 1000]}
             min={1}
