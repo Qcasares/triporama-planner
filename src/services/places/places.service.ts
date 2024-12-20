@@ -4,13 +4,18 @@ import { toast } from '@/hooks/use-toast';
 
 export class PlacesService {
   private apiKey: string;
-  private placesService: google.maps.places.PlacesService;
+  private placesService: google.maps.places.PlacesService | null = null;
 
   constructor() {
     this.apiKey = localStorage.getItem('googleMapsApiKey') || '';
-    this.placesService = new google.maps.places.PlacesService(
-      document.createElement('div')
-    );
+    // Create a temporary div element to initialize the PlacesService
+    const mapDiv = document.createElement('div');
+    // Initialize a map instance (required for PlacesService)
+    const map = new google.maps.Map(mapDiv, {
+      center: { lat: 0, lng: 0 },
+      zoom: 1
+    });
+    this.placesService = new google.maps.places.PlacesService(map);
   }
 
   async searchNearby(location: Location, type: string): Promise<Place[]> {
@@ -19,10 +24,15 @@ export class PlacesService {
       return [];
     }
 
+    if (!this.placesService) {
+      console.error('Places service not initialized');
+      return [];
+    }
+
     const request: google.maps.places.PlaceSearchRequest = {
       location: new google.maps.LatLng(location.lat, location.lng),
       radius: 16000,
-      type: type as google.maps.places.PlaceType,
+      type: type as google.maps.places.PlaceType[keyof google.maps.places.PlaceType],
       rankBy: google.maps.places.RankBy.PROMINENCE,
     };
 
@@ -46,6 +56,11 @@ export class PlacesService {
 
   private nearbySearch(request: google.maps.places.PlaceSearchRequest): Promise<google.maps.places.PlaceResult[]> {
     return new Promise((resolve, reject) => {
+      if (!this.placesService) {
+        reject(new Error('Places service not initialized'));
+        return;
+      }
+
       this.placesService.nearbySearch(request, (results, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK && results) {
           resolve(results);
@@ -69,8 +84,8 @@ export class PlacesService {
         vicinity: place.vicinity || '',
         photos: place.photos,
         types: place.types || [],
-        lat: place.geometry?.location?.lat(),
-        lng: place.geometry?.location?.lng(),
+        lat: place.geometry?.location?.lat() || 0,
+        lng: place.geometry?.location?.lng() || 0,
         website: details?.website,
         openingHours: details?.opening_hours ? {
           weekdayText: details.opening_hours.weekday_text || [],
@@ -86,6 +101,11 @@ export class PlacesService {
 
   private fetchPlaceDetails(placeId: string): Promise<google.maps.places.PlaceResult> {
     return new Promise((resolve, reject) => {
+      if (!this.placesService) {
+        reject(new Error('Places service not initialized'));
+        return;
+      }
+
       this.placesService.getDetails(
         {
           placeId,
