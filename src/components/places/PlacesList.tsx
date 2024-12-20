@@ -103,8 +103,9 @@ export const PlacesList = React.memo(({
   return (
     prevProps.isLoading === nextProps.isLoading &&
     prevProps.error === nextProps.error &&
-    prevProps.places === nextProps.places &&
-    prevProps.isFetchingNext === nextProps.isFetchingNext
+    prevProps.isFetchingNext === nextProps.isFetchingNext &&
+    prevProps.places.length === nextProps.places.length &&
+    prevProps.places.every((place, index) => place.id === nextProps.places[index].id)
   );
 });
 
