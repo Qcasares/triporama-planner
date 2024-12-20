@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { GoogleMap, LoadScript } from '@react-google-maps/api';
 import { useMap } from '@/hooks/use-map';
 import { Location } from '@/types/location';
 import { cn } from '@/lib/utils';
 import { LocationMarkers } from './map/LocationMarkers';
 import { DirectionsLayer } from './map/DirectionsLayer';
-import { useToast } from '@/hooks/use-toast';
-import { NoApiKeyWarning } from './map/NoApiKeyWarning';
 import { MapClickInfoWindow } from './map/MapClickInfoWindow';
 import { MapControls } from './map/MapControls';
+import { NoApiKeyWarning } from './map/NoApiKeyWarning';
 import { useMapDirections } from '@/hooks/use-map-directions';
 import { useMapClick } from '@/hooks/use-map-click';
 import { 
@@ -28,13 +27,7 @@ export const MapContainer = ({ locations, className, onAddLocation }: MapContain
   const [apiKey] = React.useState(() => localStorage.getItem('googleMapsApiKey') || '');
   const { mapRef, onMapLoad } = useMap(locations);
   const { directions } = useMapDirections(locations);
-  const { toast } = useToast();
-  const { 
-    clickedLocation, 
-    handleMapClick, 
-    handleAddLocation, 
-    setClickedLocation 
-  } = useMapClick(onAddLocation, toast);
+  const { clickedLocation, handleMapClick, handleAddLocation, setClickedLocation } = useMapClick(onAddLocation);
 
   if (!apiKey) {
     return <NoApiKeyWarning />;
