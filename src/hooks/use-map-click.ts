@@ -2,16 +2,8 @@ import { useState } from 'react';
 import { Location } from '@/types/location';
 import { useToast } from '@/hooks/use-toast';
 
-interface ClickedLocation {
-  lat: number;
-  lng: number;
-  name: string;
-}
-
-export const useMapClick = (
-  onAddLocation?: (location: Location) => void
-) => {
-  const [clickedLocation, setClickedLocation] = useState<ClickedLocation | null>(null);
+export const useMapClick = (onAddLocation?: (location: Location) => void) => {
+  const [clickedLocation, setClickedLocation] = useState<Location | null>(null);
   const { toast } = useToast();
 
   const handleMapClick = (e: google.maps.MapMouseEvent) => {
@@ -27,9 +19,10 @@ export const useMapClick = (
       (results, status) => {
         if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
           setClickedLocation({
+            id: String(Date.now()),
+            name: results[0].formatted_address,
             lat,
             lng,
-            name: results[0].formatted_address,
           });
         } else {
           toast({
@@ -45,13 +38,8 @@ export const useMapClick = (
   const handleAddLocation = () => {
     if (!clickedLocation) return;
 
-    onAddLocation?.({
-      id: String(Date.now()),
-      name: clickedLocation.name,
-      lat: clickedLocation.lat,
-      lng: clickedLocation.lng,
-    });
-
+    onAddLocation?.(clickedLocation);
+    
     toast({
       title: "Success",
       description: "Location added to your trip",
