@@ -46,10 +46,10 @@ export const LocationCard = ({
         "group relative p-4 rounded-lg border transition-all duration-300",
         "hover:shadow-md hover:border-[#0EA5E9]/20 cursor-pointer",
         "animate-in fade-in-50 slide-in-from-left-5",
-        isSelected && "border-[#0EA5E9] bg-[#F1F0FB]"
+        isSelected && "border-2 border-primary bg-primary/10"
       )}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-3 pb-2 border-b">
         <div className={cn(
           "flex items-center justify-center w-8 h-8 rounded-full",
           isStart ? "bg-green-100" : isEnd ? "bg-purple-100" : "bg-blue-100"
@@ -68,14 +68,14 @@ export const LocationCard = ({
           {(location.startDate || location.endDate) && (
             <div className="text-sm text-muted-foreground mt-1 space-y-1">
               {location.startDate && (
-                <div className="flex items-center gap-2">
-                  <span>From:</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-xs">From:</span>
                   <span>{format(new Date(location.startDate), 'MMM d, yyyy')}</span>
                 </div>
               )}
               {location.endDate && (
-                <div className="flex items-center gap-2">
-                  <span>To:</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-xs">To:</span>
                   <span>{format(new Date(location.endDate), 'MMM d, yyyy')}</span>
                 </div>
               )}

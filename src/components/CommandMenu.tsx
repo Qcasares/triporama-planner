@@ -68,7 +68,7 @@ export const CommandMenu = ({ locations, onAddLocation, isSummaryOpen, toggleSum
               navigate('/');
             }}>
               <Home className="mr-2 h-4 w-4" />
-              Go to Home
+              <span className="flex-1">Go to Home</span>
             </CommandItem>
           </CommandGroup>
 
@@ -80,7 +80,7 @@ export const CommandMenu = ({ locations, onAddLocation, isSummaryOpen, toggleSum
               }}
             >
               <Key className="mr-2 h-4 w-4" />
-              Manage API Key
+              <span className="flex-1">Manage API Key</span>
             </CommandItem>
           </CommandGroup>
 
@@ -97,7 +97,7 @@ export const CommandMenu = ({ locations, onAddLocation, isSummaryOpen, toggleSum
               }}
             >
               <PlusCircle className="mr-2 h-4 w-4" />
-              Add New Location (⌘/Ctrl + N)
+              <span className="flex-1">Add New Location (⌘/Ctrl + N)</span>
             </CommandItem>
 
             <CommandItem
@@ -107,7 +107,7 @@ export const CommandMenu = ({ locations, onAddLocation, isSummaryOpen, toggleSum
               }}
             >
               <List className="mr-2 h-4 w-4" />
-              Toggle Summary (⌘/Ctrl + S)
+              <span className="flex-1">Toggle Summary (⌘/Ctrl + S)</span>
             </CommandItem>
           </CommandGroup>
         </CommandList>

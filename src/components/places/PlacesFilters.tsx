@@ -24,28 +24,28 @@ export const PlacesFilters = ({ filters, onFiltersChange }: FiltersProps) => {
   ];
 
   return (
-    <Card className="p-4 space-y-4">
-      <div className="grid gap-4 md:grid-cols-2">
+    <Card className="p-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Sort By</Label>
+          <Label className="text-sm">Sort By</Label>
           <Select
             value={filters.sortBy}
             onValueChange={(value) =>
               onFiltersChange({ ...filters, sortBy: value })
             }
           >
-            <SelectTrigger>
+            <SelectTrigger className="text-sm">
               <SelectValue placeholder="Select sort order" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="rating">Rating</SelectItem>
-              <SelectItem value="distance">Distance</SelectItem>
+              <SelectItem value="rating" className="text-sm">Rating</SelectItem>
+              <SelectItem value="distance" className="text-sm">Distance</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
-          <Label>Minimum Rating ({filters.minRating.toFixed(1)} stars)</Label>
+          <Label className="text-sm">Minimum Rating ({filters.minRating.toFixed(1)} stars)</Label>
           <Slider
             value={[filters.minRating]}
             min={0}
