@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { GoogleMap, LoadScript, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, LoadScript } from '@react-google-maps/api';
 import { useMap } from '@/hooks/use-map';
 import { Location } from '@/types/location';
 import { cn } from '@/lib/utils';
-import { MapPin, Plus } from 'lucide-react';
 import { LocationMarkers } from './map/LocationMarkers';
 import { DirectionsLayer } from './map/DirectionsLayer';
-import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { NoApiKeyWarning } from './map/NoApiKeyWarning';
+import { MapClickInfoWindow } from './map/MapClickInfoWindow';
 import { 
   mapContainerStyle, 
   defaultCenter, 
@@ -51,10 +51,7 @@ export const MapContainer = ({ locations, className, onAddLocation }: MapContain
       optimizeWaypoints: false,
     };
 
-    console.log('Requesting directions with:', request);
-
     directionsService.route(request, (result, status) => {
-      console.log('Directions response:', { result, status });
       if (status === google.maps.DirectionsStatus.OK && result) {
         setDirections(result);
       } else {
@@ -110,15 +107,7 @@ export const MapContainer = ({ locations, className, onAddLocation }: MapContain
   };
 
   if (!apiKey) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[500px] bg-[#F1F0FB] rounded-xl p-8 text-center">
-        <MapPin className="h-12 w-12 text-muted-foreground/50 mb-4" />
-        <h3 className="text-lg font-medium mb-2">Google Maps API Key Required</h3>
-        <p className="text-muted-foreground max-w-md">
-          Please set your Google Maps API key in the settings menu to enable map functionality
-        </p>
-      </div>
-    );
+    return <NoApiKeyWarning />;
   }
 
   return (
@@ -145,22 +134,12 @@ export const MapContainer = ({ locations, className, onAddLocation }: MapContain
         )}
 
         {clickedLocation && (
-          <InfoWindow
+          <MapClickInfoWindow
             position={{ lat: clickedLocation.lat, lng: clickedLocation.lng }}
-            onCloseClick={() => setClickedLocation(null)}
-          >
-            <div className="p-2">
-              <p className="text-sm mb-2">{clickedLocation.name}</p>
-              <Button 
-                size="sm" 
-                onClick={handleAddLocation}
-                className="w-full flex items-center gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                Add to Itinerary
-              </Button>
-            </div>
-          </InfoWindow>
+            name={clickedLocation.name}
+            onClose={() => setClickedLocation(null)}
+            onAdd={handleAddLocation}
+          />
         )}
       </GoogleMap>
     </LoadScript>
