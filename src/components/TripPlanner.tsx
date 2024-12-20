@@ -13,6 +13,7 @@ import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Progress } from '@/components/ui/progress';
+import { PlacesContainer } from '@/components/places/PlacesContainer';
 
 export const TripPlanner = () => {
   const { currentLocation, error: geoError } = useGeolocation();
@@ -135,6 +136,8 @@ export const TripPlanner = () => {
               />
             </div>
           </main>
+
+          <PlacesContainer selectedLocation={selectedLocation} />
         </div>
       </SidebarProvider>
     </div>
