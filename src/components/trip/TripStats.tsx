@@ -29,6 +29,8 @@ export const TripStats = () => {
     return acc;
   }, [] as { category: string; amount: number }[]);
 
+  const progressValue = (currentTrip.stats.numberOfStops / 20) * 100;
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <Card>
@@ -39,7 +41,7 @@ export const TripStats = () => {
         <CardContent>
           <div className="text-2xl font-bold">{currentTrip.stats.numberOfStops}</div>
           <Progress
-            value={(currentTrip.stats.numberOfStops / 20) * 100}
+            value={progressValue}
             className="mt-2"
           />
         </CardContent>

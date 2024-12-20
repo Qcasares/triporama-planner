@@ -12,6 +12,7 @@ interface PlacesListProps {
   isFetchingNext?: boolean;
   error?: Error | null;
   onAddToItinerary?: (location: Location) => void;
+  onAddLocation?: (location: Location) => void;
 }
 
 export const PlacesList = React.memo(({ 
@@ -19,7 +20,8 @@ export const PlacesList = React.memo(({
   isLoading,
   isFetchingNext,
   error,
-  onAddToItinerary
+  onAddToItinerary,
+  onAddLocation
 }: PlacesListProps) => {
   const [favorites, setFavorites] = React.useState<Set<string>>(new Set());
 

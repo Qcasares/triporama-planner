@@ -5,21 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, X } from 'lucide-react';
-
-interface PackingItem {
-  id: string;
-  name: string;
-  checked: boolean;
-  category: string;
-}
-
-const defaultCategories = [
-  'Essentials',
-  'Clothing',
-  'Electronics',
-  'Toiletries',
-  'Documents',
-];
+import { PackingItem } from '@/types/trip';
 
 export const PackingList = () => {
   const { state } = useTrip();
@@ -27,12 +13,14 @@ export const PackingList = () => {
   const [newItem, setNewItem] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Essentials');
   const [packingItems, setPackingItems] = useState<PackingItem[]>(
-    currentTrip?.packingList?.map((item) => ({
-      id: Math.random().toString(36).substr(2, 9),
-      name: item,
-      checked: false,
-      category: 'Essentials',
-    })) || []
+    currentTrip?.packingList?.flatMap(category => 
+      category.items.map(item => ({
+        id: item.id,
+        name: item.name,
+        checked: item.checked,
+        category: category.category
+      }))
+    ) || []
   );
 
   const handleAddItem = () => {
@@ -83,7 +71,7 @@ export const PackingList = () => {
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
             >
-              {defaultCategories.map((category) => (
+              {['Essentials', 'Clothing', 'Electronics', 'Toiletries', 'Documents'].map((category) => (
                 <option key={category} value={category}>
                   {category}
                 </option>

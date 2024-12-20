@@ -1,8 +1,8 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
+import { motion, HTMLMotionProps } from 'framer-motion';
 
-interface PageWrapperProps extends React.HTMLAttributes<HTMLDivElement> {
+interface PageWrapperProps extends Omit<HTMLMotionProps<"div">, "ref"> {
   children: React.ReactNode;
 }
 
@@ -18,7 +18,7 @@ export const PageWrapper = ({ children, className, ...props }: PageWrapperProps)
   </motion.div>
 );
 
-interface SectionProps extends React.HTMLAttributes<HTMLDivElement> {
+interface SectionProps extends Omit<HTMLMotionProps<"section">, "ref"> {
   children: React.ReactNode;
 }
 
@@ -73,7 +73,7 @@ export const CardGrid = ({
   </div>
 );
 
-interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
+interface GlassCardProps extends Omit<HTMLMotionProps<"div">, "ref"> {
   children: React.ReactNode;
 }
 

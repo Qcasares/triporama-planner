@@ -84,41 +84,7 @@ export const MapContainer = React.memo(({
             )}
             center={initialCenter}
             zoom={MAP_CONSTANTS.DEFAULT_ZOOM}
-            options={{
-              ...defaultMapOptions,
-              styles: [
-                {
-                  featureType: "all",
-                  elementType: "labels.text.fill",
-                  stylers: [{ color: "#6c7293" }],
-                },
-                {
-                  featureType: "landscape",
-                  elementType: "all",
-                  stylers: [{ color: "#f2f2f2" }],
-                },
-                {
-                  featureType: "poi",
-                  elementType: "all",
-                  stylers: [{ visibility: "off" }],
-                },
-                {
-                  featureType: "road",
-                  elementType: "all",
-                  stylers: [{ saturation: -100 }, { lightness: 45 }],
-                },
-                {
-                  featureType: "road.highway",
-                  elementType: "all",
-                  stylers: [{ visibility: "simplified" }],
-                },
-                {
-                  featureType: "water",
-                  elementType: "all",
-                  stylers: [{ color: "#b3d4fc" }, { visibility: "on" }],
-                },
-              ],
-            }}
+            options={defaultMapOptions}
             onLoad={handleMapLoaded}
             onClick={handleMapClick}
           >
@@ -129,7 +95,8 @@ export const MapContainer = React.memo(({
             {directions && <DirectionsLayer directions={directions} />}
             {clickedLocation && (
               <MapClickInfoWindow
-                location={clickedLocation}
+                position={{ lat: clickedLocation.lat, lng: clickedLocation.lng }}
+                name={clickedLocation.name}
                 onClose={() => setClickedLocation(null)}
                 onAdd={handleAddLocation}
               />

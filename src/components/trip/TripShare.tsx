@@ -36,6 +36,7 @@ export const TripShare = () => {
       await tripService.addCollaborator(currentTrip.id, {
         email,
         role,
+        status: 'pending',
         joinedAt: new Date().toISOString(),
       });
       toast({
