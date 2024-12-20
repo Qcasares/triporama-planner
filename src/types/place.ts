@@ -5,8 +5,17 @@ export interface Place {
     lat: number;
     lng: number;
   };
-  description?: string;
-  category?: string;
   rating?: number;
-  imageUrl?: string;
+  distance?: number;
+  placeType?: string[];
+  photos?: google.maps.places.PlacePhoto[];
+  description?: string;
+  openingHours?: {
+    isOpen?: boolean;
+    weekdayText?: string[];
+  };
+  contact?: {
+    phone?: string;
+    website?: string;
+  };
 }

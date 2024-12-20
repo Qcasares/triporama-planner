@@ -1,8 +1,7 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Building2, Heart, HeartOff, Star } from 'lucide-react';
+import { Building2, Heart, HeartOff, Star, Clock, Phone, Globe } from 'lucide-react';
 import { Place } from '@/types/place';
 import { cn } from '@/lib/utils';
 
@@ -14,10 +13,9 @@ interface PlaceCardProps {
 
 export const PlaceCard = ({ place, isFavorite, onToggleFavorite }: PlaceCardProps) => {
   const photoUrl = place.photos?.[0]?.getUrl({ maxWidth: 400, maxHeight: 300 });
-  const priceLevel = '💰'.repeat(place.priceLevel || 1);
 
   return (
-    <Card className="group mb-4 overflow-hidden hover:shadow-lg transition-all duration-300 border-sage-100">
+    <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300">
       <div className="flex flex-col md:flex-row">
         <div className="md:w-1/3 relative">
           {photoUrl ? (
@@ -30,20 +28,19 @@ export const PlaceCard = ({ place, isFavorite, onToggleFavorite }: PlaceCardProp
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             </div>
           ) : (
-            <div className="h-48 md:h-full bg-sage-50 flex items-center justify-center">
-              <Building2 className="h-12 w-12 text-sage-300" />
+            <div className="h-48 md:h-full bg-gray-100 flex items-center justify-center">
+              <Building2 className="h-12 w-12 text-gray-300" />
             </div>
           )}
           <Button
             variant="ghost"
             size="icon"
             className={cn(
-              "absolute top-2 right-2 bg-white/90 hover:bg-white shadow-sm transition-all duration-200",
+              "absolute top-2 right-2 bg-white/90 hover:bg-white shadow-sm",
               "hover:scale-110 focus-visible:scale-110",
-              "focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
+              "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             )}
             onClick={() => onToggleFavorite(place.id)}
-            aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
           >
             {isFavorite ? (
               <Heart className="h-4 w-4 fill-red-500 text-red-500" />
@@ -56,82 +53,86 @@ export const PlaceCard = ({ place, isFavorite, onToggleFavorite }: PlaceCardProp
         <div className="flex-1 p-6">
           <div className="space-y-4">
             <div>
-              <h3 className="text-xl font-semibold tracking-tight group-hover:text-sage-700 transition-colors">
+              <h3 className="text-xl font-semibold tracking-tight">
                 {place.name}
               </h3>
-              <p className="text-sm text-muted-foreground mt-1">{place.vicinity}</p>
+              {place.placeType && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  {place.placeType.join(', ')}
+                </p>
+              )}
             </div>
             
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1 bg-sage-50 px-2 py-1 rounded-md">
-                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                <span className="text-sm font-medium">{place.rating.toFixed(1)}</span>
-              </div>
-              <span className="text-sm font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">
-                {priceLevel}
-              </span>
+            <div className="flex flex-wrap gap-2">
+              {place.rating && (
+                <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded-md">
+                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                  <span className="text-sm font-medium">{place.rating.toFixed(1)}</span>
+                </div>
+              )}
+              {place.distance && (
+                <span className="text-sm font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-md">
+                  {(place.distance / 1000).toFixed(1)}km away
+                </span>
+              )}
               {place.openingHours?.isOpen !== undefined && (
-                <span 
-                  className={cn(
-                    "text-sm font-medium px-2 py-1 rounded-md",
-                    place.openingHours.isOpen 
-                      ? "text-green-600 bg-green-50" 
-                      : "text-red-600 bg-red-50"
-                  )}
-                >
+                <span className={cn(
+                  "text-sm font-medium px-2 py-1 rounded-md",
+                  place.openingHours.isOpen
+                    ? "text-green-600 bg-green-50"
+                    : "text-red-600 bg-red-50"
+                )}>
                   {place.openingHours.isOpen ? 'Open Now' : 'Closed'}
                 </span>
               )}
             </div>
 
-            {place.reviews && place.reviews.length > 0 && (
-              <div className="bg-sage-50/50 p-3 rounded-lg">
-                <p className="text-sm italic text-muted-foreground">
-                  "{place.reviews[0].text?.slice(0, 100)}..."
-                </p>
-              </div>
+            {place.description && (
+              <p className="text-sm text-muted-foreground">
+                {place.description}
+              </p>
             )}
 
-            <div className="flex items-center gap-2 pt-2">
-              {place.website && (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+            <div className="flex flex-wrap gap-2">
+              {place.contact?.website && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
                   asChild
-                  className="hover:bg-sage-50 hover:text-sage-700"
                 >
                   <a
-                    href={place.website}
+                    href={place.contact.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2"
                   >
-                    Visit Website
+                    <Globe className="h-4 w-4" />
+                    Website
+                  </a>
+                </Button>
+              )}
+              {place.contact?.phone && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  asChild
+                >
+                  <a href={`tel:${place.contact.phone}`}>
+                    <Phone className="h-4 w-4" />
+                    {place.contact.phone}
                   </a>
                 </Button>
               )}
               {place.openingHours?.weekdayText && (
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="hover:bg-sage-50 hover:text-sage-700"
-                    >
-                      Hours
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Opening Hours</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-2">
-                      {place.openingHours.weekdayText.map((text, i) => (
-                        <p key={i} className="text-sm">{text}</p>
-                      ))}
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                >
+                  <Clock className="h-4 w-4" />
+                  Hours
+                </Button>
               )}
             </div>
           </div>

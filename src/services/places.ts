@@ -21,19 +21,51 @@ export class PlacesService {
       rankBy: google.maps.places.RankBy.PROMINENCE,
     };
 
-    return new Promise((resolve, reject) => {
-      service.nearbySearch(request, (results, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-          resolve(results.slice(0, 10));
-        } else {
-          console.error('Places search failed:', status);
-          resolve([]);
-        }
+    try {
+      const results = await new Promise<google.maps.places.PlaceResult[]>((resolve, reject) => {
+        service.nearbySearch(request, (results, status) => {
+          if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+            resolve(results);
+          } else {
+            reject(new Error(`Places search failed: ${status}`));
+          }
+        });
       });
-    });
+
+      const places = await Promise.all(
+        results.slice(0, 10).map(async (result) => {
+          const details = await this.getPlaceDetails(result.place_id!);
+          return {
+            id: result.place_id!,
+            name: result.name!,
+            location: {
+              lat: result.geometry!.location!.lat(),
+              lng: result.geometry!.location!.lng(),
+            },
+            rating: result.rating,
+            placeType: result.types,
+            photos: result.photos,
+            description: details?.reviews?.[0]?.text,
+            openingHours: {
+              isOpen: details?.opening_hours?.isOpen(),
+              weekdayText: details?.opening_hours?.weekday_text,
+            },
+            contact: {
+              phone: details?.formatted_phone_number,
+              website: details?.website,
+            },
+          };
+        })
+      );
+
+      return places;
+    } catch (error) {
+      console.error('Error fetching places:', error);
+      return [];
+    }
   }
 
-  async getPlaceDetails(placeId: string): Promise<any> {
+  private async getPlaceDetails(placeId: string): Promise<google.maps.places.PlaceResult | null> {
     if (!this.apiKey) {
       return null;
     }
@@ -46,14 +78,18 @@ export class PlacesService {
       service.getDetails(
         {
           placeId,
-          fields: ['reviews', 'website', 'opening_hours', 'formatted_phone_number']
+          fields: [
+            'reviews',
+            'website',
+            'opening_hours',
+            'formatted_phone_number'
+          ]
         },
         (result, status) => {
           if (status === google.maps.places.PlacesServiceStatus.OK && result) {
             resolve(result);
           } else {
-            console.error('Place details fetch failed:', status);
-            resolve(null);
+            reject(new Error(`Place details fetch failed: ${status}`));
           }
         }
       );
