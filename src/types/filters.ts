@@ -1,6 +1,6 @@
 export interface FilterOptions {
-  minPrice: number;
-  maxPrice: number;
-  minRating: number;
-  sortBy: 'rating' | 'distance' | 'price';
+  searchTerm: string;
+  category: string;
+  rating: number;
+  priceRange: [number, number];
 }
