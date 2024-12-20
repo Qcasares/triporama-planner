@@ -16,12 +16,12 @@ interface FiltersProps {
 }
 
 export const PlacesFilters = ({ filters, onFiltersChange }: FiltersProps) => {
-  const categories = [
-    { value: 'tourist_attraction', label: 'Tourist Attractions' },
-    { value: 'restaurant', label: 'Restaurants' },
-    { value: 'lodging', label: 'Hotels' },
-    { value: 'shopping_mall', label: 'Shopping' },
-  ];
+  const handleSortByChange = (value: string) => {
+    // Validate that the value is one of the allowed options
+    if (value === 'rating' || value === 'distance') {
+      onFiltersChange({ ...filters, sortBy: value });
+    }
+  };
 
   return (
     <Card className="p-4">
@@ -30,9 +30,7 @@ export const PlacesFilters = ({ filters, onFiltersChange }: FiltersProps) => {
           <Label className="text-sm">Sort By</Label>
           <Select
             value={filters.sortBy}
-            onValueChange={(value) =>
-              onFiltersChange({ ...filters, sortBy: value })
-            }
+            onValueChange={handleSortByChange}
           >
             <SelectTrigger className="text-sm">
               <SelectValue placeholder="Select sort order" />
