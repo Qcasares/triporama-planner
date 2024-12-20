@@ -9,15 +9,42 @@ export class PlacesService {
 
   constructor() {
     this.apiKey = localStorage.getItem('googleMapsApiKey') || '';
-    if (typeof window !== 'undefined' && window.google) {
-      this.initializePlacesService();
-    } else {
-      console.warn('Google Maps API not loaded');
-    }
   }
 
-  private initializePlacesService() {
+  private async waitForGoogleMapsAPI(): Promise<void> {
+    if (typeof window === 'undefined') return;
+
+    // If Google Maps is already loaded, resolve immediately
+    if (window.google?.maps) return;
+
+    // Wait for Google Maps API to load
+    return new Promise((resolve) => {
+      const checkGoogleMaps = setInterval(() => {
+        if (window.google?.maps) {
+          clearInterval(checkGoogleMaps);
+          resolve();
+        }
+      }, 100);
+
+      // Timeout after 10 seconds
+      setTimeout(() => {
+        clearInterval(checkGoogleMaps);
+        console.error('Timeout waiting for Google Maps API');
+        resolve();
+      }, 10000);
+    });
+  }
+
+  private async initializePlacesService() {
+    if (this.placesService) return;
+
     try {
+      await this.waitForGoogleMapsAPI();
+      
+      if (!window.google?.maps) {
+        throw new Error('Google Maps API not available');
+      }
+
       const mapDiv = document.createElement('div');
       this.map = new window.google.maps.Map(mapDiv, {
         center: { lat: 0, lng: 0 },
@@ -37,8 +64,7 @@ export class PlacesService {
     }
 
     if (!this.placesService) {
-      // Try to initialize again if it failed the first time
-      this.initializePlacesService();
+      await this.initializePlacesService();
       if (!this.placesService) {
         console.error('Places service not initialized');
         return [];
@@ -48,7 +74,7 @@ export class PlacesService {
     const request = {
       location: new window.google.maps.LatLng(location.lat, location.lng),
       radius: 16000, // 10 miles in meters
-      type: type as string, // Cast to string to avoid type issues
+      type: type as string,
       rankBy: window.google.maps.places.RankBy.PROMINENCE,
     };
 
