@@ -3,6 +3,7 @@ import { Location } from '@/types/location';
 import { format } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { ScrollArea } from './ui/scroll-area';
+import { MapPin, Clock, Navigation } from 'lucide-react';
 
 interface TripSummaryProps {
   locations: Location[];
@@ -16,6 +17,11 @@ interface SummaryData {
     duration: string;
     startLocation: string;
     endLocation: string;
+    steps: Array<{
+      instructions: string;
+      distance: string;
+      duration: string;
+    }>;
   }>;
 }
 
@@ -60,6 +66,11 @@ export const TripSummary = ({ locations }: TripSummaryProps) => {
             duration: leg.duration!.text,
             startLocation: leg.start_address,
             endLocation: leg.end_address,
+            steps: leg.steps.map(step => ({
+              instructions: step.instructions.replace(/<[^>]*>/g, ''),
+              distance: step.distance!.text,
+              duration: step.duration!.text,
+            })),
           })),
         });
       } catch (error) {
@@ -94,13 +105,19 @@ export const TripSummary = ({ locations }: TripSummaryProps) => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Distance</p>
-                  <p className="text-2xl font-bold">{summaryData.totalDistance}</p>
+                <div className="flex items-center gap-2">
+                  <Navigation className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Total Distance</p>
+                    <p className="text-2xl font-bold">{summaryData.totalDistance}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Duration</p>
-                  <p className="text-2xl font-bold">{summaryData.totalDuration}</p>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Total Duration</p>
+                    <p className="text-2xl font-bold">{summaryData.totalDuration}</p>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -108,24 +125,35 @@ export const TripSummary = ({ locations }: TripSummaryProps) => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Day-by-Day Breakdown</CardTitle>
+              <CardTitle>Detailed Directions</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {locations.map((location, index) => (
-                  <div key={location.id} className="border-b last:border-0 pb-4 last:pb-0">
-                    <h3 className="font-medium">{location.name}</h3>
-                    {location.startDate && (
-                      <p className="text-sm text-muted-foreground">
-                        {format(location.startDate, 'MMM d, yyyy')}
-                        {location.endDate && ` - ${format(location.endDate, 'MMM d, yyyy')}`}
-                      </p>
-                    )}
-                    {summaryData.legs[index] && (
-                      <div className="mt-2 text-sm text-muted-foreground">
-                        <p>Next leg: {summaryData.legs[index].distance} ({summaryData.legs[index].duration})</p>
+              <div className="space-y-6">
+                {summaryData.legs.map((leg, legIndex) => (
+                  <div key={legIndex} className="space-y-4">
+                    <div className="flex items-start gap-3 pb-2 border-b">
+                      <MapPin className="h-5 w-5 text-muted-foreground mt-1" />
+                      <div>
+                        <h4 className="font-medium">Leg {legIndex + 1}</h4>
+                        <p className="text-sm text-muted-foreground">{leg.startLocation}</p>
+                        <p className="text-sm text-muted-foreground">to {leg.endLocation}</p>
+                        <div className="flex items-center gap-2 mt-1 text-sm">
+                          <span className="text-muted-foreground">{leg.distance}</span>
+                          <span className="text-muted-foreground">•</span>
+                          <span className="text-muted-foreground">{leg.duration}</span>
+                        </div>
                       </div>
-                    )}
+                    </div>
+                    <ol className="space-y-3 list-decimal list-inside ml-4">
+                      {leg.steps.map((step, stepIndex) => (
+                        <li key={stepIndex} className="text-sm">
+                          <span dangerouslySetInnerHTML={{ __html: step.instructions }} />
+                          <div className="text-xs text-muted-foreground ml-6 mt-1">
+                            {step.distance} • {step.duration}
+                          </div>
+                        </li>
+                      ))}
+                    </ol>
                   </div>
                 ))}
               </div>
