@@ -6,9 +6,8 @@ import { Slider } from '@/components/ui/slider';
 
 interface FiltersProps {
   filters: {
-    category: string;
-    rating: number;
-    distance: number;
+    minRating: number;
+    sortBy: 'rating' | 'distance';
   };
   onFiltersChange: (filters: any) => void;
 }
@@ -21,55 +20,36 @@ export const PlacesFilters = ({ filters, onFiltersChange }: FiltersProps) => {
     { value: 'shopping_mall', label: 'Shopping' },
   ];
 
-  // Convert meters to miles for display
-  const distanceInMiles = (filters.distance / 1609.34).toFixed(1);
-
   return (
     <Card className="p-4 space-y-4">
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <Label>Category</Label>
+          <Label>Sort By</Label>
           <Select
-            value={filters.category}
+            value={filters.sortBy}
             onValueChange={(value) =>
-              onFiltersChange({ ...filters, category: value })
+              onFiltersChange({ ...filters, sortBy: value })
             }
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select category" />
+              <SelectValue placeholder="Select sort order" />
             </SelectTrigger>
             <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category.value} value={category.value}>
-                  {category.label}
-                </SelectItem>
-              ))}
+              <SelectItem value="rating">Rating</SelectItem>
+              <SelectItem value="distance">Distance</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
-          <Label>Minimum Rating ({filters.rating.toFixed(1)} stars)</Label>
+          <Label>Minimum Rating ({filters.minRating.toFixed(1)} stars)</Label>
           <Slider
-            value={[filters.rating]}
+            value={[filters.minRating]}
             min={0}
             max={5}
             step={0.5}
             onValueChange={([value]) =>
-              onFiltersChange({ ...filters, rating: value })
-            }
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label>Distance ({distanceInMiles} miles)</Label>
-          <Slider
-            value={[filters.distance / 1000]}
-            min={1}
-            max={50}
-            step={1}
-            onValueChange={([value]) =>
-              onFiltersChange({ ...filters, distance: value * 1000 })
+              onFiltersChange({ ...filters, minRating: value })
             }
           />
         </div>

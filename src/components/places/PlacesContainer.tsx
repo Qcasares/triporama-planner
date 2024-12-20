@@ -14,14 +14,21 @@ export const PlacesContainer = ({
   selectedLocation,
   onAddLocation 
 }: PlacesContainerProps) => {
-  const { filters, updateFilter } = usePlaceFilters();
-  const { places, isLoading } = usePlaces(selectedLocation, filters);
+  const { filterOptions, updateMinRating, updateSortBy } = usePlaceFilters();
+  const { places, isLoading } = usePlaces(selectedLocation, {
+    category: filterOptions.sortBy
+  });
+
+  const handleFilterChange = (newFilters: any) => {
+    updateMinRating(newFilters.rating);
+    updateSortBy(newFilters.sortBy);
+  };
 
   return (
     <div className="space-y-6">
       <PlacesFilters
-        filters={filters}
-        onFilterChange={updateFilter}
+        filters={filterOptions}
+        onFiltersChange={handleFilterChange}
       />
       <PlacesList 
         places={places} 
