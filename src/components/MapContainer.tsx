@@ -58,7 +58,9 @@ export const MapContainer = React.memo(({
     return <NoApiKeyWarning />;
   }
 
-  const initialCenter = locations && locations.length > 0 ? locations[0] : defaultCenter;
+  const initialCenter = locations && locations.length > 0 
+    ? { lat: locations[0].lat, lng: locations[0].lng }
+    : defaultCenter;
 
   return (
     <MapErrorBoundary>

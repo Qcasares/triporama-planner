@@ -20,6 +20,7 @@ export interface PackingItem {
   id: string;
   name: string;
   checked: boolean;
+  category: string;
 }
 
 export interface PackingCategory {

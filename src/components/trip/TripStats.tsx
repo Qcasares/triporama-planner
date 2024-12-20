@@ -29,7 +29,9 @@ export const TripStats = () => {
     return acc;
   }, [] as { category: string; amount: number }[]);
 
-  const progressValue = (currentTrip.stats.numberOfStops / 20) * 100;
+  const progressValue = currentTrip.stats.numberOfStops > 0 
+    ? (currentTrip.stats.numberOfStops / 20) * 100 
+    : 0;
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
