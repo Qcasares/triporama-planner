@@ -14,7 +14,7 @@ interface PlacesListProps {
   onAddToItinerary?: (location: Location) => void;
 }
 
-export const PlacesList = ({ 
+export const PlacesList = React.memo(({ 
   places, 
   isLoading,
   isFetchingNext,
@@ -23,7 +23,7 @@ export const PlacesList = ({
 }: PlacesListProps) => {
   const [favorites, setFavorites] = React.useState<Set<string>>(new Set());
 
-  const toggleFavorite = (placeId: string) => {
+  const toggleFavorite = React.useCallback((placeId: string) => {
     setFavorites(prev => {
       const newFavorites = new Set(prev);
       if (newFavorites.has(placeId)) {
@@ -33,7 +33,7 @@ export const PlacesList = ({
       }
       return newFavorites;
     });
-  };
+  }, []);
 
   if (error) {
     return (
@@ -84,7 +84,7 @@ export const PlacesList = ({
           <PlaceCard
             place={place}
             isFavorite={favorites.has(place.id)}
-            onToggleFavorite={toggleFavorite}
+            onToggleFavorite={() => toggleFavorite(place.id)}
             onAddToItinerary={onAddToItinerary}
           />
         </div>
@@ -98,4 +98,14 @@ export const PlacesList = ({
       )}
     </div>
   );
-};
+}, (prevProps, nextProps) => {
+  // Custom comparison function for React.memo
+  return (
+    prevProps.isLoading === nextProps.isLoading &&
+    prevProps.error === nextProps.error &&
+    prevProps.places === nextProps.places &&
+    prevProps.isFetchingNext === nextProps.isFetchingNext
+  );
+});
+
+PlacesList.displayName = 'PlacesList';
