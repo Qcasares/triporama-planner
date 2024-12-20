@@ -1,34 +1,55 @@
-import { useState, useEffect } from 'react';
-import { Place } from '@/types/place';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { Location } from '@/types/location';
+import { Place } from '@/types/place';
 import { PlacesService } from '@/services/places';
 
-export const usePlaces = (selectedLocation: Location, filters: { category: string }) => {
-  const [places, setPlaces] = useState<Place[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+const PLACES_PER_PAGE = 10;
 
-  useEffect(() => {
-    const fetchPlaces = async () => {
-      if (!selectedLocation) return;
+export const usePlaces = (
+  selectedLocation: Location,
+  filters: { category: string; searchTerm?: string }
+) => {
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+  } = useInfiniteQuery({
+    queryKey: ['places', selectedLocation.id, filters],
+    queryFn: async ({ pageParam = 0 }) => {
+      const placesService = new PlacesService();
+      const start = pageParam * PLACES_PER_PAGE;
+      const results = await placesService.searchNearby(
+        { lat: selectedLocation.lat, lng: selectedLocation.lng },
+        filters.category
+      );
       
-      setIsLoading(true);
-      try {
-        const placesService = new PlacesService();
-        const results = await placesService.searchNearby(
-          { lat: selectedLocation.lat, lng: selectedLocation.lng },
-          filters.category || 'tourist_attraction'
-        );
-        setPlaces(results);
-      } catch (error) {
-        console.error('Error fetching places:', error);
-        setPlaces([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+      // Filter by search term if provided
+      const filteredResults = filters.searchTerm
+        ? results.filter(place => 
+            place.name.toLowerCase().includes(filters.searchTerm!.toLowerCase())
+          )
+        : results;
 
-    fetchPlaces();
-  }, [selectedLocation, filters.category]);
+      return {
+        places: filteredResults.slice(start, start + PLACES_PER_PAGE),
+        nextPage: start + PLACES_PER_PAGE < filteredResults.length ? pageParam + 1 : undefined
+      };
+    },
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+    initialPageParam: 0,
+  });
 
-  return { places, isLoading };
+  const places = data?.pages.flatMap(page => page.places) ?? [];
+
+  return {
+    places,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  };
 };
