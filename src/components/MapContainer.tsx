@@ -1,5 +1,5 @@
-import React from 'react';
-import { GoogleMap, LoadScript } from '@react-google-maps/api';
+import React, { useEffect, useState } from 'react';
+import { GoogleMap, LoadScript, DirectionsRenderer } from '@react-google-maps/api';
 import { useMap } from '@/hooks/use-map';
 import { Location } from '@/types/location';
 import { cn } from '@/lib/utils';
@@ -29,6 +29,40 @@ const mapOptions = {
 export const MapContainer = ({ locations, className }: MapContainerProps) => {
   const [apiKey] = React.useState(() => localStorage.getItem('googleMapsApiKey') || '');
   const { mapRef, onMapLoad } = useMap(locations);
+  const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
+
+  useEffect(() => {
+    if (locations.length < 2) {
+      setDirections(null);
+      return;
+    }
+
+    const directionsService = new google.maps.DirectionsService();
+
+    const origin = locations[0];
+    const destination = locations[locations.length - 1];
+    const waypoints = locations.slice(1, -1).map(location => ({
+      location: { lat: location.lat, lng: location.lng },
+      stopover: true
+    }));
+
+    directionsService.route(
+      {
+        origin: { lat: origin.lat, lng: origin.lng },
+        destination: { lat: destination.lat, lng: destination.lng },
+        waypoints,
+        travelMode: google.maps.TravelMode.DRIVING,
+        optimizeWaypoints: false,
+      },
+      (result, status) => {
+        if (status === google.maps.DirectionsStatus.OK && result) {
+          setDirections(result);
+        } else {
+          console.error('Error fetching directions:', status);
+        }
+      }
+    );
+  }, [locations]);
 
   if (!apiKey) {
     return (
@@ -58,7 +92,20 @@ export const MapContainer = ({ locations, className }: MapContainerProps) => {
         options={mapOptions}
         onLoad={onMapLoad}
       >
-        <LocationMarkers locations={locations} />
+        {directions ? (
+          <DirectionsRenderer
+            directions={directions}
+            options={{
+              suppressMarkers: false,
+              polylineOptions: {
+                strokeColor: '#4A90E2',
+                strokeWeight: 4,
+              },
+            }}
+          />
+        ) : (
+          <LocationMarkers locations={locations} />
+        )}
       </GoogleMap>
     </LoadScript>
   );
