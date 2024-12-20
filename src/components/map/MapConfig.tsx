@@ -1,6 +1,5 @@
 import { Libraries } from '@react-google-maps/api';
 
-// Define libraries array outside component to prevent unnecessary reloads
 export const libraries: Libraries = ["places"];
 
 export const mapContainerStyle = {
@@ -40,3 +39,5 @@ export const mapOptions = {
   streetViewControl: true,
   fullscreenControl: true,
 };
+
+export const GOOGLE_MAPS_LIBRARIES: ("places" | "drawing" | "geometry" | "visualization")[] = ["places"];

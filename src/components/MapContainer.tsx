@@ -8,27 +8,18 @@ import { LocationMarkers } from './map/LocationMarkers';
 import { DirectionsLayer } from './map/DirectionsLayer';
 import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { 
+  mapContainerStyle, 
+  defaultCenter, 
+  mapOptions, 
+  GOOGLE_MAPS_LIBRARIES 
+} from './map/MapConfig';
 
 interface MapContainerProps {
   locations: Location[];
   className?: string;
   onAddLocation?: (location: Location) => void;
 }
-
-const GOOGLE_MAPS_LIBRARIES: ("places" | "drawing" | "geometry" | "visualization")[] = ["places"];
-
-const defaultCenter = {
-  lat: 37.7749,
-  lng: -122.4194,
-};
-
-const mapOptions = {
-  disableDefaultUI: false,
-  zoomControl: true,
-  mapTypeControl: false,
-  streetViewControl: true,
-  fullscreenControl: true,
-};
 
 export const MapContainer = ({ locations, className, onAddLocation }: MapContainerProps) => {
   const [apiKey] = React.useState(() => localStorage.getItem('googleMapsApiKey') || '');
