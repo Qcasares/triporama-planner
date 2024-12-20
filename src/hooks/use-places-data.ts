@@ -3,6 +3,7 @@ import { Place } from '@/types/place';
 import { useQuery } from '@tanstack/react-query';
 import { Location } from '@/types/location';
 import { placesService } from '@/services/places/places.service';
+import { toast } from '@/hooks/use-toast';
 
 export const usePlacesData = (location: Location) => {
   const [customPlace, setCustomPlace] = useState({ name: '', type: '', notes: '' });
@@ -20,14 +21,24 @@ export const usePlacesData = (location: Location) => {
     queryKey: ['places', location.id],
     queryFn: async () => {
       console.log('Fetching places for location:', location);
-      const results = await Promise.all(
-        Object.entries(placeTypes).map(async ([key, type]) => {
-          const places = await placesService.searchNearby(location, type);
-          console.log(`Fetched ${places.length} ${key}:`, places);
-          return [key, places];
-        })
-      );
-      return Object.fromEntries(results) as Record<string, Place[]>;
+      try {
+        const results = await Promise.all(
+          Object.entries(placeTypes).map(async ([key, type]) => {
+            const places = await placesService.searchNearby(location, type);
+            console.log(`Fetched ${places.length} ${key}:`, places);
+            return [key, places];
+          })
+        );
+        return Object.fromEntries(results) as Record<string, Place[]>;
+      } catch (error) {
+        console.error('Error fetching places:', error);
+        toast({
+          title: "Error fetching places",
+          description: "There was a problem loading places for this location",
+          variant: "destructive",
+        });
+        return {};
+      }
     },
     enabled: Boolean(location?.id),
     staleTime: 5 * 60 * 1000,

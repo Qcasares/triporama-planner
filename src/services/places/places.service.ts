@@ -14,8 +14,10 @@ export class PlacesService {
   private async waitForGoogleMapsAPI(): Promise<void> {
     if (typeof window === 'undefined') return;
 
-    // If Google Maps is already loaded, resolve immediately
-    if (window.google?.maps) return;
+    if (window.google?.maps) {
+      console.log('Google Maps API already loaded');
+      return;
+    }
 
     console.log('Waiting for Google Maps API to load...');
     
@@ -37,7 +39,10 @@ export class PlacesService {
   }
 
   private async initializePlacesService() {
-    if (this.placesService) return;
+    if (this.placesService) {
+      console.log('Places service already initialized');
+      return;
+    }
 
     try {
       await this.waitForGoogleMapsAPI();
@@ -48,7 +53,6 @@ export class PlacesService {
 
       console.log('Initializing Places service...');
       
-      // Create a temporary map instance for the Places service
       const mapDiv = document.createElement('div');
       this.map = new window.google.maps.Map(mapDiv, {
         center: { lat: 0, lng: 0 },
@@ -81,19 +85,18 @@ export class PlacesService {
       return [];
     }
 
+    await this.initializePlacesService();
+    
     if (!this.placesService) {
-      await this.initializePlacesService();
-      if (!this.placesService) {
-        console.error('Places service not initialized');
-        return [];
-      }
+      console.error('Places service not initialized');
+      return [];
     }
 
-    const request = {
+    const request: google.maps.places.PlaceSearchRequest = {
       location: new window.google.maps.LatLng(location.lat, location.lng),
-      radius: 16000, // 10 miles in meters
-      type: type as string,
-      rankBy: window.google.maps.places.RankBy.PROMINENCE,
+      radius: 5000, // Reduced radius to 5km for more relevant results
+      type: type as google.maps.places.PlaceType,
+      rankBy: window.google.maps.places.RankBy.RATING // Changed to rank by rating
     };
 
     try {
@@ -102,7 +105,10 @@ export class PlacesService {
       console.log('Nearby search results:', results);
       
       const detailedPlaces = await Promise.all(
-        results.slice(0, 10).map(place => this.getPlaceDetails(place))
+        results.slice(0, 10).map(async place => {
+          const details = await this.getPlaceDetails(place);
+          return details;
+        })
       );
       
       return detailedPlaces.filter((place): place is Place => place !== null);
@@ -148,7 +154,7 @@ export class PlacesService {
         rating: place.rating || 0,
         priceLevel: place.price_level || 0,
         vicinity: place.vicinity || '',
-        photos: place.photos,
+        photos: place.photos || [],
         types: place.types || [],
         lat: place.geometry?.location?.lat() || 0,
         lng: place.geometry?.location?.lng() || 0,
@@ -175,7 +181,7 @@ export class PlacesService {
       this.placesService.getDetails(
         {
           placeId,
-          fields: ['reviews', 'website', 'opening_hours', 'formatted_phone_number']
+          fields: ['reviews', 'website', 'opening_hours', 'formatted_phone_number', 'photos']
         },
         (result, status) => {
           if (status === window.google.maps.places.PlacesServiceStatus.OK && result) {
