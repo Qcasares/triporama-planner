@@ -112,7 +112,7 @@ export const TripPlanner = () => {
                   size="icon"
                   className="fixed left-4 top-4 z-50 md:hidden animate-in fade-in-50 bg-white/80 backdrop-blur-sm hover:bg-white/90"
                 >
-                  <Menu className="h-5 w-5" />
+                  <Menu className="h-5 w-4" />
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[300px] p-0 bg-white">
@@ -135,9 +135,14 @@ export const TripPlanner = () => {
                 onAddLocation={handleAddLocation}
               />
             </div>
-          </main>
 
-          <PlacesContainer selectedLocation={selectedLocation} />
+            {selectedLocation && (
+              <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100/50 bg-white p-6 transition-all duration-300 hover:shadow-xl">
+                <h2 className="text-xl font-semibold mb-4">Nearby Places in {selectedLocation.name}</h2>
+                <PlacesContainer selectedLocation={selectedLocation} />
+              </div>
+            )}
+          </main>
         </div>
       </SidebarProvider>
     </div>
