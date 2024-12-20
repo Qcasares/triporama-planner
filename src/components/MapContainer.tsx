@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { GoogleMap, LoadScript, DirectionsRenderer, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, InfoWindow } from '@react-google-maps/api';
 import { useMap } from '@/hooks/use-map';
 import { Location } from '@/types/location';
 import { cn } from '@/lib/utils';
 import { MapPin, Plus } from 'lucide-react';
 import { LocationMarkers } from './map/LocationMarkers';
+import { DirectionsLayer } from './map/DirectionsLayer';
 import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -51,23 +52,30 @@ export const MapContainer = ({ locations, className, onAddLocation }: MapContain
       stopover: true
     }));
 
-    directionsService.route(
-      {
-        origin: { lat: origin.lat, lng: origin.lng },
-        destination: { lat: destination.lat, lng: destination.lng },
-        waypoints,
-        travelMode: google.maps.TravelMode.DRIVING,
-        optimizeWaypoints: false,
-      },
-      (result, status) => {
-        if (status === google.maps.DirectionsStatus.OK && result) {
-          setDirections(result);
-        } else {
-          console.error('Error fetching directions:', status);
-        }
+    const request = {
+      origin: { lat: origin.lat, lng: origin.lng },
+      destination: { lat: destination.lat, lng: destination.lng },
+      waypoints,
+      travelMode: google.maps.TravelMode.DRIVING,
+      optimizeWaypoints: false,
+    };
+
+    console.log('Requesting directions with:', request);
+
+    directionsService.route(request, (result, status) => {
+      console.log('Directions response:', { result, status });
+      if (status === google.maps.DirectionsStatus.OK && result) {
+        setDirections(result);
+      } else {
+        console.error('Error fetching directions:', status);
+        toast({
+          title: "Error",
+          description: "Could not calculate directions between locations",
+          variant: "destructive",
+        });
       }
-    );
-  }, [locations]);
+    });
+  }, [locations, toast]);
 
   const handleMapClick = async (e: google.maps.MapMouseEvent) => {
     if (!e.latLng || !onAddLocation) return;
@@ -140,16 +148,7 @@ export const MapContainer = ({ locations, className, onAddLocation }: MapContain
         onClick={handleMapClick}
       >
         {directions ? (
-          <DirectionsRenderer
-            directions={directions}
-            options={{
-              suppressMarkers: false,
-              polylineOptions: {
-                strokeColor: '#4A90E2',
-                strokeWeight: 4,
-              },
-            }}
-          />
+          <DirectionsLayer directions={directions} />
         ) : (
           <LocationMarkers locations={locations} />
         )}
