@@ -78,6 +78,7 @@ export const PlacesContainer = ({ selectedLocation }: PlacesContainerProps) => {
       <PlacesList
         places={data || []}
         onLoadMore={() => setPage(p => p + 1)}
+        filters={filters}
       />
     </div>
   );
