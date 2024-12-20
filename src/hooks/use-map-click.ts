@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Location } from '@/types/location';
-import { type ToastActionElement } from '@/components/ui/toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface ClickedLocation {
   lat: number;
@@ -9,60 +9,61 @@ interface ClickedLocation {
 }
 
 export const useMapClick = (
-  onAddLocation?: (location: Location) => void,
-  toast?: ({ title, description, variant }: { 
-    title: string;
-    description: string;
-    variant?: "default" | "destructive";
-  }) => void
+  onAddLocation?: (location: Location) => void
 ) => {
   const [clickedLocation, setClickedLocation] = useState<ClickedLocation | null>(null);
+  const { toast } = useToast();
 
-  const handleMapClick = async (e: google.maps.MapMouseEvent) => {
-    if (!e.latLng || !onAddLocation) return;
-    
+  const handleMapClick = (e: google.maps.MapMouseEvent) => {
+    if (!e.latLng) return;
+
+    const lat = e.latLng.lat();
+    const lng = e.latLng.lng();
+
+    // Get address from coordinates using Geocoder
     const geocoder = new google.maps.Geocoder();
-    const latlng = { lat: e.latLng.lat(), lng: e.latLng.lng() };
-    
-    try {
-      const response = await geocoder.geocode({ location: latlng });
-      if (response.results[0]) {
-        setClickedLocation({
-          lat: latlng.lat,
-          lng: latlng.lng,
-          name: response.results[0].formatted_address
-        });
+    geocoder.geocode(
+      { location: { lat, lng } },
+      (results, status) => {
+        if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
+          setClickedLocation({
+            lat,
+            lng,
+            name: results[0].formatted_address,
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: "Could not get location details",
+            variant: "destructive",
+          });
+        }
       }
-    } catch (error) {
-      console.error('Geocoding error:', error);
-      toast?.({
-        title: "Error",
-        description: "Could not get location information",
-        variant: "destructive",
-      });
-    }
+    );
   };
 
   const handleAddLocation = () => {
-    if (clickedLocation && onAddLocation) {
-      onAddLocation({
-        id: String(Date.now()),
-        name: clickedLocation.name,
-        lat: clickedLocation.lat,
-        lng: clickedLocation.lng,
-      });
-      setClickedLocation(null);
-      toast?.({
-        title: "Location added",
-        description: `${clickedLocation.name} has been added to your itinerary`,
-      });
-    }
+    if (!clickedLocation) return;
+
+    onAddLocation?.({
+      id: String(Date.now()),
+      name: clickedLocation.name,
+      lat: clickedLocation.lat,
+      lng: clickedLocation.lng,
+    });
+
+    toast({
+      title: "Success",
+      description: "Location added to your trip",
+    });
+
+    setClickedLocation(null);
   };
 
   return {
     clickedLocation,
-    setClickedLocation,
     handleMapClick,
-    handleAddLocation
+    handleAddLocation,
+    setClickedLocation,
   };
 };
