@@ -29,6 +29,8 @@ export const AuthForm = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
+      console.log(`Attempting to ${isLogin ? 'sign in' : 'sign up'} with email:`, email);
+      
       if (isLogin) {
         await signIn(email, password);
       } else {
@@ -41,27 +43,31 @@ export const AuthForm = () => {
             last_name: lastName,
           },
         });
+        console.log('Sign up successful');
         toast({
           title: "Success!",
           description: "Please check your email to confirm your account.",
         });
-        // Switch to login view after successful signup
         setIsLogin(true);
       }
     } catch (error: any) {
+      console.error('Auth error:', error);
+      
       let errorMessage = 'An unexpected error occurred';
       
-      // Parse the error message if it's in JSON format
-      if (error.message.includes('body')) {
+      if (typeof error.message === 'string' && error.message.includes('body')) {
         try {
           const errorBody = JSON.parse(error.message);
+          console.log('Parsed error body:', errorBody);
           if (errorBody.error_description) {
             errorMessage = errorBody.error_description;
           } else if (errorBody.msg) {
             errorMessage = errorBody.msg;
+          } else if (errorBody.message) {
+            errorMessage = errorBody.message;
           }
-        } catch {
-          // If parsing fails, use the original error message
+        } catch (parseError) {
+          console.error('Error parsing error message:', parseError);
           errorMessage = error.message;
         }
       } else {
@@ -75,6 +81,7 @@ export const AuthForm = () => {
         errorMessage = 'Please confirm your email address before signing in';
       }
 
+      console.log('Final error message:', errorMessage);
       toast({
         title: isLogin ? "Login failed" : "Signup failed",
         description: errorMessage,
@@ -88,8 +95,10 @@ export const AuthForm = () => {
   const handleProviderSignIn = async (provider: 'google' | 'github' | 'linkedin') => {
     setIsLoading(true);
     try {
+      console.log(`Attempting to sign in with ${provider}`);
       await signInWithProvider(provider);
     } catch (error: any) {
+      console.error(`${provider} sign in error:`, error);
       toast({
         title: "Authentication error",
         description: error.message,
