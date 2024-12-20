@@ -19,15 +19,17 @@ export const usePlacesData = (location: Location) => {
   const { data: places = {}, isLoading } = useQuery({
     queryKey: ['places', location.id],
     queryFn: async () => {
+      console.log('Fetching places for location:', location);
       const results = await Promise.all(
         Object.entries(placeTypes).map(async ([key, type]) => {
           const places = await placesService.searchNearby(location, type);
+          console.log(`Fetched ${places.length} ${key}:`, places);
           return [key, places];
         })
       );
       return Object.fromEntries(results) as Record<string, Place[]>;
     },
-    enabled: !!location,
+    enabled: Boolean(location?.id),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
@@ -45,13 +47,10 @@ export const usePlacesData = (location: Location) => {
       lng: location.lng,
     };
 
-    // Update the places state with the new custom place
-    const updatedPlaces = {
+    return {
       ...places,
       [customPlace.type]: [...(places[customPlace.type] || []), newPlace]
     };
-
-    return updatedPlaces;
   };
 
   return {

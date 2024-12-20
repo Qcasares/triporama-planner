@@ -17,16 +17,17 @@ export class PlacesService {
     // If Google Maps is already loaded, resolve immediately
     if (window.google?.maps) return;
 
-    // Wait for Google Maps API to load
+    console.log('Waiting for Google Maps API to load...');
+    
     return new Promise((resolve) => {
       const checkGoogleMaps = setInterval(() => {
         if (window.google?.maps) {
+          console.log('Google Maps API loaded successfully');
           clearInterval(checkGoogleMaps);
           resolve();
         }
       }, 100);
 
-      // Timeout after 10 seconds
       setTimeout(() => {
         clearInterval(checkGoogleMaps);
         console.error('Timeout waiting for Google Maps API');
@@ -45,21 +46,38 @@ export class PlacesService {
         throw new Error('Google Maps API not available');
       }
 
+      console.log('Initializing Places service...');
+      
+      // Create a temporary map instance for the Places service
       const mapDiv = document.createElement('div');
       this.map = new window.google.maps.Map(mapDiv, {
         center: { lat: 0, lng: 0 },
         zoom: 1
       });
+      
       this.placesService = new window.google.maps.places.PlacesService(this.map);
+      console.log('Places service initialized successfully');
     } catch (error) {
       console.error('Failed to initialize Places service:', error);
+      toast({
+        title: "Error initializing Places service",
+        description: "Please ensure you have a valid Google Maps API key",
+        variant: "destructive",
+      });
       this.placesService = null;
     }
   }
 
   async searchNearby(location: Location, type: string): Promise<Place[]> {
+    console.log('Searching for nearby places:', { location, type });
+    
     if (!this.apiKey) {
       console.error('No Google Maps API key found');
+      toast({
+        title: "API Key Missing",
+        description: "Please provide a Google Maps API key in settings",
+        variant: "destructive",
+      });
       return [];
     }
 
@@ -79,7 +97,10 @@ export class PlacesService {
     };
 
     try {
+      console.log('Performing nearby search with request:', request);
       const results = await this.nearbySearch(request);
+      console.log('Nearby search results:', results);
+      
       const detailedPlaces = await Promise.all(
         results.slice(0, 10).map(place => this.getPlaceDetails(place))
       );
@@ -104,6 +125,7 @@ export class PlacesService {
       }
 
       this.placesService.nearbySearch(request, (results, status) => {
+        console.log('Nearby search status:', status);
         if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
           resolve(results);
         } else {
@@ -117,7 +139,9 @@ export class PlacesService {
     if (!place.place_id) return null;
 
     try {
+      console.log('Fetching details for place:', place.name);
       const details = await this.fetchPlaceDetails(place.place_id);
+      
       return {
         id: place.place_id,
         name: place.name || '',
