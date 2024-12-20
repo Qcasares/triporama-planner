@@ -1,9 +1,10 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building2, Heart, HeartOff, Star, Clock, Phone, Globe } from 'lucide-react';
+import { Building2, Heart, HeartOff, Star, Clock, Phone, Globe, CalendarPlus } from 'lucide-react';
 import { Place } from '@/types/place';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 interface PlaceCardProps {
   place: Place;
@@ -13,6 +14,14 @@ interface PlaceCardProps {
 
 export const PlaceCard = ({ place, isFavorite, onToggleFavorite }: PlaceCardProps) => {
   const photoUrl = place.photos?.[0]?.getUrl({ maxWidth: 400, maxHeight: 300 });
+  const { toast } = useToast();
+
+  const handleAddToItinerary = () => {
+    toast({
+      title: "Added to itinerary",
+      description: `${place.name} has been added to your itinerary.`,
+    });
+  };
 
   return (
     <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300">
@@ -134,6 +143,15 @@ export const PlaceCard = ({ place, isFavorite, onToggleFavorite }: PlaceCardProp
                   Hours
                 </Button>
               )}
+              <Button
+                variant="default"
+                size="sm"
+                className="gap-2 ml-auto"
+                onClick={handleAddToItinerary}
+              >
+                <CalendarPlus className="h-4 w-4" />
+                Add to Itinerary
+              </Button>
             </div>
           </div>
         </div>
