@@ -3,9 +3,10 @@ import { Provider } from '@/types/auth';
 import { toast } from '@/hooks/use-toast';
 
 export const handleAuthError = (error: any, action: string) => {
+  console.error('Auth error:', error);
   toast({
     title: `Error ${action}`,
-    description: error.message,
+    description: error.message || 'An unexpected error occurred',
     variant: "destructive",
   });
   throw error;
@@ -57,15 +58,25 @@ export const authUtils = {
 
   signInWithProvider: async (provider: Provider) => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: window.location.origin,
+          redirectTo: `${window.location.origin}/`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         },
       });
+      
       if (error) throw error;
+      
+      if (!data) {
+        console.log('OAuth initiated, awaiting redirect...');
+      }
+      
     } catch (error: any) {
-      handleAuthError(error, "signing in");
+      handleAuthError(error, `signing in with ${provider}`);
     }
   },
 };
