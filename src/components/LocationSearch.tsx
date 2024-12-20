@@ -11,6 +11,7 @@ export const LocationSearch = ({ onLocationSelect }: LocationSearchProps) => {
   const [searchValue, setSearchValue] = useState('');
   const { toast } = useToast();
   const [apiKey] = useState(() => localStorage.getItem('googleMapsApiKey') || '');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSearch = useCallback(async () => {
     if (!searchValue.trim()) {
@@ -31,6 +32,7 @@ export const LocationSearch = ({ onLocationSelect }: LocationSearchProps) => {
       return;
     }
 
+    setIsLoading(true);
     const geocoder = new google.maps.Geocoder();
     try {
       const response = await geocoder.geocode({ address: searchValue });
@@ -55,6 +57,8 @@ export const LocationSearch = ({ onLocationSelect }: LocationSearchProps) => {
         description: "Could not find location",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   }, [searchValue, apiKey, onLocationSelect, toast]);
 
@@ -67,6 +71,7 @@ export const LocationSearch = ({ onLocationSelect }: LocationSearchProps) => {
         onChange={(e) => setSearchValue(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
         className="w-full"
+        disabled={isLoading}
       />
     </div>
   );

@@ -10,6 +10,15 @@ interface MapControlsProps {
 
 export const MapControls = ({ mapRef }: MapControlsProps) => {
   const { toast } = useToast();
+  const [isMapLoaded, setIsMapLoaded] = React.useState(false);
+
+  React.useEffect(() => {
+    if (mapRef.current) {
+      setIsMapLoaded(true);
+    } else {
+      setIsMapLoaded(false);
+    }
+  }, [mapRef]);
 
   const handleLocate = () => {
     if (!navigator.geolocation) {
@@ -56,6 +65,7 @@ export const MapControls = ({ mapRef }: MapControlsProps) => {
         size="icon"
         onClick={handleLocate}
         className="bg-white/90 hover:bg-white shadow-md"
+        disabled={!isMapLoaded}
       >
         <Locate className="h-4 w-4" />
       </Button>
@@ -64,6 +74,7 @@ export const MapControls = ({ mapRef }: MapControlsProps) => {
         size="icon"
         onClick={handleZoomIn}
         className="bg-white/90 hover:bg-white shadow-md"
+        disabled={!isMapLoaded}
       >
         <ZoomIn className="h-4 w-4" />
       </Button>
@@ -72,6 +83,7 @@ export const MapControls = ({ mapRef }: MapControlsProps) => {
         size="icon"
         onClick={handleZoomOut}
         className="bg-white/90 hover:bg-white shadow-md"
+        disabled={!isMapLoaded}
       >
         <ZoomOut className="h-4 w-4" />
       </Button>

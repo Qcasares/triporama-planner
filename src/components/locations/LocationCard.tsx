@@ -96,9 +96,9 @@ export const LocationCard = ({
                     <CalendarComponent
                       mode="single"
                       selected={location.startDate}
-                      onSelect={(date) =>
-                        onUpdateDates(location.id, date, location.endDate)
-                      }
+                      onSelect={(date) => {
+                        onUpdateDates(location.id, date, location.endDate);
+                      }}
                     />
                   </div>
                   <div>
@@ -106,9 +106,9 @@ export const LocationCard = ({
                     <CalendarComponent
                       mode="single"
                       selected={location.endDate}
-                      onSelect={(date) =>
-                        onUpdateDates(location.id, location.startDate, date)
-                      }
+                      onSelect={(date) => {
+                        onUpdateDates(location.id, location.startDate, date);
+                      }}
                     />
                   </div>
                 </div>

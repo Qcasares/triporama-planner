@@ -29,6 +29,14 @@ export const ApiKeyInput = ({ onSave }: ApiKeyInputProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!apiKey.trim()) {
+      toast({
+        title: "Error",
+        description: "API key cannot be empty.",
+        variant: "destructive",
+      });
+      return;
+    }
     localStorage.setItem('googleMapsApiKey', apiKey);
     toast({
       title: "API Key Saved",

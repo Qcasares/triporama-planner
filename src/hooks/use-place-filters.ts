@@ -29,20 +29,17 @@ export const usePlaceFilters = () => {
   }, []);
 
   const filterAndSortPlaces = useCallback((places: Place[]) => {
-    return places
-      .filter(place => 
-        !filterOptions.minRating || (place.rating != null && place.rating >= filterOptions.minRating)
-      )
-      .sort((a, b) => {
-        switch (filterOptions.sortBy) {
-          case 'rating':
-            return (b.rating != null ? b.rating : 0) - (a.rating != null ? a.rating : 0);
-          case 'distance':
-            return (a.distance != null ? a.distance : 0) - (b.distance != null ? b.distance : 0);
-          default:
-            return 0;
-        }
-      });
+    const filteredPlaces = places.filter(place =>
+      !filterOptions.minRating || (place.rating != null && place.rating >= filterOptions.minRating)
+    );
+
+    if (filterOptions.sortBy === 'rating') {
+      filteredPlaces.sort((a, b) => (b.rating != null ? b.rating : 0) - (a.rating != null ? a.rating : 0));
+    } else if (filterOptions.sortBy === 'distance') {
+      filteredPlaces.sort((a, b) => (a.distance != null ? a.distance : 0) - (b.distance != null ? b.distance : 0));
+    }
+
+    return filteredPlaces;
   }, [filterOptions]);
 
   return {
