@@ -1,70 +1,55 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Place } from '@/types/place';
-import { PlaceCard } from '@/components/ui/place-card';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
+import { Location } from '@/types/location';
+import { PlaceCard } from '../ui/place-card';
+import { PlaceCardSkeleton } from '../ui/place-card-skeleton';
 
 interface PlacesListProps {
   places: Place[];
-  onLoadMore: () => void;
-  filters: {
-    category: string;
-    rating: number;
-    distance: number;
-  };
+  isLoading?: boolean;
+  onAddToItinerary?: (location: Location) => void;
 }
 
-export const PlacesList = ({ places, onLoadMore, filters }: PlacesListProps) => {
-  const filteredPlaces = useMemo(() => {
-    return places.filter(place => {
-      // Filter by rating
-      if (place.rating && filters.rating > 0 && place.rating < filters.rating) {
-        return false;
-      }
+export const PlacesList = ({ 
+  places, 
+  isLoading,
+  onAddToItinerary
+}: PlacesListProps) => {
+  const [favorites, setFavorites] = React.useState<Set<string>>(new Set());
 
-      // Filter by distance (convert meters to miles for comparison)
-      if (place.distance && (place.distance > filters.distance)) {
-        return false;
+  const toggleFavorite = (placeId: string) => {
+    setFavorites(prev => {
+      const newFavorites = new Set(prev);
+      if (newFavorites.has(placeId)) {
+        newFavorites.delete(placeId);
+      } else {
+        newFavorites.add(placeId);
       }
-
-      // Filter by category if specified
-      if (filters.category && place.placeType && 
-          !place.placeType.includes(filters.category)) {
-        return false;
-      }
-
-      return true;
+      return newFavorites;
     });
-  }, [places, filters]);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <PlaceCardSkeleton key={index} />
+        ))}
+      </div>
+    );
+  }
 
   return (
-    <ScrollArea className="h-[600px] rounded-md border p-4">
-      <div className="space-y-4">
-        {filteredPlaces.map((place) => (
-          <PlaceCard
-            key={place.id}
-            place={place}
-            isFavorite={false}
-            onToggleFavorite={() => {}}
-          />
-        ))}
-        {filteredPlaces.length > 0 && (
-          <div className="pt-4 text-center">
-            <Button
-              variant="outline"
-              onClick={onLoadMore}
-              className="w-full md:w-auto"
-            >
-              Load More Places
-            </Button>
-          </div>
-        )}
-        {filteredPlaces.length === 0 && (
-          <p className="text-center text-muted-foreground py-8">
-            No places found matching your criteria
-          </p>
-        )}
-      </div>
-    </ScrollArea>
+    <div className="space-y-4">
+      {places.map((place) => (
+        <PlaceCard
+          key={place.id}
+          place={place}
+          isFavorite={favorites.has(place.id)}
+          onToggleFavorite={toggleFavorite}
+          onAddToItinerary={onAddToItinerary}
+        />
+      ))}
+    </div>
   );
 };

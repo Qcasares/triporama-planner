@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Building2, Heart, HeartOff, Star, Clock, Phone, Globe, CalendarPlus } from 'lucide-react';
 import { Place } from '@/types/place';
+import { Location } from '@/types/location';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -10,17 +11,34 @@ interface PlaceCardProps {
   place: Place;
   isFavorite: boolean;
   onToggleFavorite: (id: string) => void;
+  onAddToItinerary?: (location: Location) => void;
 }
 
-export const PlaceCard = ({ place, isFavorite, onToggleFavorite }: PlaceCardProps) => {
+export const PlaceCard = ({ 
+  place, 
+  isFavorite, 
+  onToggleFavorite,
+  onAddToItinerary 
+}: PlaceCardProps) => {
   const photoUrl = place.photos?.[0]?.getUrl({ maxWidth: 400, maxHeight: 300 });
   const { toast } = useToast();
 
   const handleAddToItinerary = () => {
-    toast({
-      title: "Added to itinerary",
-      description: `${place.name} has been added to your itinerary.`,
-    });
+    if (onAddToItinerary) {
+      const newLocation: Location = {
+        id: place.id,
+        name: place.name,
+        lat: place.location.lat,
+        lng: place.location.lng
+      };
+      
+      onAddToItinerary(newLocation);
+      
+      toast({
+        title: "Added to itinerary",
+        description: `${place.name} has been added to your itinerary.`,
+      });
+    }
   };
 
   return (
