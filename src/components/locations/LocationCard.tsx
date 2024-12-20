@@ -3,10 +3,15 @@ import { Location } from '@/types/location';
 import { Button } from '@/components/ui/button';
 import { Trash2, MapPin, Flag, Star, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
+import React from 'react';
+import { Location } from '@/types/location';
+import { Button } from '@/components/ui/button';
+import { Trash2, MapPin, Flag, Star, Calendar } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { useToast } from '@/hooks/use-toast';
+import { LocationDateDisplay } from './LocationDateDisplay';
 
 interface LocationCardProps {
   location: Location;
@@ -65,22 +70,7 @@ export const LocationCard = ({
         
         <div className="flex-1 min-w-0">
           <div className="font-medium truncate">{location.name}</div>
-          {(location.startDate || location.endDate) && (
-            <div className="text-sm text-muted-foreground mt-1 space-y-1">
-              {location.startDate && (
-                <div className="flex items-center gap-1">
-                  <span className="text-xs">From:</span>
-                  <span>{format(new Date(location.startDate), 'MMM d, yyyy')}</span>
-                </div>
-              )}
-              {location.endDate && (
-                <div className="flex items-center gap-1">
-                  <span className="text-xs">To:</span>
-                  <span>{format(new Date(location.endDate), 'MMM d, yyyy')}</span>
-                </div>
-              )}
-            </div>
-          )}
+          <LocationDateDisplay location={location} />
         </div>
 
         <div className="flex items-center gap-2">
