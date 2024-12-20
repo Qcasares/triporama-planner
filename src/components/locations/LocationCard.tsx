@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { useToast } from '@/hooks/use-toast';
 
 interface LocationCardProps {
   location: Location;
@@ -26,9 +27,21 @@ export const LocationCard = ({
   onRemove,
   onUpdateDates,
 }: LocationCardProps) => {
+  const { toast } = useToast();
+
+  const handleClick = () => {
+    if (onSelect) {
+      onSelect();
+      toast({
+        title: "Location selected",
+        description: `Showing places near ${location.name}`,
+      });
+    }
+  };
+
   return (
     <div 
-      onClick={onSelect}
+      onClick={handleClick}
       className={cn(
         "group relative p-4 rounded-lg border transition-all duration-300",
         "hover:shadow-md hover:border-[#0EA5E9]/20 cursor-pointer",
