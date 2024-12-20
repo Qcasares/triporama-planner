@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Location } from '@/types/location';
-import { type Toast } from '@/hooks/use-toast';
+import { type ToastProps } from '@/components/ui/toast';
 
 interface ClickedLocation {
   lat: number;
@@ -10,7 +10,7 @@ interface ClickedLocation {
 
 export const useMapClick = (
   onAddLocation?: (location: Location) => void,
-  toast?: (props: Toast) => void
+  toast?: (props: ToastProps) => void
 ) => {
   const [clickedLocation, setClickedLocation] = useState<ClickedLocation | null>(null);
 
