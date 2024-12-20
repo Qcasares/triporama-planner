@@ -13,7 +13,23 @@ export const LocationSearch = ({ onLocationSelect }: LocationSearchProps) => {
   const [apiKey] = useState(() => localStorage.getItem('googleMapsApiKey') || '');
 
   const handleSearch = useCallback(async () => {
-    if (!searchValue.trim() || !apiKey) return;
+    if (!searchValue.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a location to search",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!apiKey) {
+      toast({
+        title: "Error",
+        description: "Google Maps API key is required",
+        variant: "destructive",
+      });
+      return;
+    }
 
     const geocoder = new google.maps.Geocoder();
     try {
@@ -27,6 +43,10 @@ export const LocationSearch = ({ onLocationSelect }: LocationSearchProps) => {
           lng: lng(),
         });
         setSearchValue('');
+        toast({
+          title: "Success",
+          description: "Location added to your trip",
+        });
       }
     } catch (error) {
       console.error('Geocoding error:', error);

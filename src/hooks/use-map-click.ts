@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Location } from '@/types/location';
-import { useToast } from '@/hooks/use-toast';
+import { type Toast } from '@/hooks/use-toast';
 
 interface ClickedLocation {
   lat: number;
@@ -8,9 +8,11 @@ interface ClickedLocation {
   name: string;
 }
 
-export const useMapClick = (onAddLocation?: (location: Location) => void) => {
+export const useMapClick = (
+  onAddLocation?: (location: Location) => void,
+  toast?: (props: Toast) => void
+) => {
   const [clickedLocation, setClickedLocation] = useState<ClickedLocation | null>(null);
-  const { toast } = useToast();
 
   const handleMapClick = async (e: google.maps.MapMouseEvent) => {
     if (!e.latLng || !onAddLocation) return;
@@ -29,7 +31,7 @@ export const useMapClick = (onAddLocation?: (location: Location) => void) => {
       }
     } catch (error) {
       console.error('Geocoding error:', error);
-      toast({
+      toast?.({
         title: "Error",
         description: "Could not get location information",
         variant: "destructive",
@@ -46,7 +48,7 @@ export const useMapClick = (onAddLocation?: (location: Location) => void) => {
         lng: clickedLocation.lng,
       });
       setClickedLocation(null);
-      toast({
+      toast?.({
         title: "Location added",
         description: `${clickedLocation.name} has been added to your itinerary`,
       });
