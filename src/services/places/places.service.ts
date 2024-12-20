@@ -2,7 +2,6 @@ import { toast } from '@/hooks/use-toast';
 import { Location } from '@/types/location';
 import { Place } from '@/types/place';
 import { placesAPI } from './places-api';
-import { PlaceDetails } from './types';
 
 export class PlacesService {
   private apiKey: string;

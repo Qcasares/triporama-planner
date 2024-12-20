@@ -1,6 +1,3 @@
-import { toast } from '@/hooks/use-toast';
-import { PlaceDetails, SearchNearbyParams } from './types';
-
 class PlacesAPI {
   private placesService: google.maps.places.PlacesService | null = null;
   private map: google.maps.Map | null = null;
@@ -11,8 +8,11 @@ class PlacesAPI {
     }
 
     try {
-      // Create a dummy div for the map
+      // Create a dummy div for the map (required by Places API)
       const mapDiv = document.createElement('div');
+      mapDiv.style.display = 'none';
+      document.body.appendChild(mapDiv);
+
       this.map = new google.maps.Map(mapDiv, {
         center: { lat: 0, lng: 0 },
         zoom: 1
@@ -23,16 +23,11 @@ class PlacesAPI {
       return true;
     } catch (error) {
       console.error('Failed to initialize Places service:', error);
-      toast({
-        title: "Service Initialization Failed",
-        description: "Unable to initialize Google Places service",
-        variant: "destructive",
-      });
       return false;
     }
   }
 
-  async searchNearby(params: SearchNearbyParams): Promise<google.maps.places.PlaceResult[]> {
+  async searchNearby(params: { lat: number; lng: number; type: string; radius?: number }): Promise<google.maps.places.PlaceResult[]> {
     if (!await this.initialize()) {
       return [];
     }
@@ -41,7 +36,7 @@ class PlacesAPI {
       const request: google.maps.places.PlaceSearchRequest = {
         location: new google.maps.LatLng(params.lat, params.lng),
         radius: params.radius || 5000,
-        type: params.type,
+        type: params.type as google.maps.places.PlaceType,
         rankBy: google.maps.places.RankBy.PROMINENCE
       };
 
