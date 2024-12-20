@@ -8,6 +8,7 @@ export interface MapClickInfoWindowProps {
   name: string;
   onClose: () => void;
   onAdd: () => void;
+  location?: Location;
 }
 
 export const MapClickInfoWindow = ({
@@ -15,6 +16,7 @@ export const MapClickInfoWindow = ({
   name,
   onClose,
   onAdd,
+  location,
 }: MapClickInfoWindowProps) => {
   return (
     <InfoWindow position={position} onCloseClick={onClose}>

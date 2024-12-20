@@ -10,4 +10,8 @@ export interface Location {
   startTime?: string;
   endTime?: string;
   notes?: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
 }

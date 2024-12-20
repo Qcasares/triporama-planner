@@ -17,6 +17,7 @@ interface SidebarProps {
   onUpdateDates?: (locationId: string, startDate?: Date, endDate?: Date) => void;
   isSummaryOpen?: boolean;
   toggleSummary?: () => void;
+  className?: string;
 }
 
 export const Sidebar = ({
@@ -30,9 +31,10 @@ export const Sidebar = ({
   onUpdateDates,
   isSummaryOpen,
   toggleSummary,
+  className,
 }: SidebarProps) => {
   return (
-    <div className="w-full h-full flex flex-col bg-white">
+    <div className={`w-full h-full flex flex-col bg-white ${className || ''}`}>
       <div className="flex flex-col gap-4 p-4 md:p-6 border-b">
         <div>
           <h2 className="text-lg font-semibold">Your Trip</h2>
