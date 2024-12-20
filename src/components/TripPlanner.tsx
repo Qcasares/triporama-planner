@@ -4,7 +4,6 @@ import { Sidebar } from '@/components/Sidebar';
 import { TravelRecommendations } from '@/components/TravelRecommendations';
 import { CommandMenu } from '@/components/CommandMenu';
 import { NavigationBreadcrumb } from '@/components/NavigationBreadcrumb';
-import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { useGeolocation } from '@/hooks/use-geolocation';
 import { useTripPlanner } from '@/hooks/use-trip-planner';
@@ -148,12 +147,6 @@ export const TripPlanner = () => {
               )}
             </div>
           </main>
-          
-          {!isMobile && (
-            <FloatingActionButton 
-              onAddLocation={handleAddLocation} 
-            />
-          )}
         </div>
       </SidebarProvider>
     </div>
