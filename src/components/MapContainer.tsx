@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { GoogleMap, LoadScript, DirectionsRenderer } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, DirectionsRenderer, InfoWindow } from '@react-google-maps/api';
 import { useMap } from '@/hooks/use-map';
 import { Location } from '@/types/location';
 import { cn } from '@/lib/utils';
-import { MapPin } from 'lucide-react';
+import { MapPin, Plus } from 'lucide-react';
 import { LocationMarkers } from './map/LocationMarkers';
+import { Button } from './ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 interface MapContainerProps {
   locations: Location[];
   className?: string;
+  onAddLocation?: (location: Location) => void;
 }
 
 const GOOGLE_MAPS_LIBRARIES: ("places" | "drawing" | "geometry" | "visualization")[] = ["places"];
@@ -26,10 +29,12 @@ const mapOptions = {
   fullscreenControl: true,
 };
 
-export const MapContainer = ({ locations, className }: MapContainerProps) => {
+export const MapContainer = ({ locations, className, onAddLocation }: MapContainerProps) => {
   const [apiKey] = React.useState(() => localStorage.getItem('googleMapsApiKey') || '');
   const { mapRef, onMapLoad } = useMap(locations);
   const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
+  const [clickedLocation, setClickedLocation] = useState<{lat: number; lng: number; name: string} | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (locations.length < 2) {
@@ -64,6 +69,47 @@ export const MapContainer = ({ locations, className }: MapContainerProps) => {
     );
   }, [locations]);
 
+  const handleMapClick = async (e: google.maps.MapMouseEvent) => {
+    if (!e.latLng || !onAddLocation) return;
+    
+    const geocoder = new google.maps.Geocoder();
+    const latlng = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+    
+    try {
+      const response = await geocoder.geocode({ location: latlng });
+      if (response.results[0]) {
+        setClickedLocation({
+          lat: latlng.lat,
+          lng: latlng.lng,
+          name: response.results[0].formatted_address
+        });
+      }
+    } catch (error) {
+      console.error('Geocoding error:', error);
+      toast({
+        title: "Error",
+        description: "Could not get location information",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleAddLocation = () => {
+    if (clickedLocation && onAddLocation) {
+      onAddLocation({
+        id: String(Date.now()),
+        name: clickedLocation.name,
+        lat: clickedLocation.lat,
+        lng: clickedLocation.lng,
+      });
+      setClickedLocation(null);
+      toast({
+        title: "Location added",
+        description: `${clickedLocation.name} has been added to your itinerary`,
+      });
+    }
+  };
+
   if (!apiKey) {
     return (
       <div className="flex flex-col items-center justify-center h-[500px] bg-[#F1F0FB] rounded-xl p-8 text-center">
@@ -91,6 +137,7 @@ export const MapContainer = ({ locations, className }: MapContainerProps) => {
         zoom={12}
         options={mapOptions}
         onLoad={onMapLoad}
+        onClick={handleMapClick}
       >
         {directions ? (
           <DirectionsRenderer
@@ -105,6 +152,25 @@ export const MapContainer = ({ locations, className }: MapContainerProps) => {
           />
         ) : (
           <LocationMarkers locations={locations} />
+        )}
+
+        {clickedLocation && (
+          <InfoWindow
+            position={{ lat: clickedLocation.lat, lng: clickedLocation.lng }}
+            onCloseClick={() => setClickedLocation(null)}
+          >
+            <div className="p-2">
+              <p className="text-sm mb-2">{clickedLocation.name}</p>
+              <Button 
+                size="sm" 
+                onClick={handleAddLocation}
+                className="w-full flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Add to Itinerary
+              </Button>
+            </div>
+          </InfoWindow>
         )}
       </GoogleMap>
     </LoadScript>

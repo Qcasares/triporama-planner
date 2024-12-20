@@ -134,6 +134,7 @@ export const TripPlanner = () => {
               <MapContainer 
                 locations={locations} 
                 className="h-[400px] md:h-[500px] w-full transition-all duration-300"
+                onAddLocation={handleAddLocation}
               />
             </div>
             
