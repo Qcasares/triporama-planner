@@ -1,81 +1,51 @@
-import React, { useState } from "react";
-import { LoadScript } from "@react-google-maps/api";
-import { useMap } from "@/hooks/use-map";
-import { Location } from "@/types/location";
-import { cn } from "@/lib/utils";
-import { NoApiKeyWarning } from "./map/NoApiKeyWarning";
-import { useMapDirections } from "@/hooks/use-map-directions";
-import { useMapClick } from "@/hooks/use-map-click";
-import { MapErrorBoundary } from "./MapErrorBoundary";
-import { motion, AnimatePresence } from "framer-motion";
-import { MapSkeleton } from "./map/MapSkeleton";
-import { MapContent } from "./map/MapContent";
-import { GOOGLE_MAPS_LIBRARIES, defaultCenter } from "@/config/map-config";
+import React from 'react';
+import { LoadScript } from '@react-google-maps/api';
+import { useMap } from '@/hooks/use-map';
+import { Location } from '@/types/location';
+import { cn } from '@/lib/utils';
+import { MapPin } from 'lucide-react';
 
 interface MapContainerProps {
-  locations?: Location[];
+  locations: Location[];
   className?: string;
-  onAddLocation?: (location: Location) => void;
 }
 
-export const MapContainer = React.memo(
-  ({ locations = [], className, onAddLocation }: MapContainerProps) => {
-    const [apiKey] = React.useState(() => localStorage.getItem("googleMapsApiKey") || "");
-    const [isLoading, setIsLoading] = useState(true);
-    const { mapRef, onMapLoad } = useMap(locations);
-    const { directions } = useMapDirections(locations);
-    const { clickedLocation, handleMapClick, handleAddLocation, setClickedLocation } =
-      useMapClick(onAddLocation);
+const libraries: ("places" | "drawing" | "geometry" | "visualization")[] = ["places"];
 
-    const handleMapLoaded = (map: google.maps.Map) => {
-      setIsLoading(false);
-      onMapLoad(map);
-    };
+export const MapContainer = ({ locations, className }: MapContainerProps) => {
+  const [apiKey] = React.useState(() => localStorage.getItem('googleMapsApiKey') || '');
+  const { mapRef } = useMap(locations);
 
-    if (!apiKey) {
-      return <NoApiKeyWarning />;
-    }
-
-    // Safely determine initial center
-    const initialCenter = locations && locations.length > 0
-      ? { lat: locations[0].lat, lng: locations[0].lng }
-      : defaultCenter;
-
+  if (!apiKey) {
     return (
-      <MapErrorBoundary>
-        <div className="relative w-full h-full rounded-xl overflow-hidden">
-          <AnimatePresence>
-            {isLoading && (
-              <motion.div
-                initial={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 z-10"
-              >
-                <MapSkeleton />
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <LoadScript googleMapsApiKey={apiKey} libraries={GOOGLE_MAPS_LIBRARIES}>
-            <MapContent
-              isLoading={isLoading}
-              className={className}
-              initialCenter={initialCenter}
-              locations={locations}
-              directions={directions}
-              mapRef={mapRef}
-              clickedLocation={clickedLocation}
-              onMapLoad={handleMapLoaded}
-              onMapClick={handleMapClick}
-              onLocationClick={setClickedLocation}
-              onAddLocation={handleAddLocation}
-              onCloseInfoWindow={() => setClickedLocation(null)}
-            />
-          </LoadScript>
-        </div>
-      </MapErrorBoundary>
+      <div className="flex flex-col items-center justify-center h-[500px] bg-[#F1F0FB] rounded-xl p-8 text-center">
+        <MapPin className="h-12 w-12 text-muted-foreground/50 mb-4" />
+        <h3 className="text-lg font-medium mb-2">Google Maps API Key Required</h3>
+        <p className="text-muted-foreground max-w-md">
+          Please set your Google Maps API key in the settings menu to enable map functionality
+        </p>
+      </div>
     );
   }
-);
 
-MapContainer.displayName = "MapContainer";
+  return (
+    <LoadScript
+      googleMapsApiKey={apiKey}
+      libraries={libraries}
+    >
+      <div 
+        ref={mapRef} 
+        className={cn(
+          "w-full rounded-xl overflow-hidden",
+          "transition-all duration-300",
+          "shadow-lg border border-purple-100/50",
+          "h-[500px]",
+          "md:h-[600px]",
+          className
+        )}
+        role="region"
+        aria-label="Trip route map"
+      />
+    </LoadScript>
+  );
+};

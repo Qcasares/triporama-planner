@@ -2,17 +2,29 @@ import { useState, useCallback } from 'react';
 import { Place } from '@/types/place';
 
 interface FilterOptions {
+  minPrice: number;
+  maxPrice: number;
   minRating: number;
-  sortBy: 'rating' | 'distance';
+  sortBy: 'rating' | 'distance' | 'price';
 }
 
 const initialFilterOptions: FilterOptions = {
+  minPrice: 1,
+  maxPrice: 4,
   minRating: 0,
   sortBy: 'rating'
 };
 
 export const usePlaceFilters = () => {
   const [filterOptions, setFilterOptions] = useState<FilterOptions>(initialFilterOptions);
+
+  const updatePriceRange = useCallback((min: number, max: number) => {
+    setFilterOptions(prev => ({
+      ...prev,
+      minPrice: min,
+      maxPrice: max
+    }));
+  }, []);
 
   const updateMinRating = useCallback((rating: number) => {
     setFilterOptions(prev => ({
@@ -29,21 +41,27 @@ export const usePlaceFilters = () => {
   }, []);
 
   const filterAndSortPlaces = useCallback((places: Place[]) => {
-    const filteredPlaces = places.filter(place =>
-      !filterOptions.minRating || (place.rating != null && place.rating >= filterOptions.minRating)
-    );
-
-    if (filterOptions.sortBy === 'rating') {
-      filteredPlaces.sort((a, b) => (b.rating != null ? b.rating : 0) - (a.rating != null ? a.rating : 0));
-    } else if (filterOptions.sortBy === 'distance') {
-      filteredPlaces.sort((a, b) => (a.distance != null ? a.distance : 0) - (b.distance != null ? b.distance : 0));
-    }
-
-    return filteredPlaces;
+    return places
+      .filter(place => 
+        place.priceLevel >= filterOptions.minPrice &&
+        place.priceLevel <= filterOptions.maxPrice &&
+        place.rating >= filterOptions.minRating
+      )
+      .sort((a, b) => {
+        switch (filterOptions.sortBy) {
+          case 'rating':
+            return b.rating - a.rating;
+          case 'price':
+            return a.priceLevel - b.priceLevel;
+          default:
+            return 0;
+        }
+      });
   }, [filterOptions]);
 
   return {
     filterOptions,
+    updatePriceRange,
     updateMinRating,
     updateSortBy,
     filterAndSortPlaces

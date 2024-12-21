@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Location } from '@/types/location';
+import { format } from 'date-fns';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { ScrollArea } from './ui/scroll-area';
-import { TripOverview } from './trip-summary/TripOverview';
-import { DetailedDirections } from './trip-summary/DetailedDirections';
 
 interface TripSummaryProps {
   locations: Location[];
@@ -16,11 +16,6 @@ interface SummaryData {
     duration: string;
     startLocation: string;
     endLocation: string;
-    steps: Array<{
-      instructions: string;
-      distance: string;
-      duration: string;
-    }>;
   }>;
 }
 
@@ -65,11 +60,6 @@ export const TripSummary = ({ locations }: TripSummaryProps) => {
             duration: leg.duration!.text,
             startLocation: leg.start_address,
             endLocation: leg.end_address,
-            steps: leg.steps.map(step => ({
-              instructions: step.instructions.replace(/<[^>]*>/g, ''),
-              distance: step.distance!.text,
-              duration: step.duration!.text,
-            })),
           })),
         });
       } catch (error) {
@@ -98,11 +88,49 @@ export const TripSummary = ({ locations }: TripSummaryProps) => {
     <ScrollArea className="h-full">
       <div className="p-6">
         <div className="grid gap-6">
-          <TripOverview
-            totalDistance={summaryData.totalDistance}
-            totalDuration={summaryData.totalDuration}
-          />
-          <DetailedDirections legs={summaryData.legs} />
+          <Card>
+            <CardHeader>
+              <CardTitle>Trip Overview</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Total Distance</p>
+                  <p className="text-2xl font-bold">{summaryData.totalDistance}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Total Duration</p>
+                  <p className="text-2xl font-bold">{summaryData.totalDuration}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Day-by-Day Breakdown</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {locations.map((location, index) => (
+                  <div key={location.id} className="border-b last:border-0 pb-4 last:pb-0">
+                    <h3 className="font-medium">{location.name}</h3>
+                    {location.startDate && (
+                      <p className="text-sm text-muted-foreground">
+                        {format(location.startDate, 'MMM d, yyyy')}
+                        {location.endDate && ` - ${format(location.endDate, 'MMM d, yyyy')}`}
+                      </p>
+                    )}
+                    {summaryData.legs[index] && (
+                      <div className="mt-2 text-sm text-muted-foreground">
+                        <p>Next leg: {summaryData.legs[index].distance} ({summaryData.legs[index].duration})</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </ScrollArea>

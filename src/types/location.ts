@@ -3,15 +3,6 @@ export interface Location {
   name: string;
   lat: number;
   lng: number;
-  address?: string;
   startDate?: Date;
   endDate?: Date;
-  type?: string;
-  startTime?: string;
-  endTime?: string;
-  notes?: string;
-  coordinates?: {
-    lat: number;
-    lng: number;
-  };
 }

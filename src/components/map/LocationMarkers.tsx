@@ -3,10 +3,9 @@ import { Location } from '@/types/location';
 
 interface LocationMarkersProps {
   locations: Location[];
-  onClick?: (location: Location) => void;
 }
 
-export const LocationMarkers = ({ locations, onClick }: LocationMarkersProps) => {
+export const LocationMarkers = ({ locations }: LocationMarkersProps) => {
   return (
     <>
       {locations.map((location, index) => (
@@ -17,15 +16,8 @@ export const LocationMarkers = ({ locations, onClick }: LocationMarkersProps) =>
             text: (index + 1).toString(),
             color: '#ffffff',
             fontWeight: 'bold',
-            className: 'marker-label'
           }}
           title={location.name}
-          onClick={() => onClick?.(location)}
-          options={{
-            optimized: true,
-            clickable: true,
-            visible: true,
-          }}
         />
       ))}
     </>

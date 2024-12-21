@@ -1,98 +1,99 @@
+import { Place } from '@/types/place';
+
+interface PlaceDetailsResult {
+  reviews?: google.maps.places.PlaceReview[];
+  website?: string;
+  opening_hours?: {
+    weekday_text?: string[];
+    isOpen?: () => boolean;
+  };
+}
+
 export class PlacesService {
+  private service: google.maps.places.PlacesService;
   private apiKey: string;
 
   constructor() {
     this.apiKey = localStorage.getItem('googleMapsApiKey') || '';
-  }
-
-  async searchNearby(location: { lat: number; lng: number }, type: string): Promise<any[]> {
-    if (!this.apiKey) {
-      return [];
-    }
-
-    const service = new google.maps.places.PlacesService(
+    this.service = new google.maps.places.PlacesService(
       document.createElement('div')
     );
-
-    const request = {
-      location: new google.maps.LatLng(location.lat, location.lng),
-      radius: 16000, // 10 miles in meters
-      type: type,
-      rankBy: google.maps.places.RankBy.PROMINENCE,
-    };
-
-    try {
-      const results = await new Promise<google.maps.places.PlaceResult[]>((resolve, reject) => {
-        service.nearbySearch(request, (results, status) => {
-          if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-            resolve(results);
-          } else {
-            reject(new Error(`Places search failed: ${status}`));
-          }
-        });
-      });
-
-      const places = await Promise.all(
-        results.slice(0, 10).map(async (result) => {
-          const details = await this.getPlaceDetails(result.place_id!);
-          return {
-            id: result.place_id!,
-            name: result.name!,
-            location: {
-              lat: result.geometry!.location!.lat(),
-              lng: result.geometry!.location!.lng(),
-            },
-            rating: result.rating,
-            placeType: result.types,
-            photos: result.photos,
-            description: details?.reviews?.[0]?.text,
-            openingHours: {
-              isOpen: details?.opening_hours?.isOpen(),
-              weekdayText: details?.opening_hours?.weekday_text,
-            },
-            contact: {
-              phone: details?.formatted_phone_number,
-              website: details?.website,
-            },
-          };
-        })
-      );
-
-      return places;
-    } catch (error) {
-      console.error('Error fetching places:', error);
-      return [];
-    }
   }
 
-  private async getPlaceDetails(placeId: string): Promise<google.maps.places.PlaceResult | null> {
-    if (!this.apiKey) {
-      return null;
-    }
-
-    const service = new google.maps.places.PlacesService(
-      document.createElement('div')
-    );
-
+  private async fetchPlaceDetails(placeId: string): Promise<Partial<Place>> {
     return new Promise((resolve, reject) => {
-      service.getDetails(
-        {
-          placeId,
-          fields: [
-            'reviews',
-            'website',
-            'opening_hours',
-            'formatted_phone_number'
-          ]
-        },
-        (result, status) => {
+      this.service.getDetails(
+        { placeId, fields: ['reviews', 'website', 'opening_hours'] },
+        (result: PlaceDetailsResult | null, status) => {
           if (status === google.maps.places.PlacesServiceStatus.OK && result) {
-            resolve(result);
+            resolve({
+              reviews: result.reviews || [],
+              website: result.website,
+              openingHours: result.opening_hours ? {
+                weekdayText: result.opening_hours.weekday_text || [],
+                isOpen: result.opening_hours.isOpen?.() || false
+              } : undefined
+            });
           } else {
-            reject(new Error(`Place details fetch failed: ${status}`));
+            reject(new Error('Failed to fetch place details'));
           }
         }
       );
+    });
+  }
+
+  async searchNearby(
+    location: { lat: number; lng: number },
+    type: string,
+    radius: number = 16000 // 10 miles in meters
+  ): Promise<Place[]> {
+    if (!this.apiKey) {
+      throw new Error('Google Maps API key not found');
+    }
+
+    const request = {
+      location,
+      radius,
+      type,
+      rankBy: google.maps.places.RankBy.PROMINENCE,
+    };
+
+    return new Promise<Place[]>((resolve, reject) => {
+      this.service.nearbySearch(request, async (results, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+          const detailedPlaces = await Promise.all(
+            results.slice(0, 10).map(async place => {
+              try {
+                const details = await this.fetchPlaceDetails(place.place_id!);
+                return {
+                  id: place.place_id!,
+                  name: place.name || '',
+                  rating: place.rating || 0,
+                  priceLevel: place.price_level || 0,
+                  vicinity: place.vicinity || '',
+                  photos: place.photos,
+                  types: place.types || [],
+                  ...details
+                } as Place;
+              } catch (error) {
+                console.error('Error fetching place details:', error);
+                return {
+                  id: place.place_id!,
+                  name: place.name || '',
+                  rating: place.rating || 0,
+                  priceLevel: place.price_level || 0,
+                  vicinity: place.vicinity || '',
+                  photos: place.photos,
+                  types: place.types || [],
+                } as Place;
+              }
+            })
+          );
+          resolve(detailedPlaces);
+        } else {
+          resolve([]);
+        }
+      });
     });
   }
 }

@@ -1,108 +1,160 @@
 import React from 'react';
-import { MapContainer } from './MapContainer';
-import { Sidebar } from './Sidebar';
-import useTrip from '../hooks/useTrip';
-import { TripStats } from './trip/TripStats';
-import { TripShare } from './trip/TripShare';
-import { WeatherForecast } from './trip/WeatherForecast';
-import { PackingList } from './trip/PackingList';
-import { CurrencyConverter } from './trip/CurrencyConverter';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { ScrollArea } from './ui/scroll-area';
-import { PageWrapper, GlassCard } from './ui/layout';
-import { motion, AnimatePresence } from 'framer-motion';
+import { MapContainer } from '@/components/MapContainer';
+import { Sidebar } from '@/components/Sidebar';
+import { TravelRecommendations } from '@/components/TravelRecommendations';
+import { CommandMenu } from '@/components/CommandMenu';
+import { NavigationBreadcrumb } from '@/components/NavigationBreadcrumb';
+import { FloatingActionButton } from '@/components/FloatingActionButton';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { useGeolocation } from '@/hooks/use-geolocation';
+import { useTripPlanner } from '@/hooks/use-trip-planner';
+import { useToast } from '@/hooks/use-toast';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Location } from '@/types/location';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Menu } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Progress } from '@/components/ui/progress';
 
 export const TripPlanner = () => {
-  const { trip } = useTrip();
-  const [activeTab, setActiveTab] = React.useState('map');
+  const { currentLocation, error: geoError } = useGeolocation();
+  const {
+    locations,
+    selectedLocation,
+    isSummaryOpen,
+    addLocation,
+    removeLocation,
+    selectLocation,
+    reorderLocations,
+    updateDates,
+    toggleSummary,
+  } = useTripPlanner();
+
+  const { toast } = useToast();
+  const isMobile = useIsMobile();
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    if (currentLocation && locations.length === 0) {
+      addLocation(currentLocation);
+    }
+    const timer = setTimeout(() => setLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, [currentLocation, locations.length, addLocation]);
+
+  React.useEffect(() => {
+    if (geoError) {
+      toast({
+        title: "Location error",
+        description: geoError,
+        variant: "destructive",
+      });
+    }
+  }, [geoError, toast]);
+
+  const handleAddLocation = React.useCallback((location: Location) => {
+    addLocation(location);
+    toast({
+      title: "Location added",
+      description: `${location.name} has been added to your trip.`,
+      className: "animate-in fade-in-50 slide-in-from-bottom-5",
+    });
+    if (isMobile) {
+      setIsOpen(false);
+    }
+  }, [addLocation, isMobile, toast]);
+
+  const SidebarContent = () => (
+    <Sidebar
+      locations={locations}
+      selectedLocation={selectedLocation}
+      onAddLocation={() => handleAddLocation({
+        id: String(Date.now()),
+        name: 'New Location',
+        lat: 0,
+        lng: 0,
+      })}
+      onRemoveLocation={removeLocation}
+      onSelectLocation={selectLocation}
+      onReorderLocations={reorderLocations}
+      onUpdateDates={updateDates}
+      isSummaryOpen={isSummaryOpen}
+      toggleSummary={toggleSummary}
+    />
+  );
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <div className="w-full max-w-md space-y-4">
+          <Progress value={33} className="animate-pulse" />
+          <h2 className="text-center text-lg font-medium">Loading your trip planner...</h2>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <PageWrapper>
-      <div className="flex h-screen overflow-hidden" data-testid="trip-planner">
-        <Sidebar className="w-80 shrink-0 border-r border-border/40 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" />
-
-        <main className="flex-1 overflow-hidden bg-muted/10">
-          <div className="h-full p-6 grid grid-rows-[auto,1fr] gap-6">
-            <GlassCard>
-              <TripShare data-testid="share-trip-button" />
-            </GlassCard>
-
-            <Tabs
-              value={activeTab}
-              onValueChange={setActiveTab}
-              className="h-full space-y-6"
-              data-testid="tab-content"
-            >
-              <TabsList className="inline-flex h-12 items-center justify-center rounded-xl bg-muted p-1 text-muted-foreground">
-                <TabsTrigger
-                  value="map"
-                  data-testid="map-tab"
-                  className="inline-flex items-center justify-center whitespace-nowrap rounded-lg px-6 py-3 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+    <div className="flex min-h-screen bg-[#F1F0FB] animate-in fade-in-50">
+      <CommandMenu
+        locations={locations}
+        onAddLocation={handleAddLocation}
+        isSummaryOpen={isSummaryOpen}
+        toggleSummary={toggleSummary}
+      />
+      <SidebarProvider>
+        <div className="flex w-full">
+          {isMobile ? (
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <SheetTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="fixed left-4 top-4 z-50 md:hidden animate-in fade-in-50 bg-white/80 backdrop-blur-sm hover:bg-white/90"
                 >
-                  Map View
-                </TabsTrigger>
-                <TabsTrigger value="stats" data-testid="stats-tab">Statistics</TabsTrigger>
-                <TabsTrigger value="weather" data-testid="weather-tab">Weather</TabsTrigger>
-                <TabsTrigger value="tools" data-testid="tools-tab">Travel Tools</TabsTrigger>
-              </TabsList>
-
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeTab}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.2 }}
-                  className="h-[calc(100%-3rem)]"
-                >
-                  <TabsContent
-                    value="map"
-                    className="h-full mt-0 border-none p-0 outline-none"
-                  >
-                    <GlassCard className="h-full">
-                      <MapContainer data-testid="map-container" />
-                    </GlassCard>
-                  </TabsContent>
-
-                  <TabsContent
-                    value="stats"
-                    className="h-full mt-0 border-none outline-none"
-                  >
-                    <ScrollArea className="h-full rounded-xl">
-                      <div className="p-6">
-                        <TripStats data-testid="trip-stats" />
-                      </div>
-                    </ScrollArea>
-                  </TabsContent>
-
-                  <TabsContent
-                    value="weather"
-                    className="h-full mt-0 border-none outline-none"
-                  >
-                    <ScrollArea className="h-full rounded-xl">
-                      <div className="p-6">
-                        <WeatherForecast data-testid="weather-forecast" />
-                      </div>
-                    </ScrollArea>
-                  </TabsContent>
-
-                  <TabsContent
-                    value="tools"
-                    className="h-full mt-0 border-none outline-none"
-                  >
-                    <ScrollArea className="h-full rounded-xl">
-                      <div className="p-6 space-y-6">
-                        <PackingList data-testid="packing-list" />
-                        <CurrencyConverter data-testid="currency-converter" />
-                      </div>
-                    </ScrollArea>
-                  </TabsContent>
-                </motion.div>
-              </AnimatePresence>
-            </Tabs>
-          </div>
-        </main>
-      </div>
-    </PageWrapper>
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[300px] p-0 bg-white">
+                <SidebarContent />
+              </SheetContent>
+            </Sheet>
+          ) : (
+            <div className="w-80 bg-white border-r border-gray-100 shadow-sm">
+              <SidebarContent />
+            </div>
+          )}
+          
+          <main className="flex-1 space-y-6 p-4 md:p-8">
+            <NavigationBreadcrumb />
+            
+            <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100/50 bg-white transition-all duration-300 hover:shadow-xl">
+              <MapContainer 
+                locations={locations} 
+                className="h-[400px] md:h-[500px] w-full transition-all duration-300"
+              />
+            </div>
+            
+            <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100/50 bg-white transition-all duration-300 hover:shadow-xl">
+              {selectedLocation ? (
+                <TravelRecommendations location={selectedLocation} />
+              ) : (
+                <div className="flex items-center justify-center h-32 text-muted-foreground bg-white/50 backdrop-blur-sm animate-in fade-in-50">
+                  Select a location to see travel recommendations
+                </div>
+              )}
+            </div>
+          </main>
+          
+          {!isMobile && (
+            <FloatingActionButton 
+              onAddLocation={handleAddLocation} 
+            />
+          )}
+        </div>
+      </SidebarProvider>
+    </div>
   );
 };

@@ -1,114 +1,109 @@
 import React from 'react';
+import { Draggable, Droppable } from '@hello-pangea/dnd';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { Place } from '@/types/place';
-import { Location } from '@/types/location';
-import { PlaceCard } from '../ui/place-card';
-import { PlaceCardSkeleton } from './PlaceCardSkeleton';
-import { AlertCircle, Search } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { FilterOptions } from '@/types/filters';
+import { PlaceCard } from './PlaceCard';
+import { PlaceFilters } from './PlaceFilters';
 
 interface PlacesListProps {
   places: Place[];
-  isLoading?: boolean;
-  isFetchingNext?: boolean;
-  error?: Error | null;
-  onAddToItinerary?: (location: Location) => void;
-  onAddLocation?: (location: Location) => void;
+  categoryId: string;
+  favorites: Set<string>;
+  onToggleFavorite: (placeId: string) => void;
+  filterOptions: FilterOptions;
+  onFilterChange: (newOptions: Partial<FilterOptions>) => void;
 }
 
-export const PlacesList = React.memo(({ 
-  places, 
-  isLoading,
-  isFetchingNext,
-  error,
-  onAddToItinerary,
-  onAddLocation
+export const PlacesList = ({
+  places,
+  categoryId,
+  favorites,
+  onToggleFavorite,
+  filterOptions,
+  onFilterChange,
 }: PlacesListProps) => {
-  const [favorites, setFavorites] = React.useState<Set<string>>(new Set());
+  const parentRef = React.useRef<HTMLDivElement>(null);
 
-  const toggleFavorite = React.useCallback((placeId: string) => {
-    setFavorites(prev => {
-      const newFavorites = new Set(prev);
-      if (newFavorites.has(placeId)) {
-        newFavorites.delete(placeId);
-      } else {
-        newFavorites.add(placeId);
-      }
-      return newFavorites;
-    });
-  }, []);
+  const filteredPlaces = React.useMemo(() => {
+    return places
+      .filter(place => 
+        place.priceLevel >= filterOptions.minPrice &&
+        place.priceLevel <= filterOptions.maxPrice &&
+        place.rating >= filterOptions.minRating
+      )
+      .sort((a, b) => {
+        switch (filterOptions.sortBy) {
+          case 'rating':
+            return b.rating - a.rating;
+          case 'price':
+            return a.priceLevel - b.priceLevel;
+          default:
+            return 0;
+        }
+      });
+  }, [places, filterOptions]);
 
-  if (error) {
-    return (
-      <Alert variant="destructive" className="animate-in fade-in-50">
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Error</AlertTitle>
-        <AlertDescription>
-          {error.message || 'Failed to load places. Please try again later.'}
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="space-y-4 animate-in fade-in-50">
-        {Array.from({ length: 3 }).map((_, index) => (
-          <PlaceCardSkeleton key={index} />
-        ))}
-      </div>
-    );
-  }
-
-  if (!places.length) {
-    return (
-      <div className="text-center py-12 animate-in fade-in-50">
-        <Search className="mx-auto h-12 w-12 text-muted-foreground/50" />
-        <h3 className="mt-4 text-lg font-semibold">No places found</h3>
-        <p className="text-muted-foreground mt-2">
-          Try adjusting your search or filters to find more places.
-        </p>
-      </div>
-    );
-  }
+  const rowVirtualizer = useVirtualizer({
+    count: filteredPlaces.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 200,
+    overscan: 5,
+  });
 
   return (
     <div className="space-y-4">
-      {places.map((place, index) => (
-        <div
-          key={place.id}
-          className="animate-in fade-in-50 slide-in-from-bottom-3"
-          style={{ 
-            animationDelay: `${index * 50}ms`,
-            opacity: 0,
-            animation: 'fade-in 0.5s ease forwards'
-          }}
-        >
-          <PlaceCard
-            place={place}
-            isFavorite={favorites.has(place.id)}
-            onToggleFavorite={() => toggleFavorite(place.id)}
-            onAddToItinerary={onAddToItinerary}
-          />
-        </div>
-      ))}
-      {isFetchingNext && (
-        <div className="space-y-4 animate-in fade-in-50">
-          {Array.from({ length: 2 }).map((_, index) => (
-            <PlaceCardSkeleton key={`loading-${index}`} />
-          ))}
-        </div>
-      )}
+      <PlaceFilters
+        filterOptions={filterOptions}
+        onFilterChange={onFilterChange}
+      />
+      
+      <ScrollArea className="h-[calc(100vh-22rem)]" ref={parentRef}>
+        <Droppable droppableId={categoryId}>
+          {(provided) => (
+            <div
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              className="p-1"
+              style={{
+                height: `${rowVirtualizer.getTotalSize()}px`,
+                width: '100%',
+                position: 'relative',
+              }}
+            >
+              {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                const place = filteredPlaces[virtualRow.index];
+                return (
+                  <Draggable key={place.id} draggableId={place.id} index={virtualRow.index}>
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          transform: `translateY(${virtualRow.start}px)`,
+                        }}
+                      >
+                        <PlaceCard
+                          place={place}
+                          isFavorite={favorites.has(place.id)}
+                          onToggleFavorite={onToggleFavorite}
+                        />
+                      </div>
+                    )}
+                  </Draggable>
+                );
+              })}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </ScrollArea>
     </div>
   );
-}, (prevProps, nextProps) => {
-  // Custom comparison function for React.memo
-  return (
-    prevProps.isLoading === nextProps.isLoading &&
-    prevProps.error === nextProps.error &&
-    prevProps.isFetchingNext === nextProps.isFetchingNext &&
-    prevProps.places.length === nextProps.places.length &&
-    prevProps.places.every((place, index) => place.id === nextProps.places[index].id)
-  );
-});
-
-PlacesList.displayName = 'PlacesList';
+};

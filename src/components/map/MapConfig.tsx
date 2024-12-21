@@ -1,3 +1,19 @@
+import { Libraries } from '@react-google-maps/api';
+
+// Define libraries array outside component to prevent unnecessary reloads
+export const libraries: Libraries = ["places"];
+
+export const mapContainerStyle = {
+  width: '100%',
+  height: '100%',
+  borderRadius: '0.75rem',
+};
+
+export const defaultCenter = {
+  lat: 37.7749,
+  lng: -122.4194,
+};
+
 export const mapStyles = [
   {
     featureType: "all",
@@ -16,30 +32,11 @@ export const mapStyles = [
   },
 ];
 
-export const defaultMapOptions: google.maps.MapOptions = {
+export const mapOptions = {
   styles: mapStyles,
   disableDefaultUI: false,
   zoomControl: true,
   mapTypeControl: false,
   streetViewControl: true,
   fullscreenControl: true,
-  gestureHandling: 'cooperative',
 };
-
-export const defaultCenter = {
-  lat: 37.7749,
-  lng: -122.4194,
-};
-
-export const GOOGLE_MAPS_LIBRARIES: ("places" | "drawing" | "geometry" | "visualization")[] = ["places"];
-
-export const MAP_CONSTANTS = {
-  DEFAULT_ZOOM: 12,
-  SEARCH_RADIUS: 16000, // 10 miles in meters
-  BOUNDS_PADDING: {
-    top: 50,
-    right: 50,
-    bottom: 50,
-    left: 50
-  }
-} as const;

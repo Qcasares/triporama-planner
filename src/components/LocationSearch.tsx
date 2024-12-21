@@ -1,78 +1,97 @@
-import React, { useState, useCallback } from 'react';
-import { Input } from '@/components/ui/input';
+import React, { useEffect, useRef, useState } from 'react';
+import { Input } from './ui/input';
+import { Button } from './ui/button';
+import { Search } from 'lucide-react';
 import { Location } from '@/types/location';
-import { useToast } from '@/hooks/use-toast';
+import { useLoadScript } from '@react-google-maps/api';
 
 interface LocationSearchProps {
   onLocationSelect: (location: Location) => void;
 }
 
 export const LocationSearch = ({ onLocationSelect }: LocationSearchProps) => {
-  const [searchValue, setSearchValue] = useState('');
-  const { toast } = useToast();
+  const [searchInput, setSearchInput] = useState('');
+  const autoCompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [apiKey] = useState(() => localStorage.getItem('googleMapsApiKey') || '');
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSearch = useCallback(async () => {
-    if (!searchValue.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a location to search",
-        variant: "destructive",
-      });
-      return;
-    }
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: apiKey,
+    libraries: ['places'],
+  });
 
-    if (!apiKey) {
-      toast({
-        title: "Error",
-        description: "Google Maps API key is required",
-        variant: "destructive",
-      });
-      return;
-    }
+  useEffect(() => {
+    if (!isLoaded || !inputRef.current) return;
 
-    setIsLoading(true);
-    const geocoder = new google.maps.Geocoder();
-    try {
-      const response = await geocoder.geocode({ address: searchValue });
-      if (response.results[0]) {
-        const { lat, lng } = response.results[0].geometry.location;
-        onLocationSelect({
-          id: String(Date.now()),
-          name: response.results[0].formatted_address,
-          lat: lat(),
-          lng: lng(),
-        });
-        setSearchValue('');
-        toast({
-          title: "Success",
-          description: "Location added to your trip",
-        });
+    autoCompleteRef.current = new google.maps.places.Autocomplete(inputRef.current, {
+      types: ['geocode'],
+      fields: ['place_id', 'geometry', 'formatted_address', 'name'],
+    });
+
+    autoCompleteRef.current.addListener('place_changed', () => {
+      if (!autoCompleteRef.current) return;
+
+      const place = autoCompleteRef.current.getPlace();
+      
+      if (place.geometry?.location) {
+        const newLocation: Location = {
+          id: place.place_id || Math.random().toString(),
+          name: place.formatted_address || place.name || 'Unknown location',
+          lat: place.geometry.location.lat(),
+          lng: place.geometry.location.lng(),
+        };
+        
+        onLocationSelect(newLocation);
+        setSearchInput('');
       }
-    } catch (error) {
-      console.error('Geocoding error:', error);
-      toast({
-        title: "Error",
-        description: "Could not find location",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [searchValue, apiKey, onLocationSelect, toast]);
+    });
+
+    return () => {
+      if (autoCompleteRef.current) {
+        google.maps.event.clearInstanceListeners(autoCompleteRef.current);
+      }
+    };
+  }, [isLoaded, onLocationSelect]);
+
+  if (!isLoaded) {
+    return (
+      <div className="relative">
+        <Input
+          type="text"
+          placeholder="Loading places search..."
+          disabled
+          className="pr-10"
+        />
+        <Button
+          size="icon"
+          variant="ghost"
+          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+          disabled
+        >
+          <Search className="h-4 w-4 text-muted-foreground" />
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="relative">
       <Input
+        ref={inputRef}
         type="text"
         placeholder="Search for a location..."
-        value={searchValue}
-        onChange={(e) => setSearchValue(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-        className="w-full"
-        disabled={isLoading}
+        value={searchInput}
+        onChange={(e) => setSearchInput(e.target.value)}
+        className="pr-10"
       />
+      <Button
+        size="icon"
+        variant="ghost"
+        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+        disabled
+      >
+        <Search className="h-4 w-4 text-muted-foreground" />
+      </Button>
     </div>
   );
 };

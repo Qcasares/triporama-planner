@@ -23,20 +23,20 @@ export const LocationItem = ({ location, index, onRemoveLocation, onUpdateDates 
           ref={provided.innerRef}
           {...provided.draggableProps}
           className={cn(
-            'group rounded-lg border bg-card shadow-sm transition-all',
+            'group rounded-lg border bg-card p-4 shadow-sm transition-all',
             snapshot.isDragging && 'rotate-2 scale-105'
           )}
         >
-          <div className="flex items-center gap-2 p-2">
+          <div className="flex items-center gap-3">
             <div
               {...provided.dragHandleProps}
-              className="cursor-grab text-muted-foreground hover:text-foreground p-1 rounded-md hover:bg-muted/50"
+              className="cursor-grab text-muted-foreground hover:text-foreground"
             >
-              <GripVertical className="h-4 w-4" />
+              <GripVertical className="h-5 w-5" />
             </div>
             <div className="flex-1">
-              <div className="font-medium text-sm">{location.name}</div>
-              <div className="text-xs text-muted-foreground mt-1">
+              <div className="font-medium">{location.name}</div>
+              <div className="text-sm text-muted-foreground mt-1">
                 {location.startDate && (
                   <span>
                     {format(location.startDate, 'MMM d, yyyy')}
@@ -55,7 +55,6 @@ export const LocationItem = ({ location, index, onRemoveLocation, onUpdateDates 
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7"
                 >
                   <Calendar className="h-4 w-4" />
                 </Button>
@@ -91,7 +90,6 @@ export const LocationItem = ({ location, index, onRemoveLocation, onUpdateDates 
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7 hover:bg-red-50 hover:text-red-600"
               onClick={() => onRemoveLocation(location.id)}
             >
               <Trash2 className="h-4 w-4" />

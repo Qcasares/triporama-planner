@@ -1,54 +1,118 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { useCallback } from 'react';
-import { Location } from '@/types/location';
+import { useState, useEffect } from 'react';
 import { Place } from '@/types/place';
 import { PlacesService } from '@/services/places';
-import { PLACES_PER_PAGE } from '@/config/constants';
+import { useToast } from '@/hooks/use-toast';
 
-export const usePlaces = (
-  selectedLocation: Location,
-  filters: { category: string; searchTerm?: string }
-) => {
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    isError,
-    error
-  } = useInfiniteQuery({
-    queryKey: ['places', selectedLocation.id, filters],
-    queryFn: useCallback(async ({ pageParam = 0 }) => {
-      const placesService = new PlacesService();
-      const start = pageParam * PLACES_PER_PAGE;
-      const results = await placesService.searchNearby(
-        { lat: selectedLocation.lat, lng: selectedLocation.lng },
-        filters.category
-      );
+interface PlacesState {
+  places: Record<string, Place[]>;
+  loading: boolean;
+  error: string | null;
+}
 
-      const filteredResults = results.filter(place =>
-        !filters.searchTerm || place.name?.toLowerCase().includes(filters.searchTerm.toLowerCase())
-      );
+export const placeTypes = {
+  hotels: 'lodging',
+  restaurants: 'restaurant',
+  attractions: 'tourist_attraction',
+  shopping: 'shopping_mall',
+  entertainment: 'movie_theater'
+} as const;
 
-      return {
-        places: filteredResults.slice(start, start + PLACES_PER_PAGE),
-        nextPage: start + PLACES_PER_PAGE < filteredResults.length ? pageParam + 1 : undefined
-      };
-    }, [filters, selectedLocation]),
-    getNextPageParam: (lastPage) => lastPage.nextPage,
-    initialPageParam: 0,
+export const usePlaces = (location: { lat: number; lng: number }) => {
+  const [state, setState] = useState<PlacesState>({
+    places: {
+      hotels: [],
+      restaurants: [],
+      attractions: [],
+      shopping: [],
+      entertainment: []
+    },
+    loading: true,
+    error: null
   });
 
-  const places = data?.pages.flatMap(page => page.places) ?? [];
+  const [favorites, setFavorites] = useState<Set<string>>(() => 
+    new Set(JSON.parse(localStorage.getItem('favorites') || '[]'))
+  );
+
+  const { toast } = useToast();
+  const placesService = new PlacesService();
+
+  useEffect(() => {
+    const loadPlaces = async () => {
+      setState(prev => ({ ...prev, loading: true, error: null }));
+      
+      try {
+        const results = await Promise.all(
+          Object.entries(placeTypes).map(async ([key, type]) => {
+            const places = await placesService.searchNearby(location, type);
+            return [key, places];
+          })
+        );
+        
+        setState(prev => ({
+          ...prev,
+          places: Object.fromEntries(results),
+          loading: false
+        }));
+      } catch (error) {
+        console.error('Error fetching places:', error);
+        setState(prev => ({
+          ...prev,
+          error: 'Failed to load places',
+          loading: false
+        }));
+        toast({
+          title: "Error loading places",
+          description: "There was a problem fetching nearby places.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    loadPlaces();
+  }, [location, toast]);
+
+  useEffect(() => {
+    localStorage.setItem('favorites', JSON.stringify(Array.from(favorites)));
+  }, [favorites]);
+
+  const toggleFavorite = (placeId: string) => {
+    setFavorites(prev => {
+      const newFavorites = new Set(prev);
+      if (newFavorites.has(placeId)) {
+        newFavorites.delete(placeId);
+      } else {
+        newFavorites.add(placeId);
+      }
+      return newFavorites;
+    });
+  };
+
+  const addCustomPlace = (customPlace: { name: string; type: string; notes: string }) => {
+    const newPlace: Place = {
+      id: `custom-${Date.now()}`,
+      name: customPlace.name,
+      rating: 0,
+      priceLevel: 0,
+      vicinity: 'Custom Place',
+      types: [customPlace.type],
+      notes: customPlace.notes
+    };
+
+    setState(prev => ({
+      ...prev,
+      places: {
+        ...prev.places,
+        [customPlace.type]: [...(prev.places[customPlace.type] || []), newPlace]
+      }
+    }));
+  };
 
   return {
-    places,
-    isLoading,
-    isError,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
+    ...state,
+    favorites,
+    toggleFavorite,
+    addCustomPlace,
+    placeTypes
   };
 };

@@ -3,10 +3,9 @@ import { Location } from '@/types/location';
 import { Button } from '@/components/ui/button';
 import { Trash2, MapPin, Flag, Star, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
-import { useToast } from '@/hooks/use-toast';
-import { LocationDateDisplay } from './LocationDateDisplay';
 
 interface LocationCardProps {
   location: Location;
@@ -18,7 +17,7 @@ interface LocationCardProps {
   onUpdateDates?: (locationId: string, startDate?: Date, endDate?: Date) => void;
 }
 
-export const LocationCard = React.memo(({
+export const LocationCard = ({
   location,
   isSelected,
   isStart,
@@ -27,29 +26,17 @@ export const LocationCard = React.memo(({
   onRemove,
   onUpdateDates,
 }: LocationCardProps) => {
-  const { toast } = useToast();
-
-  const handleClick = () => {
-    if (onSelect) {
-      onSelect();
-      toast({
-        title: "Location selected",
-        description: `Showing places near ${location.name}`,
-      });
-    }
-  };
-
   return (
     <div 
-      onClick={handleClick}
+      onClick={onSelect}
       className={cn(
         "group relative p-4 rounded-lg border transition-all duration-300",
         "hover:shadow-md hover:border-[#0EA5E9]/20 cursor-pointer",
         "animate-in fade-in-50 slide-in-from-left-5",
-        isSelected && "border-2 border-primary bg-primary/10"
+        isSelected && "border-[#0EA5E9] bg-[#F1F0FB]"
       )}
     >
-      <div className="flex items-start gap-3 pb-2 border-b">
+      <div className="flex items-start gap-3">
         <div className={cn(
           "flex items-center justify-center w-8 h-8 rounded-full",
           isStart ? "bg-green-100" : isEnd ? "bg-purple-100" : "bg-blue-100"
@@ -65,7 +52,22 @@ export const LocationCard = React.memo(({
         
         <div className="flex-1 min-w-0">
           <div className="font-medium truncate">{location.name}</div>
-          <LocationDateDisplay location={location} />
+          {(location.startDate || location.endDate) && (
+            <div className="text-sm text-muted-foreground mt-1 space-y-1">
+              {location.startDate && (
+                <div className="flex items-center gap-2">
+                  <span>From:</span>
+                  <span>{format(new Date(location.startDate), 'MMM d, yyyy')}</span>
+                </div>
+              )}
+              {location.endDate && (
+                <div className="flex items-center gap-2">
+                  <span>To:</span>
+                  <span>{format(new Date(location.endDate), 'MMM d, yyyy')}</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -91,9 +93,9 @@ export const LocationCard = React.memo(({
                     <CalendarComponent
                       mode="single"
                       selected={location.startDate}
-                      onSelect={(date) => {
-                        onUpdateDates(location.id, date, location.endDate);
-                      }}
+                      onSelect={(date) =>
+                        onUpdateDates(location.id, date, location.endDate)
+                      }
                     />
                   </div>
                   <div>
@@ -101,9 +103,9 @@ export const LocationCard = React.memo(({
                     <CalendarComponent
                       mode="single"
                       selected={location.endDate}
-                      onSelect={(date) => {
-                        onUpdateDates(location.id, location.startDate, date);
-                      }}
+                      onSelect={(date) =>
+                        onUpdateDates(location.id, location.startDate, date)
+                      }
                     />
                   </div>
                 </div>
@@ -128,4 +130,4 @@ export const LocationCard = React.memo(({
       </div>
     </div>
   );
-});
+};

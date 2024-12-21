@@ -12,31 +12,14 @@ export const ApiKeyInput = ({ onSave }: ApiKeyInputProps) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    try {
-      const savedKey = localStorage.getItem('googleMapsApiKey');
-      if (savedKey) {
-        setApiKey(savedKey);
-      }
-    } catch (error) {
-      console.error("Error accessing localStorage:", error);
-      toast({
-        title: "Error",
-        description: "Could not load API key from local storage.",
-        variant: "destructive",
-      });
+    const savedKey = localStorage.getItem('googleMapsApiKey');
+    if (savedKey) {
+      setApiKey(savedKey);
     }
-  }, [toast]);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!apiKey.trim()) {
-      toast({
-        title: "Error",
-        description: "API key cannot be empty.",
-        variant: "destructive",
-      });
-      return;
-    }
     localStorage.setItem('googleMapsApiKey', apiKey);
     toast({
       title: "API Key Saved",

@@ -1,75 +1,25 @@
-export class MapsService {
-  private apiKey: string;
-
-  constructor() {
-    this.apiKey = localStorage.getItem('googleMapsApiKey') || '';
-  }
-
-  getDirections(origin: google.maps.LatLng, destination: google.maps.LatLng): Promise<google.maps.DirectionsResult> {
-    return new Promise((resolve, reject) => {
-      const directionsService = new google.maps.DirectionsService();
-      
-      directionsService.route(
-        {
-          origin,
-          destination,
-          travelMode: google.maps.TravelMode.DRIVING,
-        },
-        (result, status) => {
-          if (status === google.maps.DirectionsStatus.OK && result) {
-            resolve(result);
-          } else {
-            console.error('Directions request failed:', status);
-            reject(new Error('Failed to get directions'));
-          }
-        }
-      );
-    });
-  }
-
-  getGeocode(address: string): Promise<google.maps.GeocoderResult[]> {
-    return new Promise((resolve, reject) => {
-      const geocoder = new google.maps.Geocoder();
-      
-      geocoder.geocode({ address }, (results, status) => {
-        if (status === google.maps.GeocoderStatus.OK && results) {
-          resolve(results);
-        } else {
-          console.error('Geocoding request failed:', status);
-          reject(new Error('Failed to geocode address'));
-        }
-      });
-    });
-  }
-}
-
-// Create a singleton instance
-const mapsService = new MapsService();
-
-export const getLocationDetails = async (lat: number, lng: number): Promise<{
+export const getLocationDetails = async (latitude: number, longitude: number): Promise<{
   formatted_address: string;
   lat: number;
   lng: number;
 }> => {
-  const geocoder = new google.maps.Geocoder();
-  
-  return new Promise((resolve, reject) => {
-    geocoder.geocode(
-      { location: { lat, lng } },
-      (results, status) => {
-        if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
-          resolve({
-            formatted_address: results[0].formatted_address,
-            lat,
-            lng,
-          });
-        } else {
-          console.error('Reverse geocoding failed:', status);
-          reject(new Error('Failed to get location details'));
-        }
-      }
-    );
-  });
-};
+  const apiKey = localStorage.getItem('googleMapsApiKey');
+  if (!apiKey) {
+    throw new Error('Google Maps API key not found');
+  }
 
-export default mapsService;
+  const response = await fetch(
+    `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`
+  );
+  const data = await response.json();
+
+  if (!data.results?.[0]) {
+    throw new Error('No location details found');
+  }
+
+  return {
+    formatted_address: data.results[0].formatted_address,
+    lat: latitude,
+    lng: longitude,
+  };
+};

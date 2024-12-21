@@ -1,22 +1,17 @@
 export interface Place {
   id: string;
   name: string;
-  location: {
-    lat: number;
-    lng: number;
-  };
-  rating?: number;
-  distance?: number;
-  priceLevel?: number;
-  placeType?: string[];
+  rating: number;
+  priceLevel: number;
+  vicinity: string;
   photos?: google.maps.places.PlacePhoto[];
-  description?: string;
+  website?: string;
   openingHours?: {
-    isOpen?: boolean;
-    weekdayText?: string[];
+    weekdayText: string[];
+    isOpen: boolean;
   };
-  contact?: {
-    phone?: string;
-    website?: string;
-  };
+  types: string[];
+  reviews?: google.maps.places.PlaceReview[];
+  userRating?: number;
+  notes?: string;
 }
