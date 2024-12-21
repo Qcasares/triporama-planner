@@ -58,6 +58,7 @@ export const MapContainer = React.memo(({
     return <NoApiKeyWarning />;
   }
 
+  // Get initial center based on first location or use default
   const initialCenter = locations && locations.length > 0 
     ? { lat: locations[0].lat, lng: locations[0].lng }
     : defaultCenter;
