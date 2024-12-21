@@ -18,7 +18,7 @@ interface LocationCardProps {
   onUpdateDates?: (locationId: string, startDate?: Date, endDate?: Date) => void;
 }
 
-export const LocationCard = ({
+export const LocationCard = React.memo(({
   location,
   isSelected,
   isStart,
