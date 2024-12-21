@@ -83,8 +83,8 @@ export const PlacesContainer = memo(({
           </Button>
         </div>
         <PlacesFilters
-          filterOptions={filterOptions}
-          onFilterChange={handleFilterChange}
+          filters={filterOptions}
+          onFiltersChange={handleFilterChange}
         />
       </div>
 

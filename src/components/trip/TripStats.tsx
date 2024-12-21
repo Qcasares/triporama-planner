@@ -29,7 +29,7 @@ export const TripStats = () => {
     return acc;
   }, [] as { category: string; amount: number }[]);
 
-  const numberOfStops = currentTrip.stats?.numberOfStops || 0;
+  const numberOfStops = currentTrip.stats?.numberOfStops ?? 0;
   const progressValue = Math.min((numberOfStops / 20) * 100, 100);
 
   return (
