@@ -29,8 +29,12 @@ export const TripStats = () => {
     return acc;
   }, [] as { category: string; amount: number }[]);
 
-  // Ensure numberOfStops is a number before arithmetic operations
-  const numberOfStops = typeof currentTrip.stats?.numberOfStops === 'number' ? currentTrip.stats.numberOfStops : 0;
+  // Ensure numberOfStops is a valid number
+  const numberOfStops = typeof currentTrip.stats?.numberOfStops === 'number' 
+    ? currentTrip.stats.numberOfStops 
+    : 0;
+    
+  // Calculate progress value
   const progressValue = Math.min((numberOfStops / 20) * 100, 100);
 
   return (

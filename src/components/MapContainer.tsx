@@ -36,7 +36,8 @@ export const MapContainer = React.memo(
       return <NoApiKeyWarning />;
     }
 
-    const initialCenter = locations?.length > 0
+    // Safely determine initial center
+    const initialCenter = locations && locations.length > 0
       ? { lat: locations[0].lat, lng: locations[0].lng }
       : defaultCenter;
 

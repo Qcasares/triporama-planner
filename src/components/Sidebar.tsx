@@ -33,13 +33,15 @@ export const Sidebar = ({
   toggleSummary,
   className,
 }: SidebarProps) => {
+  const locationCount = locations?.length || 0;
+
   return (
     <div className={`w-full h-full flex flex-col bg-white ${className || ''}`}>
       <div className="flex flex-col gap-4 p-4 md:p-6 border-b">
         <div>
           <h2 className="text-lg font-semibold">Your Trip</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {locations.length} {locations.length === 1 ? 'destination' : 'destinations'}
+            {locationCount} {locationCount === 1 ? 'destination' : 'destinations'}
           </p>
         </div>
         <LocationSearch onLocationSelect={onAddLocation || (() => {})} />
@@ -51,7 +53,7 @@ export const Sidebar = ({
             Array.from({ length: 3 }).map((_, i) => (
               <LocationCardSkeleton key={i} />
             ))
-          ) : locations.length === 0 ? (
+          ) : locationCount === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
               <MapPin className="h-12 w-12 text-muted-foreground/50 mb-4" />
               <h3 className="font-medium mb-2">No destinations yet</h3>
