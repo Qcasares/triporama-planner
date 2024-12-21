@@ -128,4 +128,4 @@ export const LocationCard = React.memo(({
       </div>
     </div>
   );
-};
+});
