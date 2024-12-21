@@ -29,7 +29,8 @@ export const TripStats = () => {
     return acc;
   }, [] as { category: string; amount: number }[]);
 
-  const numberOfStops = currentTrip.stats?.numberOfStops ?? 0;
+  // Ensure numberOfStops is a number before arithmetic operations
+  const numberOfStops = typeof currentTrip.stats?.numberOfStops === 'number' ? currentTrip.stats.numberOfStops : 0;
   const progressValue = Math.min((numberOfStops / 20) * 100, 100);
 
   return (
@@ -41,10 +42,7 @@ export const TripStats = () => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{numberOfStops}</div>
-          <Progress
-            value={progressValue}
-            className="mt-2"
-          />
+          <Progress value={progressValue} className="mt-2" />
         </CardContent>
       </Card>
 

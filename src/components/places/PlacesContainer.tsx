@@ -109,11 +109,6 @@ export const PlacesContainer = memo(({
       </div>
     </div>
   );
-}, (prevProps, nextProps) => {
-  return (
-    prevProps.selectedLocation.id === nextProps.selectedLocation.id &&
-    prevProps.onAddLocation === nextProps.onAddLocation
-  );
 });
 
 PlacesContainer.displayName = 'PlacesContainer';
