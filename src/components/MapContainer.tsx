@@ -36,10 +36,9 @@ export const MapContainer = React.memo(
       return <NoApiKeyWarning />;
     }
 
-    const initialCenter =
-      locations && locations.length > 0
-        ? { lat: locations[0].lat, lng: locations[0].lng }
-        : defaultCenter;
+    const initialCenter = locations.length > 0
+      ? { lat: locations[0].lat, lng: locations[0].lng }
+      : defaultCenter;
 
     return (
       <MapErrorBoundary>
@@ -74,13 +73,6 @@ export const MapContainer = React.memo(
           </LoadScript>
         </div>
       </MapErrorBoundary>
-    );
-  },
-  (prevProps, nextProps) => {
-    return (
-      prevProps.locations === nextProps.locations &&
-      prevProps.onAddLocation === nextProps.onAddLocation &&
-      prevProps.className === nextProps.className
     );
   }
 );

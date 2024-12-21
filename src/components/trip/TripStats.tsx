@@ -29,8 +29,8 @@ export const TripStats = () => {
     return acc;
   }, [] as { category: string; amount: number }[]);
 
-  const progressValue = typeof currentTrip.stats.numberOfStops === 'number' 
-    ? (currentTrip.stats.numberOfStops / 20) * 100 
+  const progressValue = typeof currentTrip.stats?.numberOfStops === 'number' 
+    ? Math.min((currentTrip.stats.numberOfStops / 20) * 100, 100)
     : 0;
 
   return (
@@ -41,7 +41,7 @@ export const TripStats = () => {
           <MapPin className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{currentTrip.stats.numberOfStops}</div>
+          <div className="text-2xl font-bold">{currentTrip.stats?.numberOfStops || 0}</div>
           <Progress
             value={progressValue}
             className="mt-2"

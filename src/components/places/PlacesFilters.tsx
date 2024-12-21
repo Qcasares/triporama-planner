@@ -4,15 +4,14 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 
-interface FiltersProps {
-  filters: {
-    minRating: number;
-    sortBy: 'rating' | 'distance';
-  };
-  onFiltersChange: (filters: {
-    minRating: number;
-    sortBy: 'rating' | 'distance';
-  }) => void;
+export interface FilterOptions {
+  minRating: number;
+  sortBy: 'rating' | 'distance';
+}
+
+export interface FiltersProps {
+  filters: FilterOptions;
+  onFiltersChange: (filters: FilterOptions) => void;
 }
 
 export const PlacesFilters = ({ filters, onFiltersChange }: FiltersProps) => {
