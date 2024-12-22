@@ -4,6 +4,7 @@ import { useMap } from '@/hooks/use-map';
 import { Location } from '@/types/location';
 import { cn } from '@/lib/utils';
 import { MapPin } from 'lucide-react';
+import { useApiKey } from '@/hooks/use-api-key';
 
 interface MapContainerProps {
   locations: Location[];
@@ -13,7 +14,7 @@ interface MapContainerProps {
 const libraries: ("places" | "drawing" | "geometry" | "visualization")[] = ["places"];
 
 export const MapContainer = ({ locations = [], className }: MapContainerProps) => {
-  const [apiKey] = React.useState(() => localStorage.getItem('googleMapsApiKey') || '');
+  const { apiKey } = useApiKey();
   const { mapRef } = useMap(locations);
 
   if (!apiKey) {
