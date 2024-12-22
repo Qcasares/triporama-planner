@@ -24,7 +24,8 @@ export const PlacesManager = ({ location }: PlacesManagerProps) => {
     loading,
     favorites,
     toggleFavorite,
-    addCustomPlace
+    addCustomPlace,
+    placeTypes
   } = usePlaces(location);
 
   const [isCustomPlaceDialogOpen, setIsCustomPlaceDialogOpen] = useState(false);
@@ -38,6 +39,11 @@ export const PlacesManager = ({ location }: PlacesManagerProps) => {
     addCustomPlace(customPlace);
     setCustomPlace({ name: '', type: '', notes: '' });
     setIsCustomPlaceDialogOpen(false);
+  };
+
+  const handleDragEnd = (result: any) => {
+    // Implement drag and drop functionality if needed
+    console.log('Drag ended:', result);
   };
 
   if (!apiKey) {
@@ -57,11 +63,13 @@ export const PlacesManager = ({ location }: PlacesManagerProps) => {
       filterOptions={filterOptions}
       isCustomPlaceDialogOpen={isCustomPlaceDialogOpen}
       customPlace={customPlace}
+      placeTypes={placeTypes}
       onToggleFavorite={toggleFavorite}
       onFilterChange={(newOptions) => setFilterOptions(prev => ({ ...prev, ...newOptions }))}
       onCustomPlaceDialogOpenChange={setIsCustomPlaceDialogOpen}
       onCustomPlaceChange={handleCustomPlaceChange}
       onAddCustomPlace={handleAddCustomPlace}
+      onDragEnd={handleDragEnd}
     />
   );
 };
