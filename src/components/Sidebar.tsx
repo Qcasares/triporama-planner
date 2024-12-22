@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, MapPin } from 'lucide-react';
 
 interface SidebarProps {
-  locations: Location[];
+  locations?: Location[];
   selectedLocation?: Location;
   loading?: boolean;
   onAddLocation?: () => void;
@@ -20,7 +20,7 @@ interface SidebarProps {
 }
 
 export const Sidebar = ({
-  locations,
+  locations = [],
   selectedLocation,
   loading = false,
   onAddLocation,

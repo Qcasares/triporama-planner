@@ -12,7 +12,7 @@ interface MapContainerProps {
 
 const libraries: ("places" | "drawing" | "geometry" | "visualization")[] = ["places"];
 
-export const MapContainer = ({ locations, className }: MapContainerProps) => {
+export const MapContainer = ({ locations = [], className }: MapContainerProps) => {
   const [apiKey] = React.useState(() => localStorage.getItem('googleMapsApiKey') || '');
   const { mapRef } = useMap(locations);
 
