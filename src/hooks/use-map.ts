@@ -1,94 +1,143 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Location } from '@/types/location';
 
-const DEFAULT_CENTER = { lat: 0, lng: 0 };
-const DEFAULT_ZOOM = 2;
+const mapOptions: google.maps.MapOptions = {
+  zoom: 12,
+  disableDefaultUI: true,
+  zoomControl: true,
+  mapTypeControl: false,
+  scaleControl: true,
+  streetViewControl: false,
+  rotateControl: false,
+  fullscreenControl: true,
+};
 
-export const useMap = (locations: Location[] = []) => {
+export const useMap = (locations: Location[]) => {
   const mapRef = useRef<HTMLDivElement>(null);
+  const [mapState, setMapState] = useState<{
+    map: google.maps.Map | null;
+    markers: google.maps.Marker[];
+    directionsRenderer: google.maps.DirectionsRenderer | null;
+  }>({
+    map: null,
+    markers: [],
+    directionsRenderer: null,
+  });
 
+  // Initialize map
   useEffect(() => {
     if (!mapRef.current || !window.google) return;
 
     const map = new google.maps.Map(mapRef.current, {
-      center: locations[0] 
-        ? { lat: locations[0].lat, lng: locations[0].lng }
-        : DEFAULT_CENTER,
-      zoom: locations.length > 0 ? 8 : DEFAULT_ZOOM,
-      disableDefaultUI: false,
-      zoomControl: true,
-      mapTypeControl: true,
-      scaleControl: true,
-      streetViewControl: true,
-      rotateControl: true,
-      fullscreenControl: true,
+      ...mapOptions,
+      center: locations[0] ? { lat: locations[0].lat, lng: locations[0].lng } : { lat: 0, lng: 0 },
     });
 
-    // Only add markers and calculate routes if we have locations
-    if (locations.length > 0) {
-      // Add markers
-      const bounds = new google.maps.LatLngBounds();
-      const markers = locations.map((location, index) => {
-        const marker = new google.maps.Marker({
-          position: { lat: location.lat, lng: location.lng },
-          map,
-          title: location.name,
-          label: {
-            text: (index + 1).toString(),
-            color: '#ffffff',
-            fontWeight: 'bold',
-          },
-        });
-        bounds.extend(marker.getPosition()!);
-        return marker;
-      });
-
-      // Fit bounds to show all markers
-      map.fitBounds(bounds);
-
-      // Calculate and display route if we have at least 2 locations
-      if (locations.length >= 2) {
-        const directionsService = new google.maps.DirectionsService();
-        const directionsRenderer = new google.maps.DirectionsRenderer({
-          map,
-          suppressMarkers: true,
-        });
-
-        const origin = locations[0];
-        const destination = locations[locations.length - 1];
-        const waypoints = locations.slice(1, -1).map(location => ({
-          location: { lat: location.lat, lng: location.lng },
-          stopover: true
-        }));
-
-        directionsService.route(
-          {
-            origin: { lat: origin.lat, lng: origin.lng },
-            destination: { lat: destination.lat, lng: destination.lng },
-            waypoints,
-            optimizeWaypoints: true,
-            travelMode: google.maps.TravelMode.DRIVING,
-          },
-          (result, status) => {
-            if (status === google.maps.DirectionsStatus.OK && result) {
-              directionsRenderer.setDirections(result);
-            }
-          }
-        );
-
-        return () => {
-          directionsRenderer.setMap(null);
-          markers.forEach(marker => marker.setMap(null));
-        };
+    const directionsRenderer = new google.maps.DirectionsRenderer({
+      suppressMarkers: true,
+      polylineOptions: {
+        strokeColor: '#8b5cf6',
+        strokeOpacity: 0.8,
+        strokeWeight: 4
       }
+    });
 
-      return () => {
-        markers.forEach(marker => marker.setMap(null));
-      };
-    }
+    directionsRenderer.setMap(map);
 
-    return () => {};
+    setMapState({
+      map,
+      markers: [],
+      directionsRenderer
+    });
   }, [locations]);
 
-  return { mapRef };
+  // Update markers when locations change
+  useEffect(() => {
+    if (!mapState.map || !window.google) return;
+
+    // Clear existing markers
+    mapState.markers.forEach(marker => marker.setMap(null));
+
+    // Create new markers
+    const newMarkers = locations.map((location, index) => {
+      if (typeof location.lat !== 'number' || typeof location.lng !== 'number') {
+        console.error('Invalid coordinates for location:', location);
+        return null;
+      }
+
+      const isFirst = index === 0;
+      const isLast = index === locations.length - 1;
+
+      return new google.maps.Marker({
+        position: { lat: location.lat, lng: location.lng },
+        map: mapState.map,
+        title: location.name,
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 12,
+          fillColor: '#8b5cf6',
+          fillOpacity: 1,
+          strokeWeight: 2,
+          strokeColor: '#ffffff',
+        },
+        label: isFirst ? 'Start' : isLast ? 'End' : `${index + 1}`,
+      });
+    }).filter((marker): marker is google.maps.Marker => marker !== null);
+
+    setMapState(prev => ({
+      ...prev,
+      markers: newMarkers
+    }));
+
+    // Fit bounds to show all markers
+    if (newMarkers.length > 0) {
+      const bounds = new google.maps.LatLngBounds();
+      newMarkers.forEach(marker => {
+        const position = marker.getPosition();
+        if (position) {
+          bounds.extend(position);
+        }
+      });
+      mapState.map.fitBounds(bounds, 50);
+    }
+  }, [locations, mapState.map]);
+
+  // Update directions when multiple locations exist
+  useEffect(() => {
+    if (!mapState.map || !mapState.directionsRenderer || !window.google || locations.length < 2) {
+      return;
+    }
+
+    const directionsService = new google.maps.DirectionsService();
+
+    const origin = locations[0];
+    const destination = locations[locations.length - 1];
+    const waypoints = locations.slice(1, -1).map(location => ({
+      location: { lat: location.lat, lng: location.lng },
+      stopover: true
+    }));
+
+    if (!origin || !destination) return;
+
+    directionsService.route(
+      {
+        origin: { lat: origin.lat, lng: origin.lng },
+        destination: { lat: destination.lat, lng: destination.lng },
+        waypoints,
+        optimizeWaypoints: true,
+        travelMode: google.maps.TravelMode.DRIVING,
+      },
+      (result, status) => {
+        if (status === google.maps.DirectionsStatus.OK && result) {
+          mapState.directionsRenderer?.setDirections(result);
+        }
+      }
+    );
+  }, [locations, mapState.map, mapState.directionsRenderer]);
+
+  return {
+    mapRef,
+    map: mapState.map,
+    markers: mapState.markers
+  };
 };

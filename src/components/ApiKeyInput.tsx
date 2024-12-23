@@ -1,25 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { useApiKey } from '@/hooks/use-api-key';
+import { useToast } from '@/hooks/use-toast';
 
 interface ApiKeyInputProps {
   onSave?: () => void;
 }
 
 export const ApiKeyInput = ({ onSave }: ApiKeyInputProps) => {
-  const [inputKey, setInputKey] = useState('');
-  const { apiKey, updateApiKey } = useApiKey();
+  const [apiKey, setApiKey] = useState('');
+  const { toast } = useToast();
 
   useEffect(() => {
-    if (apiKey) {
-      setInputKey(apiKey);
+    const savedKey = localStorage.getItem('googleMapsApiKey');
+    if (savedKey) {
+      setApiKey(savedKey);
     }
-  }, [apiKey]);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateApiKey(inputKey);
+    localStorage.setItem('googleMapsApiKey', apiKey);
+    toast({
+      title: "API Key Saved",
+      description: "Your Google Maps API key has been saved successfully.",
+    });
     onSave?.();
   };
 
@@ -41,8 +46,8 @@ export const ApiKeyInput = ({ onSave }: ApiKeyInputProps) => {
       <div className="flex gap-2">
         <Input
           type="password"
-          value={inputKey}
-          onChange={(e) => setInputKey(e.target.value)}
+          value={apiKey}
+          onChange={(e) => setApiKey(e.target.value)}
           placeholder="Enter your API key"
           className="flex-1"
         />
