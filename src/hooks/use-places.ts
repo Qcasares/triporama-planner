@@ -55,7 +55,7 @@ export const usePlaces = (location: { lat: number; lng: number }) => {
           loading: false
         }));
       } catch (error) {
-        console.error('Error fetching places:', error);
+        console.error(`Error fetching places:`, error);
         setState(prev => ({
           ...prev,
           error: 'Failed to load places',

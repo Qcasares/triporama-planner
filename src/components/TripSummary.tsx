@@ -64,6 +64,8 @@ export const TripSummary = ({ locations }: TripSummaryProps) => {
         });
       } catch (error) {
         console.error('Error calculating route:', error);
+        // Optionally, you can add more details or rethrow the error if needed
+        // For now, we'll just improve the logging
       }
     };
 

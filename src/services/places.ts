@@ -1,4 +1,4 @@
-import { Place } from '@/types/place';
+import { Place } from '../types/place';
 
 interface PlaceDetailsResult {
   reviews?: google.maps.places.PlaceReview[];
@@ -76,7 +76,7 @@ export class PlacesService {
                   ...details
                 } as Place;
               } catch (error) {
-                console.error('Error fetching place details:', error);
+                console.error(`Error fetching place details for placeId ${place.place_id}:`, error);
                 return {
                   id: place.place_id!,
                   name: place.name || '',
