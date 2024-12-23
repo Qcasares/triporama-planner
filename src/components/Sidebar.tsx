@@ -21,7 +21,7 @@ interface SidebarProps {
 }
 
 export const Sidebar = ({
-  locations = [],
+  locations = [], // Provide default empty array
   selectedLocation,
   loading = false,
   onAddLocation,
