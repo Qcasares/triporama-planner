@@ -6,6 +6,7 @@ import { ScrollArea } from './ui/scroll-area';
 import { Button } from './ui/button';
 import { Plus, MapPin } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import { cn } from '../lib/utils';
 
 interface SidebarProps {
   locations: Location[];
@@ -44,20 +45,24 @@ export const Sidebar = ({
   };
 
   return (
-    <div className="w-full h-full flex flex-col bg-white">
+    <div className="w-full h-full flex flex-col bg-white transition-smooth">
       <div className="flex items-center justify-between p-4 md:p-6 border-b">
-        <div>
-          <h2 className="text-lg font-semibold">Your Trip</h2>
-          <p className="text-sm text-muted-foreground mt-1">
+        <div className="motion-safe:animate-slide-up">
+          <h2 className="text-lg font-semibold text-foreground">Your Trip</h2>
+          <p className="text-sm text-muted-foreground mt-1 transition-all">
             {locations.length} {locations.length === 1 ? 'destination' : 'destinations'}
           </p>
         </div>
         {onAddLocation && (
           <Button
             onClick={onAddLocation}
-            className="animate-in fade-in-50 bg-[#0EA5E9] hover:bg-[#0EA5E9]/90"
+            className={cn(
+              "transition-smooth motion-safe:animate-slide-up",
+              "bg-primary hover:bg-primary/90 hover:scale-105 active:scale-95",
+              "shadow-sm hover:shadow-md"
+            )}
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4 mr-2 transition-transform group-hover:scale-110" />
             Add Stop
           </Button>
         )}
@@ -65,25 +70,35 @@ export const Sidebar = ({
 
       <ScrollArea className="flex-1">
         {loading ? (
-          <div className="space-y-2 p-4">
+          <div className="space-y-4 p-4">
             {Array.from({ length: 3 }).map((_, i) => (
-              <LocationCardSkeleton key={i} />
+              <div key={i} className="animate-in fade-in-50 slide-in-from-left-5" style={{ animationDelay: `${i * 100}ms` }}>
+                <LocationCardSkeleton />
+              </div>
             ))}
           </div>
         ) : locations.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
-            <MapPin className="h-12 w-12 text-muted-foreground/50 mb-4" />
-            <h3 className="font-medium mb-2">No destinations yet</h3>
-            <p className="text-sm text-muted-foreground mb-4">
+          <div className="flex flex-col items-center justify-center py-8 px-4 text-center motion-safe:animate-fade-in">
+            <MapPin className="h-12 w-12 text-muted-foreground/50 mb-4 floating-animation" />
+            <h3 className="font-medium mb-2 motion-safe:animate-slide-up" style={{ animationDelay: '100ms' }}>
+              No destinations yet
+            </h3>
+            <p className="text-sm text-muted-foreground mb-4 motion-safe:animate-slide-up" style={{ animationDelay: '200ms' }}>
               Start planning your trip by adding your first destination
             </p>
             {onAddLocation && (
               <Button
                 onClick={onAddLocation}
                 variant="outline"
-                className="animate-in fade-in-50"
+                className={cn(
+                  "transition-smooth motion-safe:animate-slide-up",
+                  "hover:bg-primary hover:text-primary-foreground",
+                  "hover:scale-105 active:scale-95",
+                  "shadow-sm hover:shadow-md"
+                )}
+                style={{ animationDelay: '300ms' }}
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-4 w-4 mr-2 transition-transform group-hover:scale-110" />
                 Add First Stop
               </Button>
             )}
@@ -108,9 +123,15 @@ export const Sidebar = ({
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          className={`transition-transform ${
-                            snapshot.isDragging ? 'scale-105 bg-gray-100' : ''
-                          }`}
+                          className={cn(
+                            "transition-all duration-300",
+                            "hover:z-10",
+                            snapshot.isDragging && "scale-105 shadow-lg rotate-1"
+                          )}
+                          style={{
+                            ...provided.draggableProps.style,
+                            animationDelay: `${index * 50}ms`,
+                          }}
                         >
                           <LocationCard
                             location={location}

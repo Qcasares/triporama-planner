@@ -30,18 +30,21 @@ export const LocationCard = ({
     <div 
       onClick={onSelect}
       className={cn(
-        "group relative p-4 rounded-lg border transition-all duration-300",
-        "hover:shadow-md hover:border-primary/20 cursor-pointer",
-        "animate-in fade-in-50 slide-in-from-left-5",
-        isSelected && "border-primary bg-primary/5 shadow-sm"
+        "group relative p-4 rounded-lg border transition-smooth",
+        "hover:shadow-lg hover:border-primary/30 cursor-pointer",
+        "hover:scale-[1.01] active:scale-[0.99]",
+        "motion-safe:animate-slide-up",
+        isSelected && "border-primary bg-primary/5 shadow-md"
       )}
     >
       <div className="flex items-start gap-3">
         <div className={cn(
-          "flex items-center justify-center w-10 h-10 rounded-full transition-colors duration-300",
-          isStart ? "bg-success/10 text-success" : 
-          isEnd ? "bg-secondary/10 text-secondary" : 
-          "bg-primary/10 text-primary"
+          "flex items-center justify-center w-10 h-10 rounded-full",
+          "transition-all duration-300 group-hover:scale-110",
+          "transform-gpu floating-animation",
+          isStart ? "bg-success/10 text-success hover:bg-success/20" : 
+          isEnd ? "bg-secondary/10 text-secondary hover:bg-secondary/20" : 
+          "bg-primary/10 text-primary hover:bg-primary/20"
         )}>
           {isStart ? (
             <Flag className="h-5 w-5" />
@@ -53,7 +56,9 @@ export const LocationCard = ({
         </div>
         
         <div className="flex-1 min-w-0">
-          <div className="font-medium text-lg">{location.name}</div>
+          <div className="font-medium text-lg group-hover:text-primary transition-colors duration-300">
+            {location.name}
+          </div>
           {(location.startDate || location.endDate) && (
             <div className="text-sm text-muted-foreground mt-2 space-y-1">
               {location.startDate && (
@@ -79,13 +84,17 @@ export const LocationCard = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9 transition-colors duration-300 hover:bg-primary/10 hover:text-primary"
+                  className={cn(
+                    "h-9 w-9 transition-smooth",
+                    "hover:bg-primary/10 hover:text-primary hover:scale-110",
+                    "active:scale-95 focus:ring-2 focus:ring-primary/30"
+                  )}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <Calendar className="h-4 w-4" />
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="transition-smooth animate-in fade-in-0 zoom-in-95">
                 <DialogHeader>
                   <DialogTitle>Select Dates for {location.name}</DialogTitle>
                 </DialogHeader>
@@ -98,7 +107,7 @@ export const LocationCard = ({
                       onSelect={(date) =>
                         onUpdateDates(location.id, date, location.endDate)
                       }
-                      className="rounded-md border shadow-sm"
+                      className="rounded-md border shadow-sm transition-smooth hover:shadow-md"
                     />
                   </div>
                   <div>
@@ -109,7 +118,7 @@ export const LocationCard = ({
                       onSelect={(date) =>
                         onUpdateDates(location.id, location.startDate, date)
                       }
-                      className="rounded-md border shadow-sm"
+                      className="rounded-md border shadow-sm transition-smooth hover:shadow-md"
                     />
                   </div>
                 </div>
@@ -121,7 +130,11 @@ export const LocationCard = ({
             <Button
               variant="ghost"
               size="icon"
-              className="h-9 w-9 transition-colors duration-300 hover:bg-destructive/10 hover:text-destructive"
+              className={cn(
+                "h-9 w-9 transition-smooth",
+                "hover:bg-destructive/10 hover:text-destructive hover:scale-110",
+                "active:scale-95 focus:ring-2 focus:ring-destructive/30"
+              )}
               onClick={(e) => {
                 e.stopPropagation();
                 onRemove();

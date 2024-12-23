@@ -2,6 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  @keyframes slide-up {
+    0% { transform: translateY(10px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.3s ease-out;
+  }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
 @layer base {
   :root {
     --background: 60 33% 97%; /* #F9F9F7 */
@@ -46,12 +68,20 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground antialiased selection:bg-primary/20;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     letter-spacing: -0.011em;
     line-height: 1.6;
+  }
+
+  /* Modern loading state */
+  .loading-shimmer {
+    @apply relative overflow-hidden;
+    background: linear-gradient(90deg, #f0f0f0 25%, #f7f7f7 50%, #f0f0f0 75%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite linear;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -105,29 +135,85 @@
   }
 
   .location-card {
-    @apply bg-white rounded-lg p-4 mb-4 shadow-sm border border-secondary/20 transition-all duration-300;
+    @apply bg-white rounded-lg p-4 mb-4 shadow-sm border border-secondary/20 
+           transition-all duration-300 hover:shadow-lg hover:scale-[1.02] 
+           active:scale-[0.98] motion-safe:animate-slide-up;
   }
 
   .location-card:hover {
-    @apply shadow-md transform -translate-y-0.5 border-secondary/30;
+    @apply shadow-md border-secondary/30;
+    transform-origin: center;
   }
 
-  /* Animations */
-  .fade-enter {
-    opacity: 0;
+  /* Interactive elements */
+  .interactive-hover {
+    @apply transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]
+           hover:shadow-lg focus:ring-2 focus:ring-primary/50 outline-none;
   }
 
-  .fade-enter-active {
-    opacity: 1;
-    transition: opacity 300ms ease-out;
+  /* Floating animation for important elements */
+  .floating-animation {
+    animation: float 6s ease-in-out infinite;
   }
 
-  .fade-exit {
-    opacity: 1;
+  /* Enhanced transitions */
+  .transition-smooth {
+    @apply transition-all duration-300 ease-out;
   }
 
-  .fade-exit-active {
-    opacity: 0;
-    transition: opacity 300ms ease-out;
+  /* Page transitions */
+  .page-enter {
+    @apply opacity-0 translate-y-4;
+  }
+
+  .page-enter-active {
+    @apply opacity-100 translate-y-0 transition-all duration-300 ease-out;
+  }
+
+  .page-exit {
+    @apply opacity-100;
+  }
+
+  .page-exit-active {
+    @apply opacity-0 -translate-y-4 transition-all duration-300 ease-in;
+  }
+
+  /* List item animations */
+  .list-item-enter {
+    @apply opacity-0 -translate-x-4;
+  }
+
+  .list-item-enter-active {
+    @apply opacity-100 translate-x-0 transition-all duration-300 ease-out;
+  }
+
+  .list-item-exit {
+    @apply opacity-100;
+  }
+
+  .list-item-exit-active {
+    @apply opacity-0 translate-x-4 transition-all duration-300 ease-in;
+  }
+
+  /* Skeleton loading animation */
+  .skeleton {
+    @apply animate-pulse bg-gray-200 rounded;
+  }
+
+  /* Toast animations */
+  .toast-enter {
+    @apply opacity-0 translate-y-4;
+  }
+
+  .toast-enter-active {
+    @apply opacity-100 translate-y-0 transition-all duration-300 ease-out;
+  }
+
+  .toast-exit {
+    @apply opacity-100;
+  }
+
+  .toast-exit-active {
+    @apply opacity-0 -translate-y-4 transition-all duration-300 ease-in;
   }
 }
