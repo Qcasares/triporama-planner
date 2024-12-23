@@ -1,31 +1,17 @@
 import React from 'react';
-<<<<<<< HEAD
-import { LoadScript } from '@react-google-maps/api';
-=======
 import { LoadScript, GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
->>>>>>> ab8847a (Update color variables and text sizes, remove unused styles, refactor sidebar and places service.)
-import { useMap } from '@/hooks/use-map';
-import { Location } from '@/types/location';
-import { cn } from '@/lib/utils';
+import { useMap } from '../hooks/use-map';
+import { Location } from '../types/location';
+import { cn } from '../lib/utils';
 import { MapPin } from 'lucide-react';
-<<<<<<< HEAD
-=======
-import { useApiKey } from '@/hooks/use-api-key';
-import { mapStyles } from '@/config/map-styles';
->>>>>>> ab8847a (Update color variables and text sizes, remove unused styles, refactor sidebar and places service.)
+import { useApiKey } from '../hooks/use-api-key';
+import { mapStyles } from '../config/map-styles';
 
 interface MapContainerProps {
   locations: Location[];
   className?: string;
 }
 
-<<<<<<< HEAD
-const libraries: ("places" | "drawing" | "geometry" | "visualization")[] = ["places"];
-
-export const MapContainer = ({ locations, className }: MapContainerProps) => {
-  const [apiKey] = React.useState(() => localStorage.getItem('googleMapsApiKey') || '');
-  const { mapRef } = useMap(locations);
-=======
 const libraries: ("places" | "drawing" | "geometry" | "visualization")[] = ["places", "drawing", "geometry"];
 
 const mapOptions = {
@@ -48,7 +34,6 @@ export const MapContainer = ({ locations = [], className }: MapContainerProps) =
   const [trafficLayer, setTrafficLayer] = React.useState(false);
   const [transitLayer, setTransitLayer] = React.useState(false);
   const [bicyclingLayer, setBicyclingLayer] = React.useState(false);
->>>>>>> ab8847a (Update color variables and text sizes, remove unused styles, refactor sidebar and places service.)
 
   if (!apiKey) {
     return (
@@ -62,27 +47,6 @@ export const MapContainer = ({ locations = [], className }: MapContainerProps) =
     );
   }
 
-<<<<<<< HEAD
-  return (
-    <LoadScript
-      googleMapsApiKey={apiKey}
-      libraries={libraries}
-    >
-      <div 
-        ref={mapRef} 
-        className={cn(
-          "w-full rounded-xl overflow-hidden",
-          "transition-all duration-300",
-          "shadow-lg border border-purple-100/50",
-          "h-[500px]",
-          "md:h-[600px]",
-          className
-        )}
-        role="region"
-        aria-label="Trip route map"
-      />
-    </LoadScript>
-=======
   const handleMarkerClick = (location: Location) => {
     setSelectedLocation(location);
   };
@@ -189,6 +153,5 @@ export const MapContainer = ({ locations = [], className }: MapContainerProps) =
         </div>
       </LoadScript>
     </div>
->>>>>>> ab8847a (Update color variables and text sizes, remove unused styles, refactor sidebar and places service.)
   );
 };

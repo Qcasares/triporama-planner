@@ -22,6 +22,21 @@ export interface TripContextProps {
 
 const STORAGE_KEY = 'triporama_trip';
 
+function isValidTrip(data: any): data is Trip {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    Array.isArray(data.locations) &&
+    data.locations.every((loc: any) =>
+      typeof loc === 'object' &&
+      typeof loc.id === 'string' &&
+      typeof loc.name === 'string' &&
+      typeof loc.lat === 'number' &&
+      typeof loc.lng === 'number'
+    )
+  );
+}
+
 export const TripContext = createContext<TripContextProps | undefined>(undefined);
 
 export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -37,15 +52,21 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const savedTrip = localStorage.getItem(STORAGE_KEY);
         if (savedTrip) {
-          const parsedTrip = JSON.parse(savedTrip);
+          const parsedData = JSON.parse(savedTrip);
+          
+          if (!isValidTrip(parsedData)) {
+            throw new Error('Invalid trip data format');
+          }
+
           // Convert ISO date strings back to Date objects
-          if (parsedTrip.locations) {
-            parsedTrip.locations = parsedTrip.locations.map((loc: any) => ({
+          const parsedTrip: Trip = {
+            locations: parsedData.locations.map((loc: any) => ({
               ...loc,
               startDate: loc.startDate ? new Date(loc.startDate) : undefined,
               endDate: loc.endDate ? new Date(loc.endDate) : undefined,
-            }));
-          }
+            })),
+          };
+          
           setTrip(parsedTrip);
           setError(null);
         }
@@ -118,35 +139,90 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const updateLocationDates = useCallback((locationId: string, startDate?: Date, endDate?: Date) => {
-    setTrip(prevTrip => ({
-      ...prevTrip,
-      locations: prevTrip.locations.map(location =>
-        location.id === locationId
-          ? { ...location, startDate, endDate }
-          : location
-      ),
-    }));
-  }, []);
+    setTrip(prevTrip => {
+      const location = prevTrip.locations.find(loc => loc.id === locationId);
+      if (!location) return prevTrip;
+
+      // Validate date range
+      if (startDate && endDate && startDate > endDate) {
+        toast({
+          title: "Invalid Date Range",
+          description: "Start date cannot be after end date.",
+          variant: "destructive",
+        });
+        return prevTrip;
+      }
+
+      const updatedLocations = prevTrip.locations.map(loc =>
+        loc.id === locationId
+          ? { ...loc, startDate, endDate }
+          : loc
+      );
+
+      toast({
+        title: "Dates Updated",
+        description: `Updated dates for ${location.name}.`,
+      });
+
+      return {
+        ...prevTrip,
+        locations: updatedLocations,
+      };
+    });
+  }, [toast]);
 
   const updateLocation = useCallback((locationId: string, updates: Partial<Omit<Location, 'id'>>) => {
-    setTrip(prevTrip => ({
-      ...prevTrip,
-      locations: prevTrip.locations.map(location =>
-        location.id === locationId
-          ? { ...location, ...updates }
-          : location
-      ),
-    }));
-  }, []);
+    setTrip(prevTrip => {
+      const location = prevTrip.locations.find(loc => loc.id === locationId);
+      if (!location) return prevTrip;
+
+      const updatedLocations = prevTrip.locations.map(loc =>
+        loc.id === locationId
+          ? { ...loc, ...updates }
+          : loc
+      );
+
+      toast({
+        title: "Location Updated",
+        description: `Updated details for ${location.name}.`,
+      });
+
+      return {
+        ...prevTrip,
+        locations: updatedLocations,
+      };
+    });
+  }, [toast]);
 
   const reorderLocations = useCallback((startIndex: number, endIndex: number) => {
     setTrip(prevTrip => {
+      // Validate indices
+      if (
+        startIndex < 0 ||
+        endIndex < 0 ||
+        startIndex >= prevTrip.locations.length ||
+        endIndex >= prevTrip.locations.length
+      ) {
+        toast({
+          title: "Error Reordering",
+          description: "Invalid location indices.",
+          variant: "destructive",
+        });
+        return prevTrip;
+      }
+
       const updatedLocations = [...prevTrip.locations];
       const [removed] = updatedLocations.splice(startIndex, 1);
       updatedLocations.splice(endIndex, 0, removed);
+
+      toast({
+        title: "Trip Reordered",
+        description: "Location order has been updated.",
+      });
+
       return { ...prevTrip, locations: updatedLocations };
     });
-  }, []);
+  }, [toast]);
 
   const clearTrip = useCallback(() => {
     setTrip({ locations: [] });

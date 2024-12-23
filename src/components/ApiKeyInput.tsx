@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { useApiKey } from '@/hooks/use-api-key';
+import { useApiKey } from '../hooks/use-api-key';
 
 interface ApiKeyInputProps {
   onSave?: () => void;
@@ -12,21 +12,6 @@ export const ApiKeyInput = ({ onSave }: ApiKeyInputProps) => {
   const { apiKey, updateApiKey } = useApiKey();
 
   useEffect(() => {
-<<<<<<< HEAD
-    const savedKey = localStorage.getItem('googleMapsApiKey');
-    if (savedKey) {
-      setApiKey(savedKey);
-    }
-  }, []);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    localStorage.setItem('googleMapsApiKey', apiKey);
-    toast({
-      title: "API Key Saved",
-      description: "Your Google Maps API key has been saved successfully.",
-    });
-=======
     if (apiKey) {
       setInputKey(apiKey);
     }
@@ -35,7 +20,6 @@ export const ApiKeyInput = ({ onSave }: ApiKeyInputProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updateApiKey(inputKey);
->>>>>>> ab8847a (Update color variables and text sizes, remove unused styles, refactor sidebar and places service.)
     onSave?.();
   };
 

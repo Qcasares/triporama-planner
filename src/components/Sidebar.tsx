@@ -1,9 +1,9 @@
 import React from 'react';
-import { Location } from 'src/types/location';
+import { Location } from '../types/location';
 import { LocationCard } from './locations/LocationCard';
 import { LocationCardSkeleton } from './locations/LocationCardSkeleton';
-import { ScrollArea } from 'src/components/ui/scroll-area';
-import { Button } from 'src/components/ui/button';
+import { ScrollArea } from './ui/scroll-area';
+import { Button } from './ui/button';
 import { Plus, MapPin } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 
