@@ -1,21 +1,18 @@
 import React from 'react';
-import { MapContainer } from '@/components/MapContainer';
-import { Sidebar } from '@/components/Sidebar';
-import { TravelRecommendations } from '@/components/TravelRecommendations';
 import { CommandMenu } from '@/components/CommandMenu';
-import { NavigationBreadcrumb } from '@/components/NavigationBreadcrumb';
-import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { useGeolocation } from '@/hooks/use-geolocation';
 import { useTripPlanner } from '@/hooks/use-trip-planner';
 import { useToast } from '@/hooks/use-toast';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Location } from '@/types/location';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Progress } from '@/components/ui/progress';
+import { Sidebar } from '@/components/Sidebar';
+import { FloatingActionButton } from '@/components/FloatingActionButton';
+import { TripHeader } from './trip/TripHeader';
+import { TripMap } from './trip/TripMap';
+import { TripRecommendations } from './trip/TripRecommendations';
+import { MobileSidebar } from './trip/MobileSidebar';
 
 export const TripPlanner = () => {
   const { currentLocation, error: geoError } = useGeolocation();
@@ -66,25 +63,6 @@ export const TripPlanner = () => {
     }
   }, [addLocation, isMobile, toast]);
 
-  const SidebarContent = () => (
-    <Sidebar
-      locations={locations}
-      selectedLocation={selectedLocation}
-      onAddLocation={() => handleAddLocation({
-        id: String(Date.now()),
-        name: 'New Location',
-        lat: 0,
-        lng: 0,
-      })}
-      onRemoveLocation={removeLocation}
-      onSelectLocation={selectLocation}
-      onReorderLocations={reorderLocations}
-      onUpdateDates={updateDates}
-      isSummaryOpen={isSummaryOpen}
-      toggleSummary={toggleSummary}
-    />
-  );
-
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#F1F0FB] p-4">
@@ -108,48 +86,46 @@ export const TripPlanner = () => {
       <SidebarProvider>
         <div className="flex w-full">
           {isMobile ? (
-            <Sheet open={isOpen} onOpenChange={setIsOpen}>
-              <SheetTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  className="fixed left-4 top-4 z-50 md:hidden animate-in fade-in-50 bg-white/80 backdrop-blur-sm hover:bg-white/90 shadow-lg"
-                >
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-[300px] p-0 bg-white">
-                <SidebarContent />
-              </SheetContent>
-            </Sheet>
+            <MobileSidebar
+              isOpen={isOpen}
+              setIsOpen={setIsOpen}
+              locations={locations}
+              selectedLocation={selectedLocation}
+              loading={loading}
+              onAddLocation={handleAddLocation}
+              onRemoveLocation={removeLocation}
+              onSelectLocation={selectLocation}
+              onReorderLocations={reorderLocations}
+              onUpdateDates={updateDates}
+              isSummaryOpen={isSummaryOpen}
+              toggleSummary={toggleSummary}
+            />
           ) : (
             <div className="w-80 bg-white border-r border-gray-100 shadow-lg">
-              <SidebarContent />
+              <Sidebar
+                locations={locations}
+                selectedLocation={selectedLocation}
+                loading={loading}
+                onAddLocation={() => handleAddLocation({
+                  id: String(Date.now()),
+                  name: 'New Location',
+                  lat: 0,
+                  lng: 0,
+                })}
+                onRemoveLocation={removeLocation}
+                onSelectLocation={selectLocation}
+                onReorderLocations={reorderLocations}
+                onUpdateDates={updateDates}
+                isSummaryOpen={isSummaryOpen}
+                toggleSummary={toggleSummary}
+              />
             </div>
           )}
           
           <main className="flex-1 space-y-8 p-4 md:p-8">
-            <NavigationBreadcrumb />
-            
-            <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100/50 bg-white transition-all duration-300 hover:shadow-xl animate-in fade-in-50 slide-in-from-bottom-5">
-              <MapContainer 
-                locations={locations} 
-                className="h-[400px] md:h-[500px] lg:h-[600px] w-full transition-all duration-300"
-              />
-            </div>
-            
-            <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100/50 bg-white transition-all duration-300 hover:shadow-xl animate-in fade-in-50 slide-in-from-bottom-5">
-              {selectedLocation ? (
-                <TravelRecommendations location={selectedLocation} />
-              ) : (
-                <div className="flex flex-col items-center justify-center h-48 text-center p-6 bg-white/50 backdrop-blur-sm animate-in fade-in-50">
-                  <h3 className="text-xl font-semibold mb-2">Select a Location</h3>
-                  <p className="text-muted-foreground max-w-md">
-                    Choose a location from your trip to see personalized travel recommendations
-                  </p>
-                </div>
-              )}
-            </div>
+            <TripHeader />
+            <TripMap locations={locations} />
+            <TripRecommendations selectedLocation={selectedLocation} />
           </main>
           
           {!isMobile && (
