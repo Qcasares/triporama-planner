@@ -5,10 +5,18 @@ import { LocationMarkers } from './map/LocationMarkers';
 import { DirectionsLayer } from './map/DirectionsLayer';
 import { mapContainerStyle, defaultCenter, mapOptions } from './map/MapConfig';
 import { useToast } from '@/hooks/use-toast';
+import { AlertTriangle, MapPin } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 
 interface MapContainerProps {
   locations?: Location[];
   className?: string;
+}
+
+interface MapError {
+  type: 'API_KEY' | 'LOAD' | 'ROUTE' | 'GENERAL';
+  message: string;
 }
 
 export const MapContainer = ({ 
@@ -16,6 +24,7 @@ export const MapContainer = ({
   className = '' 
 }: MapContainerProps) => {
   const [directions, setDirections] = React.useState<google.maps.DirectionsResult | null>(null);
+  const [error, setError] = React.useState<MapError | null>(null);
   const [apiKey] = React.useState(() => localStorage.getItem('googleMapsApiKey') || '');
   const { toast } = useToast();
 
@@ -23,6 +32,26 @@ export const MapContainer = ({
     googleMapsApiKey: apiKey,
     libraries: ['places'],
   });
+
+  React.useEffect(() => {
+    if (!apiKey) {
+      setError({
+        type: 'API_KEY',
+        message: 'Google Maps API key is missing'
+      });
+      return;
+    }
+
+    if (loadError) {
+      setError({
+        type: 'LOAD',
+        message: 'Failed to load Google Maps'
+      });
+      return;
+    }
+
+    setError(null);
+  }, [apiKey, loadError]);
 
   // Calculate route when locations change
   React.useEffect(() => {
@@ -50,10 +79,16 @@ export const MapContainer = ({
       (result, status) => {
         if (status === google.maps.DirectionsStatus.OK && result) {
           setDirections(result);
+          setError(null);
         } else {
+          const errorMessage = 'Could not calculate the route between locations';
+          setError({
+            type: 'ROUTE',
+            message: errorMessage
+          });
           toast({
             title: "Route calculation failed",
-            description: "Could not calculate the route between locations.",
+            description: errorMessage,
             variant: "destructive",
           });
           setDirections(null);
@@ -62,14 +97,36 @@ export const MapContainer = ({
     );
   }, [isLoaded, locations, toast]);
 
-  if (loadError) {
+  if (error) {
     return (
       <div className={`${className} relative rounded-lg bg-gray-50`} style={{ minHeight: '400px' }}>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center space-y-2">
-            <p className="text-muted-foreground">Failed to load the map</p>
-            <p className="text-sm text-muted-foreground">Please check your API key and try again</p>
-          </div>
+        <div className="absolute inset-0 flex items-center justify-center p-4">
+          <Alert variant="destructive" className="max-w-md">
+            <AlertTriangle className="h-5 w-5" />
+            <AlertTitle>
+              {error.type === 'API_KEY' ? 'API Key Missing' : 
+               error.type === 'LOAD' ? 'Map Load Error' : 
+               'Route Error'}
+            </AlertTitle>
+            <AlertDescription className="mt-2">
+              {error.message}
+              {error.type === 'API_KEY' && (
+                <Button
+                  variant="outline"
+                  className="mt-4 w-full"
+                  onClick={() => {
+                    // Trigger the API key dialog through your existing mechanism
+                    document.dispatchEvent(new KeyboardEvent('keydown', {
+                      key: 'k',
+                      ctrlKey: true
+                    }));
+                  }}
+                >
+                  Set API Key
+                </Button>
+              )}
+            </AlertDescription>
+          </Alert>
         </div>
       </div>
     );
@@ -79,7 +136,10 @@ export const MapContainer = ({
     return (
       <div className={`${className} relative rounded-lg bg-gray-50`} style={{ minHeight: '400px' }}>
         <div className="absolute inset-0 flex items-center justify-center">
-          <p className="text-muted-foreground">Loading map...</p>
+          <div className="text-center space-y-2">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto" />
+            <p className="text-muted-foreground">Loading map...</p>
+          </div>
         </div>
       </div>
     );
@@ -89,7 +149,10 @@ export const MapContainer = ({
     return (
       <div className={`${className} relative rounded-lg bg-gray-50`} style={{ minHeight: '400px' }}>
         <div className="absolute inset-0 flex items-center justify-center">
-          <p className="text-muted-foreground">Add locations to see them on the map</p>
+          <div className="text-center space-y-4">
+            <MapPin className="h-12 w-12 text-muted-foreground mx-auto" />
+            <p className="text-muted-foreground">Add locations to see them on the map</p>
+          </div>
         </div>
       </div>
     );
