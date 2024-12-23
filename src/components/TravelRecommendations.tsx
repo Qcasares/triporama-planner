@@ -1,15 +1,22 @@
+<<<<<<< HEAD
 import React, { useEffect, useState } from 'react';
 import { Location } from '@/types/location';
 import { Place } from '@/types/place';
 import { FilterOptions } from '@/types/filters';
 import { useToast } from '@/hooks/use-toast';
 import { PlacesContainer } from './places/PlacesContainer';
+=======
+import React from 'react';
+import { Location } from '@/types/location';
+import { PlacesManager } from './places/PlacesManager';
+>>>>>>> ab8847a (Update color variables and text sizes, remove unused styles, refactor sidebar and places service.)
 
 interface TravelRecommendationsProps {
   location: Location;
 }
 
 export const TravelRecommendations = ({ location }: TravelRecommendationsProps) => {
+<<<<<<< HEAD
   const [places, setPlaces] = useState<Record<string, Place[]>>({
     hotels: [],
     restaurants: [],
@@ -213,4 +220,7 @@ export const TravelRecommendations = ({ location }: TravelRecommendationsProps) 
       onDragEnd={handleDragEnd}
     />
   );
+=======
+  return <PlacesManager location={location} />;
+>>>>>>> ab8847a (Update color variables and text sizes, remove unused styles, refactor sidebar and places service.)
 };

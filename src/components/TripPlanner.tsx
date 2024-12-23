@@ -87,10 +87,18 @@ export const TripPlanner = () => {
 
   if (loading) {
     return (
+<<<<<<< HEAD
       <div className="flex min-h-screen items-center justify-center bg-background p-4">
         <div className="w-full max-w-md space-y-4">
           <Progress value={33} className="animate-pulse" />
           <h2 className="text-center text-lg font-medium">Loading your trip planner...</h2>
+=======
+      <div className="flex min-h-screen items-center justify-center bg-[#F1F0FB] p-4">
+        <div className="w-full max-w-md space-y-6 animate-in fade-in-50">
+          <Progress value={33} className="animate-pulse" />
+          <h2 className="text-center text-xl font-semibold tracking-tight text-primary">Loading your trip planner...</h2>
+          <p className="text-center text-sm text-muted-foreground">We're getting everything ready for you</p>
+>>>>>>> ab8847a (Update color variables and text sizes, remove unused styles, refactor sidebar and places service.)
         </div>
       </div>
     );
@@ -112,7 +120,11 @@ export const TripPlanner = () => {
                 <Button 
                   variant="ghost" 
                   size="icon"
+<<<<<<< HEAD
                   className="fixed left-4 top-4 z-50 md:hidden animate-in fade-in-50 bg-white/80 backdrop-blur-sm hover:bg-white/90"
+=======
+                  className="fixed left-4 top-4 z-50 md:hidden animate-in fade-in-50 bg-white/80 backdrop-blur-sm hover:bg-white/90 shadow-lg"
+>>>>>>> ab8847a (Update color variables and text sizes, remove unused styles, refactor sidebar and places service.)
                 >
                   <Menu className="h-5 w-5" />
                 </Button>
@@ -122,11 +134,16 @@ export const TripPlanner = () => {
               </SheetContent>
             </Sheet>
           ) : (
+<<<<<<< HEAD
             <div className="w-80 bg-white border-r border-gray-100 shadow-sm">
+=======
+            <div className="w-80 bg-white border-r border-gray-100 shadow-lg">
+>>>>>>> ab8847a (Update color variables and text sizes, remove unused styles, refactor sidebar and places service.)
               <SidebarContent />
             </div>
           )}
           
+<<<<<<< HEAD
           <main className="flex-1 space-y-6 p-4 md:p-8">
             <NavigationBreadcrumb />
             
@@ -143,6 +160,27 @@ export const TripPlanner = () => {
               ) : (
                 <div className="flex items-center justify-center h-32 text-muted-foreground bg-white/50 backdrop-blur-sm animate-in fade-in-50">
                   Select a location to see travel recommendations
+=======
+          <main className="flex-1 space-y-8 p-4 md:p-8">
+            <NavigationBreadcrumb />
+            
+            <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100/50 bg-white transition-all duration-300 hover:shadow-xl animate-in fade-in-50 slide-in-from-bottom-5">
+              <MapContainer 
+                locations={locations} 
+                className="h-[400px] md:h-[500px] lg:h-[600px] w-full transition-all duration-300"
+              />
+            </div>
+            
+            <div className="rounded-xl overflow-hidden shadow-lg border border-purple-100/50 bg-white transition-all duration-300 hover:shadow-xl animate-in fade-in-50 slide-in-from-bottom-5">
+              {selectedLocation ? (
+                <TravelRecommendations location={selectedLocation} />
+              ) : (
+                <div className="flex flex-col items-center justify-center h-48 text-center p-6 bg-white/50 backdrop-blur-sm animate-in fade-in-50">
+                  <h3 className="text-xl font-semibold mb-2">Select a Location</h3>
+                  <p className="text-muted-foreground max-w-md">
+                    Choose a location from your trip to see personalized travel recommendations
+                  </p>
+>>>>>>> ab8847a (Update color variables and text sizes, remove unused styles, refactor sidebar and places service.)
                 </div>
               )}
             </div>
