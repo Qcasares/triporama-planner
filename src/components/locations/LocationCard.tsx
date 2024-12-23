@@ -30,46 +30,46 @@ export const LocationCard = ({
     <div 
       onClick={onSelect}
       className={cn(
-        "group relative p-4 rounded-lg border transition-smooth",
-        "hover:shadow-lg hover:border-primary/30 cursor-pointer",
-        "hover:scale-[1.01] active:scale-[0.99]",
+        "group relative px-3 py-2.5 rounded-lg border transition-smooth",
+        "hover:shadow-md hover:border-primary/20 cursor-pointer",
+        "hover:scale-[1.005] active:scale-[0.995]",
         "motion-safe:animate-slide-up",
-        isSelected && "border-primary bg-primary/5 shadow-md"
+        isSelected && "border-primary/30 bg-primary/[0.03] shadow-sm"
       )}
     >
       <div className="flex items-start gap-3">
         <div className={cn(
-          "flex items-center justify-center w-10 h-10 rounded-full",
-          "transition-all duration-300 group-hover:scale-110",
-          "transform-gpu floating-animation",
-          isStart ? "bg-success/10 text-success hover:bg-success/20" : 
-          isEnd ? "bg-secondary/10 text-secondary hover:bg-secondary/20" : 
-          "bg-primary/10 text-primary hover:bg-primary/20"
+          "flex items-center justify-center w-8 h-8 rounded-full",
+          "transition-all duration-300 group-hover:scale-105",
+          "transform-gpu",
+          isStart ? "bg-success/5 text-success/70 group-hover:text-success group-hover:bg-success/10" : 
+          isEnd ? "bg-secondary/5 text-secondary/70 group-hover:text-secondary group-hover:bg-secondary/10" : 
+          "bg-primary/5 text-primary/70 group-hover:text-primary group-hover:bg-primary/10"
         )}>
           {isStart ? (
-            <Flag className="h-5 w-5" />
+            <Flag className="h-4 w-4" />
           ) : isEnd ? (
-            <Star className="h-5 w-5" />
+            <Star className="h-4 w-4" />
           ) : (
-            <MapPin className="h-5 w-5" />
+            <MapPin className="h-4 w-4" />
           )}
         </div>
         
         <div className="flex-1 min-w-0">
-          <div className="font-medium text-lg group-hover:text-primary transition-colors duration-300">
+          <div className="font-medium text-base group-hover:text-primary transition-colors duration-300">
             {location.name}
           </div>
           {(location.startDate || location.endDate) && (
-            <div className="text-sm text-muted-foreground mt-2 space-y-1">
+            <div className="text-xs text-muted-foreground mt-1.5 space-y-0.5">
               {location.startDate && (
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">From:</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-medium text-[11px] uppercase tracking-wide text-muted-foreground/70">From</span>
                   <span>{format(new Date(location.startDate), 'MMM d, yyyy')}</span>
                 </div>
               )}
               {location.endDate && (
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">To:</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-medium text-[11px] uppercase tracking-wide text-muted-foreground/70">To</span>
                   <span>{format(new Date(location.endDate), 'MMM d, yyyy')}</span>
                 </div>
               )}
@@ -85,7 +85,7 @@ export const LocationCard = ({
                   variant="ghost"
                   size="icon"
                   className={cn(
-                    "h-9 w-9 transition-smooth",
+                    "h-8 w-8 transition-smooth",
                     "hover:bg-primary/10 hover:text-primary hover:scale-110",
                     "active:scale-95 focus:ring-2 focus:ring-primary/30"
                   )}
@@ -100,7 +100,7 @@ export const LocationCard = ({
                 </DialogHeader>
                 <div className="grid gap-6">
                   <div>
-                    <h4 className="font-medium mb-2">Start Date</h4>
+                    <h4 className="text-sm font-medium mb-2">Start Date</h4>
                     <CalendarComponent
                       mode="single"
                       selected={location.startDate}
@@ -111,7 +111,7 @@ export const LocationCard = ({
                     />
                   </div>
                   <div>
-                    <h4 className="font-medium mb-2">End Date</h4>
+                    <h4 className="text-sm font-medium mb-2">End Date</h4>
                     <CalendarComponent
                       mode="single"
                       selected={location.endDate}
@@ -131,7 +131,7 @@ export const LocationCard = ({
               variant="ghost"
               size="icon"
               className={cn(
-                "h-9 w-9 transition-smooth",
+                    "h-8 w-8 transition-smooth",
                 "hover:bg-destructive/10 hover:text-destructive hover:scale-110",
                 "active:scale-95 focus:ring-2 focus:ring-destructive/30"
               )}

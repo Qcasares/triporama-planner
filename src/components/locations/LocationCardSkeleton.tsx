@@ -1,19 +1,37 @@
 import React from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Card } from '@/components/ui/card';
+import { Skeleton } from '../../components/ui/skeleton';
+import { cn } from '../../lib/utils';
 
 export const LocationCardSkeleton = () => {
   return (
-    <Card className="p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <Skeleton className="h-5 w-[140px]" />
-        <Skeleton className="h-4 w-4 rounded-full" />
+    <div className={cn(
+      "group relative px-3 py-2.5 rounded-lg border transition-smooth",
+      "bg-white/50 animate-pulse"
+    )}>
+      <div className="flex items-start gap-3">
+        <div className="flex-shrink-0">
+          <Skeleton className="w-8 h-8 rounded-full bg-primary/5" />
+        </div>
+        
+        <div className="flex-1 min-w-0 space-y-2">
+          <Skeleton className="h-5 w-[180px] bg-gray-100/80" />
+          <div className="space-y-1">
+            <div className="flex items-center gap-1.5">
+              <Skeleton className="h-3 w-8 bg-gray-100/80" />
+              <Skeleton className="h-3 w-24 bg-gray-100/80" />
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Skeleton className="h-3 w-6 bg-gray-100/80" />
+              <Skeleton className="h-3 w-24 bg-gray-100/80" />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Skeleton className="w-8 h-8 rounded-lg bg-gray-100/80" />
+          <Skeleton className="w-8 h-8 rounded-lg bg-gray-100/80" />
+        </div>
       </div>
-      <Skeleton className="h-4 w-[100px]" />
-      <div className="space-y-2">
-        <Skeleton className="h-3 w-full" />
-        <Skeleton className="h-3 w-[80%]" />
-      </div>
-    </Card>
+    </div>
   );
 };
