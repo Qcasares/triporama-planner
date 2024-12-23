@@ -115,7 +115,6 @@ export const MapContainer = ({
                   variant="outline"
                   className="mt-4 w-full"
                   onClick={() => {
-                    // Trigger the API key dialog through your existing mechanism
                     document.dispatchEvent(new KeyboardEvent('keydown', {
                       key: 'k',
                       ctrlKey: true
@@ -145,20 +144,10 @@ export const MapContainer = ({
     );
   }
 
-  if (locations.length === 0) {
-    return (
-      <div className={`${className} relative rounded-lg bg-gray-50`} style={{ minHeight: '400px' }}>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center space-y-4">
-            <MapPin className="h-12 w-12 text-muted-foreground mx-auto" />
-            <p className="text-muted-foreground">Add locations to see them on the map</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  const center = locations[0] ? { lat: locations[0].lat, lng: locations[0].lng } : defaultCenter;
+  // Default center when no locations are available
+  const center = locations.length > 0 
+    ? { lat: locations[0].lat, lng: locations[0].lng }
+    : defaultCenter;
 
   return (
     <div className={`${className} relative`} style={{ minHeight: '400px' }}>
@@ -168,7 +157,7 @@ export const MapContainer = ({
         zoom={8}
         options={mapOptions}
       >
-        {!directions && <LocationMarkers locations={locations} />}
+        {locations.length > 0 && !directions && <LocationMarkers locations={locations} />}
         {directions && <DirectionsLayer directions={directions} />}
       </GoogleMap>
     </div>

@@ -9,7 +9,7 @@ import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea
 
 interface SidebarProps {
   locations?: Location[];
-  selectedLocation?: Location;
+  selectedLocation?: Location | null;
   loading?: boolean;
   onAddLocation?: () => void;
   onRemoveLocation?: (id: string) => void;
@@ -21,8 +21,8 @@ interface SidebarProps {
 }
 
 export const Sidebar = ({
-  locations = [], // Provide default empty array
-  selectedLocation,
+  locations = [], // Ensure default empty array
+  selectedLocation = null, // Ensure default null
   loading = false,
   onAddLocation,
   onRemoveLocation,
