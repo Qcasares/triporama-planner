@@ -1,4 +1,4 @@
-import { TripPlanner } from '@/components/TripPlanner';
+import { TripPlanner } from "../components/TripPlanner";
 
 const Index = () => {
   return <TripPlanner />;

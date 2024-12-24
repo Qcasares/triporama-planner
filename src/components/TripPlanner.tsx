@@ -1,46 +1,46 @@
-import React from 'react';
-import { MapContainer } from '../components/MapContainer';
-import { Sidebar } from '../components/Sidebar';
-import { TravelRecommendations } from '../components/TravelRecommendations';
-import { CommandMenu } from '../components/CommandMenu';
-import { NavigationBreadcrumb } from '../components/NavigationBreadcrumb';
-import { FloatingActionButton } from '../components/FloatingActionButton';
-import { SidebarProvider } from '../components/ui/sidebar';
+import { useContext, useState, useEffect, useCallback } from 'react';
+import { MapContainer } from './MapContainer';
+import { Sidebar } from './Sidebar';
+import { TravelRecommendations } from './TravelRecommendations';
+import { CommandMenu } from './CommandMenu';
+import { NavigationBreadcrumb } from './NavigationBreadcrumb';
+import { FloatingActionButton } from './FloatingActionButton';
+import { SidebarProvider } from './ui/sidebar';
 import { useGeolocation } from '../hooks/use-geolocation';
-import { useTripPlanner } from '../hooks/use-trip-planner';
+import { TripContext, TripContextProps } from '../contexts/TripContext';
 import { useToast } from '../hooks/use-toast';
-import { ScrollArea } from '../components/ui/scroll-area';
+import { ScrollArea } from './ui/scroll-area';
 import { Location } from '../types/location';
-import { Sheet, SheetContent, SheetTrigger } from '../components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 import { Menu, MapPin, Loader2 } from 'lucide-react';
-import { Button } from '../components/ui/button';
+import { Button } from './ui/button';
 import { useIsMobile } from '../hooks/use-mobile';
-import { Progress } from '../components/ui/progress';
+import { Progress } from './ui/progress';
 import { cn } from '../lib/utils';
 
 export const TripPlanner = () => {
   const { currentLocation, error: geoError } = useGeolocation();
   const {
-    locations,
+    trip,
     selectedLocation,
-    isSummaryOpen,
+    loading: contextLoading,
+    error,
     addLocation,
     removeLocation,
     selectLocation,
     reorderLocations,
-    updateDates,
-    toggleSummary,
-  } = useTripPlanner();
+    updateLocationDates,
+  } = useContext(TripContext) as TripContextProps;
+  const [isSummaryOpen, setIsSummaryOpen] = useState(false);
 
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [loading, setLoading] = React.useState(true);
-  const [progress, setProgress] = React.useState(0);
+  const [isOpen, setIsOpen] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   // Animated loading progress
-  React.useEffect(() => {
-    if (loading) {
+  useEffect(() => {
+    if (contextLoading) {
       const interval = setInterval(() => {
         setProgress(prev => {
           if (prev >= 100) {
@@ -52,11 +52,11 @@ export const TripPlanner = () => {
       }, 20);
       return () => clearInterval(interval);
     }
-  }, [loading]);
+  }, [contextLoading]);
 
-  // Initialize with current location
-  React.useEffect(() => {
-    if (currentLocation && locations.length === 0) {
+  // Initialize with current location if no locations exist
+  useEffect(() => {
+    if (currentLocation && trip.locations.length === 0) {
       addLocation(currentLocation);
       toast({
         title: "Location detected",
@@ -64,12 +64,10 @@ export const TripPlanner = () => {
         className: "animate-in fade-in-50 slide-in-from-bottom-5",
       });
     }
-    const timer = setTimeout(() => setLoading(false), 1500);
-    return () => clearTimeout(timer);
-  }, [currentLocation, locations.length, addLocation, toast]);
+  }, [currentLocation, trip.locations.length, addLocation, toast]);
 
   // Handle geolocation errors
-  React.useEffect(() => {
+  useEffect(() => {
     if (geoError) {
       toast({
         title: "Location access error",
@@ -80,7 +78,7 @@ export const TripPlanner = () => {
     }
   }, [geoError, toast]);
 
-  const handleAddLocation = React.useCallback((location: Location) => {
+  const handleAddLocation = useCallback((location: Location) => {
     addLocation(location);
     toast({
       title: "Location added",
@@ -94,7 +92,7 @@ export const TripPlanner = () => {
 
   const SidebarContent = () => (
     <Sidebar
-      locations={locations}
+      locations={trip.locations}
       selectedLocation={selectedLocation}
       onAddLocation={() => handleAddLocation({
         id: String(Date.now()),
@@ -105,13 +103,13 @@ export const TripPlanner = () => {
       onRemoveLocation={removeLocation}
       onSelectLocation={selectLocation}
       onReorderLocations={reorderLocations}
-      onUpdateDates={updateDates}
+      onUpdateDates={updateLocationDates}
       isSummaryOpen={isSummaryOpen}
-      toggleSummary={toggleSummary}
+      toggleSummary={() => setIsSummaryOpen(prev => !prev)}
     />
   );
 
-  if (loading) {
+  if (contextLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#F1F0FB] p-4">
         <div className="w-full max-w-md space-y-6 motion-safe:animate-fade-in">
@@ -143,10 +141,10 @@ export const TripPlanner = () => {
   return (
     <div className="flex min-h-screen bg-[#F1F0FB] motion-safe:animate-fade-in">
       <CommandMenu
-        locations={locations}
+        locations={trip.locations}
         onAddLocation={handleAddLocation}
         isSummaryOpen={isSummaryOpen}
-        toggleSummary={toggleSummary}
+        toggleSummary={() => setIsSummaryOpen(prev => !prev)}
       />
       <SidebarProvider>
         <div className="flex w-full">
@@ -192,7 +190,7 @@ export const TripPlanner = () => {
               "motion-safe:animate-slide-up"
             )} style={{ animationDelay: '200ms' }}>
               <MapContainer 
-                locations={locations} 
+                locations={trip.locations} 
                 className="h-[400px] md:h-[500px] lg:h-[600px] w-full transition-all duration-300"
               />
             </div>
