@@ -73,15 +73,14 @@ export const Sidebar = ({
   const safeLocations = Array.isArray(locations) ? locations : [];
 
   let filteredLocations = safeLocations.filter(location => 
-    location.name.toLowerCase().includes(searchQuery.toLowerCase())
+    location?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false
   );
 
   if (sortByDate) {
     filteredLocations = [...filteredLocations].sort((a, b) => {
-      if (!a.startDate && !b.startDate) return 0;
-      if (!a.startDate) return 1;
-      if (!b.startDate) return -1;
-      return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+      const aDate = a?.startDate ? new Date(a.startDate).getTime() : 0;
+      const bDate = b?.startDate ? new Date(b.startDate).getTime() : 0;
+      return aDate - bDate;
     });
   }
 
@@ -91,7 +90,7 @@ export const Sidebar = ({
     const groups = new Map<string, Location[]>();
     
     filteredLocations.forEach(location => {
-      if (!location.startDate) return;
+      if (!location?.startDate) return;
       
       const day = startOfDay(new Date(location.startDate)).toISOString();
       const group = groups.get(day) || [];
@@ -108,7 +107,7 @@ export const Sidebar = ({
 
   const ungroupedLocations = React.useMemo(() => {
     if (!groupByDay) return [];
-    return filteredLocations.filter(location => !location.startDate);
+    return filteredLocations.filter(location => !location?.startDate);
   }, [filteredLocations, groupByDay]);
 
   return (
