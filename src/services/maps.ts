@@ -8,6 +8,17 @@ interface DirectionsResult {
   bounds: google.maps.LatLngBounds;
 }
 
+export const getLocationDetails = async (latitude: number, longitude: number): Promise<{
+  formatted_address: string;
+  lat: number;
+  lng: number;
+  place_id?: string;
+  address_components?: google.maps.GeocoderAddressComponent[];
+}> => {
+  const mapsService = new MapsService();
+  return mapsService.getLocationDetails(latitude, longitude);
+};
+
 export class MapsService {
   private apiKey: string;
   private geocoder: google.maps.Geocoder;
