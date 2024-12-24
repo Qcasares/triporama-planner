@@ -36,9 +36,16 @@ export const MapContainer = ({ locations = [], className }: MapContainerProps) =
 
   const mapCenter = React.useMemo(() => {
     if (!locations || locations.length === 0) return DEFAULT_CENTER;
+    
+    // Calculate the center point of all locations
+    const bounds = new google.maps.LatLngBounds();
+    locations.forEach(location => {
+      bounds.extend({ lat: location.lat, lng: location.lng });
+    });
+    
     return {
-      lat: locations[0].lat,
-      lng: locations[0].lng
+      lat: bounds.getCenter().lat(),
+      lng: bounds.getCenter().lng()
     };
   }, [locations]);
 
@@ -61,7 +68,16 @@ export const MapContainer = ({ locations = [], className }: MapContainerProps) =
 
   const handleMapLoad = React.useCallback((map: google.maps.Map) => {
     setMap(map);
-  }, []);
+    
+    // If we have locations, fit the map bounds to include all locations
+    if (locations.length > 0) {
+      const bounds = new google.maps.LatLngBounds();
+      locations.forEach(location => {
+        bounds.extend({ lat: location.lat, lng: location.lng });
+      });
+      map.fitBounds(bounds, 50); // 50px padding
+    }
+  }, [locations]);
 
   return (
     <div className={cn("relative", className)}>
@@ -86,7 +102,7 @@ export const MapContainer = ({ locations = [], className }: MapContainerProps) =
           <GoogleMap
             mapContainerStyle={{ width: '100%', height: '100%' }}
             center={mapCenter}
-            zoom={DEFAULT_ZOOM}
+            zoom={locations.length === 0 ? DEFAULT_ZOOM : undefined}
             options={mapOptions}
             onLoad={handleMapLoad}
           >
