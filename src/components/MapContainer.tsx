@@ -34,14 +34,18 @@ export const MapContainer = ({ locations = [], className }: MapContainerProps) =
   const [transitLayer, setTransitLayer] = React.useState(false);
   const [bicyclingLayer, setBicyclingLayer] = React.useState(false);
 
+  // Ensure locations is always an array
+  const safeLocations = Array.isArray(locations) ? locations : [];
+
   const mapCenter = React.useMemo(() => {
-    if (!locations || locations.length === 0) return DEFAULT_CENTER;
+    if (safeLocations.length === 0) return DEFAULT_CENTER;
     
     try {
-      // Calculate the center point of all locations
       const bounds = new google.maps.LatLngBounds();
-      locations.forEach(location => {
-        bounds.extend({ lat: location.lat, lng: location.lng });
+      safeLocations.forEach(location => {
+        if (typeof location.lat === 'number' && typeof location.lng === 'number') {
+          bounds.extend({ lat: location.lat, lng: location.lng });
+        }
       });
       
       return {
@@ -52,7 +56,28 @@ export const MapContainer = ({ locations = [], className }: MapContainerProps) =
       console.error('Error calculating map center:', error);
       return DEFAULT_CENTER;
     }
-  }, [locations]);
+  }, [safeLocations]);
+
+  const handleMapLoad = React.useCallback((map: google.maps.Map) => {
+    setMap(map);
+    
+    try {
+      if (safeLocations.length > 0) {
+        const bounds = new google.maps.LatLngBounds();
+        safeLocations.forEach(location => {
+          if (typeof location.lat === 'number' && typeof location.lng === 'number') {
+            bounds.extend({ lat: location.lat, lng: location.lng });
+          }
+        });
+        map.fitBounds(bounds, 50); // 50px padding
+      }
+    } catch (error) {
+      console.error('Error fitting map bounds:', error);
+      // Set default view if bounds fitting fails
+      map.setCenter(DEFAULT_CENTER);
+      map.setZoom(DEFAULT_ZOOM);
+    }
+  }, [safeLocations]);
 
   if (!apiKey) {
     return (
@@ -70,23 +95,6 @@ export const MapContainer = ({ locations = [], className }: MapContainerProps) =
       </div>
     );
   }
-
-  const handleMapLoad = React.useCallback((map: google.maps.Map) => {
-    setMap(map);
-    
-    try {
-      // If we have locations, fit the map bounds to include all locations
-      if (locations && locations.length > 0) {
-        const bounds = new google.maps.LatLngBounds();
-        locations.forEach(location => {
-          bounds.extend({ lat: location.lat, lng: location.lng });
-        });
-        map.fitBounds(bounds, 50); // 50px padding
-      }
-    } catch (error) {
-      console.error('Error fitting map bounds:', error);
-    }
-  }, [locations]);
 
   return (
     <div className={cn("relative", className)}>
@@ -111,11 +119,10 @@ export const MapContainer = ({ locations = [], className }: MapContainerProps) =
           <GoogleMap
             mapContainerStyle={{ width: '100%', height: '100%' }}
             center={mapCenter}
-            zoom={locations.length === 0 ? DEFAULT_ZOOM : undefined}
+            zoom={safeLocations.length === 0 ? DEFAULT_ZOOM : undefined}
             options={mapOptions}
             onLoad={handleMapLoad}
           >
-            {/* Map layers */}
             {map && (
               <>
                 {trafficLayer && new google.maps.TrafficLayer().setMap(map)}

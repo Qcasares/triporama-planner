@@ -69,7 +69,10 @@ export const Sidebar = ({
     onReorderLocations(sourceIndex, destinationIndex);
   };
 
-  let filteredLocations = locations.filter(location => 
+  // Ensure locations is always an array
+  const safeLocations = Array.isArray(locations) ? locations : [];
+
+  let filteredLocations = safeLocations.filter(location => 
     location.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
