@@ -37,16 +37,21 @@ export const MapContainer = ({ locations = [], className }: MapContainerProps) =
   const mapCenter = React.useMemo(() => {
     if (!locations || locations.length === 0) return DEFAULT_CENTER;
     
-    // Calculate the center point of all locations
-    const bounds = new google.maps.LatLngBounds();
-    locations.forEach(location => {
-      bounds.extend({ lat: location.lat, lng: location.lng });
-    });
-    
-    return {
-      lat: bounds.getCenter().lat(),
-      lng: bounds.getCenter().lng()
-    };
+    try {
+      // Calculate the center point of all locations
+      const bounds = new google.maps.LatLngBounds();
+      locations.forEach(location => {
+        bounds.extend({ lat: location.lat, lng: location.lng });
+      });
+      
+      return {
+        lat: bounds.getCenter().lat(),
+        lng: bounds.getCenter().lng()
+      };
+    } catch (error) {
+      console.error('Error calculating map center:', error);
+      return DEFAULT_CENTER;
+    }
   }, [locations]);
 
   if (!apiKey) {
@@ -69,13 +74,17 @@ export const MapContainer = ({ locations = [], className }: MapContainerProps) =
   const handleMapLoad = React.useCallback((map: google.maps.Map) => {
     setMap(map);
     
-    // If we have locations, fit the map bounds to include all locations
-    if (locations.length > 0) {
-      const bounds = new google.maps.LatLngBounds();
-      locations.forEach(location => {
-        bounds.extend({ lat: location.lat, lng: location.lng });
-      });
-      map.fitBounds(bounds, 50); // 50px padding
+    try {
+      // If we have locations, fit the map bounds to include all locations
+      if (locations && locations.length > 0) {
+        const bounds = new google.maps.LatLngBounds();
+        locations.forEach(location => {
+          bounds.extend({ lat: location.lat, lng: location.lng });
+        });
+        map.fitBounds(bounds, 50); // 50px padding
+      }
+    } catch (error) {
+      console.error('Error fitting map bounds:', error);
     }
   }, [locations]);
 
