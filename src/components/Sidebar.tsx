@@ -282,38 +282,38 @@ export const Sidebar = ({
                     </>
                   ) : (
                     filteredLocations.map((location, index) => (
-                    <Draggable
-                      key={location.id}
-                      draggableId={location.id}
-                      index={index}
-                    >
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          className={cn(
-                            "transition-all duration-300",
-                            "hover:z-10",
-                            snapshot.isDragging && "scale-105 shadow-lg rotate-1"
-                          )}
-                          style={{
-                            ...provided.draggableProps.style,
-                            animationDelay: `${index * 50}ms`,
-                          }}
-                        >
-                          <LocationCard
-                            location={location}
-                            isSelected={selectedLocation?.id === location.id}
-                            isStart={index === 0}
-                            isEnd={index === filteredLocations.length - 1}
-                            onSelect={() => onSelectLocation?.(location)}
-                            onRemove={() => onRemoveLocation?.(location.id)}
-                            onUpdateDates={onUpdateDates}
-                          />
-                        </div>
-                      )}
-                    </Draggable>
+                      <Draggable
+                        key={location.id}
+                        draggableId={location.id}
+                        index={index}
+                      >
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className={cn(
+                              "transition-all duration-300",
+                              "hover:z-10",
+                              snapshot.isDragging && "scale-105 shadow-lg rotate-1"
+                            )}
+                            style={{
+                              ...provided.draggableProps.style,
+                              animationDelay: `${index * 50}ms`,
+                            }}
+                          >
+                            <LocationCard
+                              location={location}
+                              isSelected={selectedLocation?.id === location.id}
+                              isStart={index === 0}
+                              isEnd={index === filteredLocations.length - 1}
+                              onSelect={() => onSelectLocation?.(location)}
+                              onRemove={() => onRemoveLocation?.(location.id)}
+                              onUpdateDates={onUpdateDates}
+                            />
+                          </div>
+                        )}
+                      </Draggable>
                     ))
                   )}
                   {provided.placeholder}
@@ -324,3 +324,5 @@ export const Sidebar = ({
         )}
       </ScrollArea>
     </div>
+  );
+};
