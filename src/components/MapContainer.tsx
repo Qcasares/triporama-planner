@@ -8,7 +8,7 @@ import { useApiKey } from '../hooks/use-api-key';
 import { mapStyles } from '../config/map-styles';
 
 interface MapContainerProps {
-  locations: Location[];
+  locations?: Location[];
   className?: string;
 }
 
@@ -27,6 +27,9 @@ const mapOptions = {
   mapTypeId: "terrain",
 };
 
+const DEFAULT_CENTER = { lat: 0, lng: 0 };
+const DEFAULT_ZOOM = 2;
+
 export const MapContainer = ({ locations = [], className }: MapContainerProps) => {
   const { apiKey } = useApiKey();
   const { mapRef } = useMap(locations);
@@ -34,6 +37,14 @@ export const MapContainer = ({ locations = [], className }: MapContainerProps) =
   const [trafficLayer, setTrafficLayer] = React.useState(false);
   const [transitLayer, setTransitLayer] = React.useState(false);
   const [bicyclingLayer, setBicyclingLayer] = React.useState(false);
+
+  const mapCenter = React.useMemo(() => {
+    if (!locations || locations.length === 0) return DEFAULT_CENTER;
+    return {
+      lat: locations[0].lat,
+      lng: locations[0].lng
+    };
+  }, [locations]);
 
   if (!apiKey) {
     return (
@@ -116,6 +127,8 @@ export const MapContainer = ({ locations = [], className }: MapContainerProps) =
         >
           <GoogleMap
             mapContainerStyle={{ width: '100%', height: '100%' }}
+            center={mapCenter}
+            zoom={DEFAULT_ZOOM}
             options={mapOptions}
             onLoad={handleMapLoad}
           >

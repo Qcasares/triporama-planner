@@ -13,7 +13,7 @@ import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea
 import { cn } from '../lib/utils';
 
 interface SidebarProps {
-  locations: Location[];
+  locations?: Location[];
   selectedLocation?: Location;
   loading?: boolean;
   onAddLocation?: () => void;
@@ -26,7 +26,7 @@ interface SidebarProps {
 }
 
 export const Sidebar = ({
-  locations,
+  locations = [], // Set default empty array
   selectedLocation,
   loading = false,
   onAddLocation,
@@ -95,7 +95,6 @@ export const Sidebar = ({
       groups.set(day, [...group, location]);
     });
 
-    // Sort groups by date
     return Array.from(groups.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([day, locations]) => ({
@@ -104,7 +103,6 @@ export const Sidebar = ({
       }));
   }, [filteredLocations, groupByDay]);
 
-  // Locations without dates when grouping is enabled
   const ungroupedLocations = React.useMemo(() => {
     if (!groupByDay) return [];
     return filteredLocations.filter(location => !location.startDate);
@@ -326,5 +324,3 @@ export const Sidebar = ({
         )}
       </ScrollArea>
     </div>
-  );
-};
