@@ -3,14 +3,14 @@ import { Location } from '../types/location';
 import { LocationCard } from './locations/LocationCard';
 import { LocationCardSkeleton } from './locations/LocationCardSkeleton';
 import { ScrollArea } from './ui/scroll-area';
-import { Button } from './ui/button';
-import { Skeleton } from './ui/skeleton';
-import { Plus, MapPin, Search, Calendar } from 'lucide-react';
-import { LocationMenu } from './locations/LocationMenu';
+import { MapPin } from 'lucide-react';
 import { LocationGroup } from './locations/LocationGroup';
 import { startOfDay } from 'date-fns';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { cn } from '../lib/utils';
+import { SidebarHeader } from './sidebar/SidebarHeader';
+import { SearchBar } from './sidebar/SearchBar';
+import { Button } from './ui/button';
 
 interface SidebarProps {
   locations?: Location[];
@@ -42,35 +42,21 @@ export const Sidebar = ({
   const [sortByDate, setSortByDate] = useState(false);
   const [groupByDay, setGroupByDay] = useState(false);
 
-  const handleSort = () => {
-    setSortByDate(!sortByDate);
-  };
+  // Ensure locations is always an array
+  const safeLocations = Array.isArray(locations) ? locations : [];
 
-  const handleGroup = () => {
-    setGroupByDay(!groupByDay);
-  };
-
-  const handleDateFilter = () => {
-    setShowDateFilter(!showDateFilter);
-  };
-
-  const handleSettings = () => {
-    // TODO: Implement settings
-  };
+  const handleSort = () => setSortByDate(!sortByDate);
+  const handleGroup = () => setGroupByDay(!groupByDay);
+  const handleDateFilter = () => setShowDateFilter(!showDateFilter);
+  const handleSettings = () => {/* TODO: Implement settings */};
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination || !onReorderLocations) return;
-
     const sourceIndex = result.source.index;
     const destinationIndex = result.destination.index;
-
     if (sourceIndex === destinationIndex) return;
-
     onReorderLocations(sourceIndex, destinationIndex);
   };
-
-  // Ensure locations is always an array
-  const safeLocations = Array.isArray(locations) ? locations : [];
 
   let filteredLocations = safeLocations.filter(location => 
     location.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -87,12 +73,10 @@ export const Sidebar = ({
 
   const groupedLocations = React.useMemo(() => {
     if (!groupByDay) return null;
-
-    const groups = new Map<string, Location[]>();
     
+    const groups = new Map<string, Location[]>();
     filteredLocations.forEach(location => {
       if (!location.startDate) return;
-      
       const day = startOfDay(new Date(location.startDate)).toISOString();
       const group = groups.get(day) || [];
       groups.set(day, [...group, location]);
@@ -113,75 +97,22 @@ export const Sidebar = ({
 
   return (
     <div className="w-full h-full flex flex-col bg-white transition-smooth">
-      <div className="flex flex-col px-4 py-3 md:px-5 md:py-4 border-b bg-gray-50/80">
-        <div className="flex items-center justify-between">
-          <div className="flex-1 motion-safe:animate-slide-up">
-            {loading ? (
-              <div className="space-y-1.5">
-                <Skeleton className="h-5 w-24 bg-gray-100/80" />
-                <Skeleton className="h-3.5 w-32 bg-gray-100/80" />
-              </div>
-            ) : (
-              <>
-                <h2 className="text-base font-semibold text-foreground">Your Trip</h2>
-                <p className="text-xs text-muted-foreground mt-1 transition-all">
-                  {locations.length} {locations.length === 1 ? 'destination' : 'destinations'}
-                </p>
-              </>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            <LocationMenu
-              onSort={handleSort}
-              onGroup={handleGroup}
-              onDateFilter={handleDateFilter}
-              onSettings={handleSettings}
-            />
-            {onAddLocation && (
-              <Button
-                onClick={onAddLocation}
-                className={cn(
-                  "transition-smooth motion-safe:animate-slide-up",
-                  "bg-primary hover:bg-primary/90 hover:scale-105 active:scale-95",
-                  "shadow-sm hover:shadow-md"
-                )}
-              >
-                <Plus className="h-4 w-4 mr-2 transition-transform group-hover:scale-110" />
-                Add Stop
-              </Button>
-            )}
-          </div>
-        </div>
-        
-        <div className="mt-3 flex items-center gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
-            <input
-              type="text"
-              placeholder="Search destinations..."
-              className={cn(
-                "w-full h-8 pl-8 pr-3 rounded-md text-sm",
-                "bg-white/50 border border-input",
-                "focus:outline-none focus:ring-2 focus:ring-primary/10",
-                "placeholder:text-muted-foreground/50"
-              )}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className={cn(
-              "h-8 w-8",
-              showDateFilter && "bg-primary/10 text-primary"
-            )}
-            onClick={() => setShowDateFilter(!showDateFilter)}
-          >
-            <Calendar className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+      <SidebarHeader
+        loading={loading}
+        locationCount={safeLocations.length}
+        onAddLocation={onAddLocation}
+        onSort={handleSort}
+        onGroup={handleGroup}
+        onDateFilter={handleDateFilter}
+        onSettings={handleSettings}
+      />
+      
+      <SearchBar
+        searchQuery={searchQuery}
+        showDateFilter={showDateFilter}
+        onSearchChange={setSearchQuery}
+        onToggleDateFilter={() => setShowDateFilter(!showDateFilter)}
+      />
 
       <ScrollArea className="flex-1">
         {loading ? (
@@ -220,7 +151,7 @@ export const Sidebar = ({
                 )}
                 style={{ animationDelay: '300ms' }}
               >
-                <Plus className="h-4 w-4 mr-2 transition-transform group-hover:scale-110" />
+                <MapPin className="h-4 w-4 mr-2 transition-transform group-hover:scale-110" />
                 Add First Stop
               </Button>
             )}
