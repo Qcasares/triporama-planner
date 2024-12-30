@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect, useCallback } from 'react';
-import { MapContainer } from './MapContainer';
+import MapContainer from './MapContainer';
 import { Sidebar } from './Sidebar';
 import { TravelRecommendations } from './TravelRecommendations';
 import { CommandMenu } from './CommandMenu';
@@ -9,14 +9,16 @@ import { SidebarProvider } from './ui/sidebar';
 import { useGeolocation } from '../hooks/use-geolocation';
 import { TripContext, TripContextProps } from '../contexts/TripContext';
 import { useToast } from '../hooks/use-toast';
+import { useOffline } from '../hooks/use-offline';
 import { ScrollArea } from './ui/scroll-area';
 import { Location } from '../types/location';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
-import { Menu, MapPin, Loader2 } from 'lucide-react';
+import { Menu, MapPin, Loader2, WifiOff } from 'lucide-react';
 import { Button } from './ui/button';
 import { useIsMobile } from '../hooks/use-mobile';
 import { Progress } from './ui/progress';
 import { cn } from '../lib/utils';
+import { OfflineBanner } from './OfflineBanner';
 
 export const TripPlanner = () => {
   const { currentLocation, error: geoError } = useGeolocation();
@@ -35,6 +37,7 @@ export const TripPlanner = () => {
 
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const isOffline = useOffline();
   const [isOpen, setIsOpen] = useState(false);
   const [progress, setProgress] = useState(0);
 
@@ -79,6 +82,15 @@ export const TripPlanner = () => {
   }, [geoError, toast]);
 
   const handleAddLocation = useCallback((location: Location) => {
+    if (isOffline) {
+      toast({
+        title: "Offline Mode",
+        description: "Adding locations is not available while offline.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     addLocation(location);
     toast({
       title: "Location added",
@@ -88,7 +100,7 @@ export const TripPlanner = () => {
     if (isMobile) {
       setIsOpen(false);
     }
-  }, [addLocation, isMobile, toast]);
+  }, [addLocation, isMobile, toast, isOffline]);
 
   const SidebarContent = () => (
     <Sidebar
@@ -187,8 +199,19 @@ export const TripPlanner = () => {
               "shadow-lg hover:shadow-xl",
               "border border-purple-100/50 bg-white",
               "transition-all duration-300",
-              "motion-safe:animate-slide-up"
+              "motion-safe:animate-slide-up",
+              "relative"
             )} style={{ animationDelay: '200ms' }}>
+              {isOffline && (
+                <div className="absolute inset-0 z-10 bg-black/5 backdrop-blur-sm flex items-center justify-center">
+                  <div className="bg-white p-4 rounded-lg shadow-lg text-center">
+                    <WifiOff className="h-8 w-8 mx-auto mb-2 text-yellow-500" />
+                    <p className="text-sm text-muted-foreground">
+                      Map view is limited in offline mode
+                    </p>
+                  </div>
+                </div>
+              )}
               <MapContainer 
                 locations={trip.locations} 
                 className="h-[400px] md:h-[500px] lg:h-[600px] w-full transition-all duration-300"
@@ -225,6 +248,7 @@ export const TripPlanner = () => {
           )}
         </div>
       </SidebarProvider>
+      <OfflineBanner />
     </div>
   );
 };

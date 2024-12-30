@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Location } from '../types/location';
 import { useMap } from '../hooks/use-map';
 import { cn } from '../lib/utils';
@@ -9,7 +9,7 @@ interface MapContainerProps {
   className?: string;
 }
 
-export const MapContainer = ({ locations = [], className }: MapContainerProps) => {
+const MapContainer = ({ locations = [], className }: MapContainerProps) => {
   const { mapRef } = useMap(locations, getTileLayerConfig());
 
   return (
@@ -21,3 +21,12 @@ export const MapContainer = ({ locations = [], className }: MapContainerProps) =
     </div>
   );
 };
+
+export default memo(MapContainer, (prevProps, nextProps) => {
+  if (prevProps.locations?.length !== nextProps.locations?.length) return false;
+  return prevProps.locations?.every((loc, index) => 
+    loc.id === nextProps.locations?.[index]?.id &&
+    loc.lat === nextProps.locations?.[index]?.lat &&
+    loc.lng === nextProps.locations?.[index]?.lng
+  ) ?? true;
+});

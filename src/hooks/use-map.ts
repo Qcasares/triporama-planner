@@ -7,7 +7,7 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet-defaulticon-compatibility';
-import MarkerClusterGroup from 'leaflet.markercluster';
+import 'leaflet.markercluster';
 
 interface TileLayerConfig {
   url: string;
@@ -24,7 +24,7 @@ interface UseMapReturn {
 
 class MapManager {
   private mapInstance: L.Map | null;
-  private markerCluster: MarkerClusterGroup;
+  private markerCluster: L.MarkerClusterGroup;
   private markers: L.Marker[];
   private mapsService: MapsService;
   private container: HTMLDivElement;
@@ -39,7 +39,7 @@ class MapManager {
     toast: ReturnType<typeof useToast>
   ) {
     this.mapInstance = null;
-    this.markerCluster = new MarkerClusterGroup();
+    this.markerCluster = L.markerClusterGroup();
     this.markers = [];
     this.mapsService = new MapsService();
     this.container = container;

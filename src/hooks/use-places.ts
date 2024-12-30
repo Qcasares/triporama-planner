@@ -4,8 +4,12 @@ import { PlacesService } from '../services/places';
 import { useToast } from './use-toast';
 
 interface PlacesState {
-  places: Record<string, Place[]>;
-  loading: boolean;
+  places: Record<string, {
+    items: Place[];
+    hasMore: boolean;
+    page: number;
+    loading: boolean;
+  }>;
   error: string | null;
   predictions: google.maps.places.AutocompletePrediction[];
 }
@@ -27,14 +31,15 @@ export const placeTypes = {
 
 export const usePlaces = (location: { lat: number; lng: number }) => {
   const [state, setState] = useState<PlacesState>({
-    places: {
-      hotels: [],
-      restaurants: [],
-      attractions: [],
-      shopping: [],
-      entertainment: []
-    },
-    loading: true,
+    places: Object.keys(placeTypes).reduce((acc, key) => ({
+      ...acc,
+      [key]: {
+        items: [],
+        hasMore: true,
+        page: 0,
+        loading: false
+      }
+    }), {}),
     error: null,
     predictions: []
   });
@@ -48,41 +53,180 @@ export const usePlaces = (location: { lat: number; lng: number }) => {
   const { toast } = useToast();
   const placesService = useMemo(() => new PlacesService(), []);
 
-  const loadPlaces = useCallback(async (options: SearchOptions = {}) => {
-    setState(prev => ({ ...prev, loading: true, error: null }));
-    
-    try {
-      const results = await Promise.all(
-        Object.entries(placeTypes).map(async ([key, type]) => {
-          const places = await placesService.searchNearby(location, type, {
+  const loadPlaces = useCallback(async (options: SearchOptions = {}, category?: string) => {
+    if (category) {
+      // Load single category
+      setState(prev => ({
+        ...prev,
+        places: {
+          ...prev.places,
+          [category]: {
+            ...prev.places[category],
+            loading: true
+          }
+        }
+      }));
+
+      try {
+        const { places, hasMore } = await placesService.searchNearby(
+          location,
+          placeTypes[category as keyof typeof placeTypes],
+          {
             minRating: options.minRating,
             maxPrice: options.maxPrice,
             openNow: options.openNow,
             radius: options.radius
-          });
-          return [key, places];
-        })
-      );
-      
+          },
+          0
+        );
+
+        setState(prev => ({
+          ...prev,
+          places: {
+            ...prev.places,
+            [category]: {
+              items: places,
+              hasMore,
+              page: 0,
+              loading: false
+            }
+          }
+        }));
+      } catch (error) {
+        console.error(`Error fetching places for ${category}:`, error);
+        setState(prev => ({
+          ...prev,
+          error: `Failed to load ${category}`,
+          places: {
+            ...prev.places,
+            [category]: {
+              ...prev.places[category],
+              loading: false
+            }
+          }
+        }));
+        toast({
+          title: `Error loading ${category}`,
+          description: "There was a problem fetching places.",
+          variant: "destructive",
+        });
+      }
+    } else {
+      // Load all categories
       setState(prev => ({
         ...prev,
-        places: Object.fromEntries(results),
-        loading: false
+        places: Object.keys(prev.places).reduce((acc, key) => ({
+          ...acc,
+          [key]: {
+            ...prev.places[key],
+            loading: true
+          }
+        }), {})
+      }));
+
+      try {
+        const results = await Promise.all(
+          Object.entries(placeTypes).map(async ([key, type]) => {
+            const result = await placesService.searchNearby(location, type, {
+              minRating: options.minRating,
+              maxPrice: options.maxPrice,
+              openNow: options.openNow,
+              radius: options.radius
+            }, 0);
+            return [key, result];
+          })
+        );
+
+        setState(prev => ({
+          ...prev,
+          places: Object.fromEntries(
+            results.map(([key, { places, hasMore }]) => [
+              key,
+              {
+                items: places,
+                hasMore,
+                page: 0,
+                loading: false
+              }
+            ])
+          )
+        }));
+      } catch (error) {
+        console.error('Error fetching places:', error);
+        setState(prev => ({
+          ...prev,
+          error: 'Failed to load places',
+          places: Object.keys(prev.places).reduce((acc, key) => ({
+            ...acc,
+            [key]: {
+              ...prev.places[key],
+              loading: false
+            }
+          }), {})
+        }));
+        toast({
+          title: "Error loading places",
+          description: "There was a problem fetching places.",
+          variant: "destructive",
+        });
+      }
+    }
+  }, [location, placesService, toast, placeTypes]);
+
+  const loadMore = useCallback(async (category: string) => {
+    const categoryState = state.places[category];
+    if (!categoryState.hasMore || categoryState.loading) return;
+
+    setState(prev => ({
+      ...prev,
+      places: {
+        ...prev.places,
+        [category]: {
+          ...prev.places[category],
+          loading: true
+        }
+      }
+    }));
+
+    try {
+      const { places, hasMore } = await placesService.searchNearby(
+        location,
+        placeTypes[category as keyof typeof placeTypes],
+        searchOptions,
+        categoryState.page + 1
+      );
+
+      setState(prev => ({
+        ...prev,
+        places: {
+          ...prev.places,
+          [category]: {
+            items: [...prev.places[category].items, ...places],
+            hasMore,
+            page: prev.places[category].page + 1,
+            loading: false
+          }
+        }
       }));
     } catch (error) {
-      console.error(`Error fetching places:`, error);
+      console.error(`Error loading more ${category}:`, error);
       setState(prev => ({
         ...prev,
-        error: 'Failed to load places',
-        loading: false
+        places: {
+          ...prev.places,
+          [category]: {
+            ...prev.places[category],
+            loading: false
+          }
+        }
       }));
       toast({
-        title: "Error loading places",
-        description: "There was a problem fetching nearby places.",
+        title: `Error loading more ${category}`,
+        description: "There was a problem fetching more places.",
         variant: "destructive",
       });
     }
-  }, [location, placesService, toast]);
+  }, [location, placesService, searchOptions, state.places, toast, placeTypes]);
 
   const searchPlaces = useCallback(async (query: string) => {
     if (!query.trim()) {
@@ -109,7 +253,17 @@ export const usePlaces = (location: { lat: number; lng: number }) => {
 
       setState(prev => ({
         ...prev,
-        places: groupedResults,
+        places: Object.fromEntries(
+          Object.entries(groupedResults).map(([key, places]) => [
+            key,
+            {
+              items: places,
+              hasMore: false,
+              page: 0,
+              loading: false
+            }
+          ])
+        ),
         loading: false
       }));
     } catch (error) {
@@ -194,7 +348,10 @@ export const usePlaces = (location: { lat: number; lng: number }) => {
       ...prev,
       places: {
         ...prev.places,
-        [customPlace.type]: [...(prev.places[customPlace.type] || []), newPlace]
+        [customPlace.type]: {
+          ...prev.places[customPlace.type],
+          items: [...prev.places[customPlace.type].items, newPlace]
+        }
       }
     }));
   }, []);

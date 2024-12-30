@@ -29,7 +29,9 @@ export class PlacesService {
   private apiKey: string;
   private cache: Map<string, any>;
   private readonly DEFAULT_RADIUS = 16000; // 10 miles in meters
-  private readonly DEFAULT_LIMIT = 20;
+  private readonly DEFAULT_LIMIT = 10;
+  private readonly MAX_RESULTS = 60;
+  private currentPage: number = 0;
 
   constructor() {
     this.apiKey = localStorage.getItem('googleMapsApiKey') || '';
@@ -105,8 +107,9 @@ export class PlacesService {
   async searchNearby(
     location: { lat: number; lng: number },
     type: string,
-    options: SearchOptions = {}
-  ): Promise<Place[]> {
+    options: SearchOptions = {},
+    page: number = 0
+  ): Promise<{ places: Place[]; hasMore: boolean }> {
     const {
       radius = this.DEFAULT_RADIUS,
       minRating = 0,
@@ -115,7 +118,7 @@ export class PlacesService {
       limit = this.DEFAULT_LIMIT
     } = options;
 
-    const cacheKey = this.getCacheKey('nearby', location, type, options);
+    const cacheKey = this.getCacheKey('nearby', location, type, options, page);
     if (this.cache.has(cacheKey)) {
       return this.cache.get(cacheKey);
     }
@@ -128,16 +131,21 @@ export class PlacesService {
       rankBy: google.maps.places.RankBy.DISTANCE
     };
 
-    return new Promise<Place[]>((resolve, reject) => {
+    return new Promise<{ places: Place[]; hasMore: boolean }>((resolve, reject) => {
       this.service.nearbySearch(request, async (results, status, pagination) => {
         if (status === google.maps.places.PlacesServiceStatus.OK && results) {
           try {
+            const startIndex = page * this.DEFAULT_LIMIT;
+            const endIndex = Math.min(startIndex + this.DEFAULT_LIMIT, this.MAX_RESULTS);
+            
             let filteredResults = results
               .filter(place => 
                 (minRating === 0 || (place.rating || 0) >= minRating) &&
                 (!maxPrice || (place.price_level || 0) <= maxPrice)
               )
-              .slice(0, limit);
+              .slice(startIndex, endIndex);
+
+            const hasMore = results.length > endIndex;
 
             const detailedPlaces = await Promise.all(
               filteredResults.map(async place => {
@@ -170,14 +178,18 @@ export class PlacesService {
               })
             );
 
-            this.cache.set(cacheKey, detailedPlaces);
-            resolve(detailedPlaces);
+            const response = { 
+              places: detailedPlaces,
+              hasMore
+            };
+            this.cache.set(cacheKey, response);
+            resolve(response);
           } catch (error) {
             console.error('Error processing place results:', error);
             reject(new Error('Failed to process place results'));
           }
         } else {
-          resolve([]);
+          resolve({ places: [], hasMore: false });
         }
       });
     });

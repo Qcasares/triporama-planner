@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Building2, UtensilsCrossed, Landmark, ShoppingBag, Theater } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
@@ -27,7 +27,7 @@ interface PlacesContainerProps {
   onDragEnd: (result: any) => void;
 }
 
-export const PlacesContainer = ({
+const PlacesContainer = ({
   location,
   places,
   loading,
@@ -156,3 +156,22 @@ export const PlacesContainer = ({
     </div>
   );
 };
+
+export default memo(PlacesContainer, (prevProps, nextProps) => {
+  if (prevProps.loading !== nextProps.loading) return false;
+  if (prevProps.location.id !== nextProps.location.id) return false;
+  if (prevProps.isCustomPlaceDialogOpen !== nextProps.isCustomPlaceDialogOpen) return false;
+  if (prevProps.favorites.size !== nextProps.favorites.size) return false;
+  
+  // Compare places
+  const prevCategories = Object.keys(prevProps.places);
+  const nextCategories = Object.keys(nextProps.places);
+  if (prevCategories.length !== nextCategories.length) return false;
+  
+  return prevCategories.every(category => {
+    const prevPlaces = prevProps.places[category];
+    const nextPlaces = nextProps.places[category];
+    if (prevPlaces.length !== nextPlaces.length) return false;
+    return prevPlaces.every((place, index) => place.id === nextPlaces[index].id);
+  });
+});
