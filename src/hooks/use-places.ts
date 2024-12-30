@@ -356,6 +356,8 @@ export const usePlaces = (location: { lat: number; lng: number }) => {
     }));
   }, []);
 
+  const loading = Object.values(state.places).some(place => place.loading);
+  
   return {
     ...state,
     favorites,
@@ -367,6 +369,7 @@ export const usePlaces = (location: { lat: number; lng: number }) => {
     addCustomPlace,
     searchPlaces,
     getPlacePredictions,
-    placeTypes
+    placeTypes,
+    loading
   };
 };
