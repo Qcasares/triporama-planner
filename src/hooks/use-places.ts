@@ -199,7 +199,7 @@ export const usePlaces = (location: { lat: number; lng: number }): UsePlacesRetu
         });
       }
     }
-  }, [location, placesService, toast, placeTypes]);
+  }, [location, placesService, toast]);
 
   const loadMore = useCallback(async (category: string) => {
     const categoryState = state.places[category];
@@ -254,7 +254,7 @@ export const usePlaces = (location: { lat: number; lng: number }): UsePlacesRetu
         variant: "destructive",
       });
     }
-  }, [location, placesService, searchOptions, state.places, toast, placeTypes]);
+  }, [location, placesService, searchOptions, state.places, toast]);
 
   const searchPlaces = useCallback(async (query: string) => {
     if (!query.trim()) {
