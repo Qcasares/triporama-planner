@@ -1,4 +1,4 @@
-import { createContext } from 'react';
+import { createContext, useContext } from 'react';
 import type { TripContextProps } from './trip-context-types';
 
 export const TripContext = createContext<TripContextProps | undefined>(undefined);
