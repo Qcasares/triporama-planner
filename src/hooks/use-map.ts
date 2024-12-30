@@ -52,6 +52,8 @@ class MapManager {
 
   private initializeMap() {
     try {
+      if (!this.container) return;
+
       this.mapInstance = L.map(this.container, {
         center: [51.505, -0.09],
         zoom: 13,
@@ -74,6 +76,8 @@ class MapManager {
   }
 
   private addMarkers() {
+    if (!this.locations.length) return;
+
     const defaultIcon = L.icon({
       iconUrl: '/placeholder.svg',
       iconSize: [25, 41],
