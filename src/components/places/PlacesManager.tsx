@@ -21,7 +21,7 @@ export const PlacesManager = ({ location }: PlacesManagerProps) => {
   
   const {
     places: placesData,
-    loading: isLoading,
+    isLoading,
     favorites,
     toggleFavorite,
     addCustomPlace,
