@@ -29,7 +29,35 @@ export const placeTypes = {
   entertainment: 'movie_theater'
 } as const;
 
-export const usePlaces = (location: { lat: number; lng: number }) => {
+interface UsePlacesReturn {
+  places: Record<string, {
+    items: Place[];
+    hasMore: boolean;
+    page: number;
+    loading: boolean;
+  }>;
+  error: string | null;
+  predictions: google.maps.places.AutocompletePrediction[];
+  favorites: Set<string>;
+  searchQuery: string;
+  searchOptions: SearchOptions;
+  setSearchQuery: (query: string) => void;
+  setSearchOptions: (options: SearchOptions) => void;
+  toggleFavorite: (placeId: string) => void;
+  addCustomPlace: (customPlace: { 
+    name: string; 
+    type: string; 
+    notes: string;
+    lat?: number;
+    lng?: number;
+  }) => void;
+  searchPlaces: (query: string) => Promise<void>;
+  getPlacePredictions: (input: string) => Promise<void>;
+  placeTypes: typeof placeTypes;
+  loading: boolean;
+}
+
+export const usePlaces = (location: { lat: number; lng: number }): UsePlacesReturn => {
   const [state, setState] = useState<PlacesState>({
     places: Object.keys(placeTypes).reduce((acc, key) => ({
       ...acc,
