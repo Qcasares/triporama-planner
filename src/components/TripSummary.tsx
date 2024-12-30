@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { Location } from '@/types/location';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Location } from '../types/location';
 import { format } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { ScrollArea } from './ui/scroll-area';
+import { useDebouncedEffect } from '../hooks/useDebounce';
+import { useDirections } from '../hooks/useDirections';
 
 interface TripSummaryProps {
   locations: Location[];
@@ -21,62 +23,51 @@ interface SummaryData {
 
 export const TripSummary = ({ locations }: TripSummaryProps) => {
   const [summaryData, setSummaryData] = useState<SummaryData | null>(null);
-
-  useEffect(() => {
-    if (locations.length < 2) {
-      setSummaryData(null);
-      return;
-    }
-
-    const calculateRoute = async () => {
-      const directionsService = new google.maps.DirectionsService();
-
-      try {
-        const waypoints = locations.slice(1, -1).map(location => ({
-          location: { lat: location.lat, lng: location.lng },
-          stopover: true
-        }));
-
-        const result = await directionsService.route({
-          origin: { lat: locations[0].lat, lng: locations[0].lng },
-          destination: {
-            lat: locations[locations.length - 1].lat,
-            lng: locations[locations.length - 1].lng
-          },
-          waypoints,
-          travelMode: google.maps.TravelMode.DRIVING,
-          optimizeWaypoints: false,
-        });
-
-        const legs = result.routes[0].legs;
-        const totalDistance = legs.reduce((acc, leg) => acc + leg.distance!.value, 0);
-        const totalDuration = legs.reduce((acc, leg) => acc + leg.duration!.value, 0);
-
-        setSummaryData({
-          totalDistance: `${(totalDistance / 1000).toFixed(1)} km`,
-          totalDuration: formatDuration(totalDuration),
-          legs: legs.map(leg => ({
-            distance: leg.distance!.text,
-            duration: leg.duration!.text,
-            startLocation: leg.start_address,
-            endLocation: leg.end_address,
-          })),
-        });
-      } catch (error) {
-        console.error('Error calculating route:', error);
-        // Optionally, you can add more details or rethrow the error if needed
-        // For now, we'll just improve the logging
-      }
-    };
-
-    calculateRoute();
-  }, [locations]);
+  const [error, setError] = useState<string | null>(null);
+  const { getRoute } = useDirections();
 
   const formatDuration = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     return `${hours}h ${minutes}m`;
   };
+
+  useDebouncedEffect(() => {
+    if (locations.length < 2) {
+      setSummaryData(null);
+      return;
+    }
+
+    const calculateRoute = async () => {
+      try {
+        const result = await getRoute(locations);
+        
+        if (!result) {
+          throw new Error('No route data received');
+        }
+
+        const { totalDistance, totalDuration, legs } = result;
+        
+        setSummaryData({
+          totalDistance: `${(totalDistance / 1000).toFixed(1)} km`,
+          totalDuration: formatDuration(totalDuration),
+          legs: legs.map(leg => ({
+            distance: leg.distance.text,
+            duration: leg.duration.text,
+            startLocation: leg.start_address,
+            endLocation: leg.end_address,
+          })),
+        });
+        setError(null);
+      } catch (error) {
+        setError('Failed to calculate route. Please try again.');
+        console.error('Route calculation error:', error);
+        setSummaryData(null);
+      }
+    };
+
+    calculateRoute();
+  }, [locations, getRoute, formatDuration], 500);
 
   if (!summaryData) {
     return (
