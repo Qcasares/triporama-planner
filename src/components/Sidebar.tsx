@@ -1,11 +1,5 @@
-<<<<<<< HEAD
 import React, { useCallback, useState } from 'react';
-import { Location } from '../types/location';
-import { LocationCard } from './locations/LocationCard';
-=======
-import React, { useState, useCallback } from 'react';
 import { Location, LocationType } from '../types/location';
->>>>>>> 625d877dec4b9e3659ef64f65eb173881b50e96a
 import { LocationCardSkeleton } from './locations/LocationCardSkeleton';
 import { ScrollArea } from './ui/scroll-area';
 import { MapPin } from 'lucide-react';
@@ -93,6 +87,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <LocationCardSkeleton
                 key={i}
                 variant="initial"
+                className="animate-pulse"
+                style={{
+                  animationDelay: `${i * 150}ms`,
+                  animationDuration: '1.5s'
+                }}
               />
             ))}
           </div>
@@ -124,103 +123,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
             )}
           </div>
         ) : (
-<<<<<<< HEAD
-          <DragDropContext onDragEnd={handleDragEnd}>
-            <Droppable droppableId="locations">
-              {(provided) => (
-                <div
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                  className="space-y-1.5 p-3 min-h-[50px]"
-                  onKeyDown={(e) => {
-                    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-                      e.preventDefault();
-                      const currentIndex = filteredLocations.findIndex(
-                        (loc) => loc.id === selectedLocation?.id
-                      );
-                      if (currentIndex === -1) return;
-
-                      const nextIndex =
-                        e.key === 'ArrowUp'
-                          ? Math.max(0, currentIndex - 1)
-                          : Math.min(filteredLocations.length - 1, currentIndex + 1);
-
-                      onSelectLocation?.(filteredLocations[nextIndex]);
-                    }
-                  }}
-                  tabIndex={0}
-                >
-                  {groupByDay ? (
-                    <>
-                      {groupedLocations?.map((group) => (
-                        <LocationGroup
-                          key={group.date.toISOString()}
-                          date={group.date}
-                          locations={group.locations}
-                          selectedLocation={selectedLocation}
-                          onSelectLocation={onSelectLocation}
-                          onRemoveLocation={onRemoveLocation}
-                          onUpdateDates={onUpdateDates}
-                        />
-                      ))}
-                      {ungroupedLocations.length > 0 && (
-                        <div className="mt-4">
-                          <div className="px-2 py-1 text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">
-                            Unscheduled
-                          </div>
-                          <div className="mt-1 space-y-1">
-                            {ungroupedLocations.map((location, index) => (
-                              <LocationCard
-                                key={location.id}
-                                location={location}
-                                isSelected={selectedLocation?.id === location.id}
-                                onSelect={() => onSelectLocation?.(location)}
-                                onRemove={() => onRemoveLocation?.(location.id)}
-                                onUpdateDates={onUpdateDates}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    filteredLocations.map((location, index) => (
-                      <Draggable key={location.id} draggableId={location.id} index={index}>
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className={cn(
-                              'transition-all duration-300',
-                              'hover:z-10',
-                              snapshot.isDragging && 'scale-105 shadow-lg rotate-1'
-                            )}
-                            style={{
-                              ...provided.draggableProps.style,
-                              animationDelay: `${index * 50}ms`,
-                            }}
-                          >
-                            <LocationCard
-                              location={location}
-                              isSelected={selectedLocation?.id === location.id}
-                              isStart={index === 0}
-                              isEnd={index === filteredLocations.length - 1}
-                              onSelect={() => onSelectLocation?.(location)}
-                              onRemove={() => onRemoveLocation?.(location.id)}
-                              onUpdateDates={onUpdateDates}
-                            />
-                          </div>
-                        )}
-                      </Draggable>
-                    ))
-                  )}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-=======
           <LocationList
             locations={filteredLocations}
             selectedLocation={selectedLocation}
@@ -230,7 +132,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onReorderLocations={onReorderLocations}
             onUpdateDates={onUpdateDates}
           />
->>>>>>> 625d877dec4b9e3659ef64f65eb173881b50e96a
         )}
       </ScrollArea>
     </div>
