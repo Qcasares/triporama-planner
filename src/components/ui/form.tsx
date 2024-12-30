@@ -8,9 +8,9 @@ import {
   FieldValues,
 } from "react-hook-form"
 
-import { cn } from "@/lib/utils"
-import { Label } from "@/components/ui/label"
-import { Form, FormFieldContext, FormItemContext, useFormField } from "./form-utils"
+import { cn } from "../../lib/utils"
+import { Label } from "./label"
+import { Form, useFormField, FormFieldContext, FormItemContext } from "./form-utils"
 
 const FormField = <
   TFieldValues extends FieldValues = FieldValues,
@@ -120,57 +120,10 @@ const FormMessage = React.forwardRef<
 FormMessage.displayName = "FormMessage"
 
 export {
-  useFormField,
-  Form,
+  FormField,
   FormItem,
   FormLabel,
   FormControl,
   FormDescription,
-  FormMessage,
-  FormField,
-
-  return (
-    <p
-      ref={ref}
-      id={formDescriptionId}
-      className={cn("text-sm text-muted-foreground", className)}
-      {...props}
-    />
-  )
-})
-FormDescription.displayName = "FormDescription"
-
-const FormMessage = React.forwardRef<
-  HTMLParagraphElement,
-  React.HTMLAttributes<HTMLParagraphElement>
->(({ className, children, ...props }, ref) => {
-  const { error, formMessageId } = useFormField()
-  const body = error ? String(error?.message) : children
-
-  if (!body) {
-    return null
-  }
-
-  return (
-    <p
-      ref={ref}
-      id={formMessageId}
-      className={cn("text-sm font-medium text-destructive", className)}
-      {...props}
-    >
-      {body}
-    </p>
-  )
-})
-FormMessage.displayName = "FormMessage"
-
-export {
-  useFormField,
-  Form,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormDescription,
-  FormMessage,
-  FormField,
+  FormMessage
 }

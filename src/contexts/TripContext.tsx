@@ -3,6 +3,7 @@ import { useToast } from '../hooks/use-toast';
 import { Trip, TripContextProps, isValidTrip } from './trip-context-types';
 import { Location, LocationType } from '../types/location';
 import { TripContext } from './trip-context';
+export { TripContext };
 
 const STORAGE_KEY = 'triporama_trip';
 
@@ -59,12 +60,53 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
 
           // Convert ISO date strings back to Date objects
+          function isStoredLocation(value: unknown): value is {
+            id: string;
+            name: string;
+            lat: number;
+            lng: number;
+            type: LocationType;
+            rating?: number;
+            distance?: number;
+            startDate?: string;
+            endDate?: string;
+          } {
+            if (!value || typeof value !== 'object') {
+              return false;
+            }
+            
+            const loc = value as Record<string, unknown>;
+            return (
+              typeof loc.id === 'string' &&
+              typeof loc.name === 'string' &&
+              typeof loc.lat === 'number' &&
+              typeof loc.lng === 'number' &&
+              typeof loc.type === 'string' &&
+              (loc.rating === undefined || typeof loc.rating === 'number') &&
+              (loc.distance === undefined || typeof loc.distance === 'number') &&
+              (loc.startDate === undefined || typeof loc.startDate === 'string') &&
+              (loc.endDate === undefined || typeof loc.endDate === 'string')
+            );
+          }
+
           const parsedTrip: Trip = {
-            locations: parsedData.locations.map((loc: Partial<Location>) => ({
-              ...loc,
-              startDate: loc.startDate ? new Date(loc.startDate) : undefined,
-              endDate: loc.endDate ? new Date(loc.endDate) : undefined,
-            })),
+            locations: parsedData.locations.map((loc: unknown) => {
+              if (!isStoredLocation(loc)) {
+                throw new Error('Invalid location data: missing required fields');
+              }
+              
+              return {
+                id: loc.id,
+                name: loc.name,
+                lat: loc.lat,
+                lng: loc.lng,
+                type: loc.type as LocationType,
+                rating: loc.rating,
+                distance: loc.distance,
+                startDate: loc.startDate ? new Date(loc.startDate) : undefined,
+                endDate: loc.endDate ? new Date(loc.endDate) : undefined,
+              };
+            }),
           };
           
           setTrip(parsedTrip);
