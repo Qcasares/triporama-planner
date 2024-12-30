@@ -10,8 +10,11 @@ interface MapContainerProps {
 }
 
 const MapContainer = ({ locations = [], className }: MapContainerProps) => {
-  // Ensure locations is always an array
-  const safeLocations = Array.isArray(locations) ? locations : [];
+  // Ensure locations is always an array and contains valid coordinates
+  const safeLocations = Array.isArray(locations) 
+    ? locations.filter(loc => loc && typeof loc.lat === 'number' && typeof loc.lng === 'number')
+    : [];
+
   const { mapRef } = useMap(safeLocations, getTileLayerConfig());
 
   return (
@@ -26,8 +29,12 @@ const MapContainer = ({ locations = [], className }: MapContainerProps) => {
 
 export default memo(MapContainer, (prevProps, nextProps) => {
   // Ensure we have valid arrays to compare
-  const prevLocations = Array.isArray(prevProps.locations) ? prevProps.locations : [];
-  const nextLocations = Array.isArray(nextProps.locations) ? nextProps.locations : [];
+  const prevLocations = Array.isArray(prevProps.locations) 
+    ? prevProps.locations.filter(loc => loc && typeof loc.lat === 'number' && typeof loc.lng === 'number')
+    : [];
+  const nextLocations = Array.isArray(nextProps.locations) 
+    ? nextProps.locations.filter(loc => loc && typeof loc.lat === 'number' && typeof loc.lng === 'number')
+    : [];
   
   // If arrays are different lengths, they're definitely different
   if (prevLocations.length !== nextLocations.length) {
@@ -37,10 +44,6 @@ export default memo(MapContainer, (prevProps, nextProps) => {
   // Compare each location's properties
   return prevLocations.every((loc, index) => {
     const nextLoc = nextLocations[index];
-    // If either location is null/undefined, consider them different
-    if (!loc || !nextLoc) {
-      return false;
-    }
     // Compare location properties
     return (
       loc.id === nextLoc.id && 

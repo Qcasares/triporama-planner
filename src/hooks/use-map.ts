@@ -98,6 +98,7 @@ class MapManager {
       this.markers = [];
       this.markerCluster.clearLayers();
 
+      // Filter out invalid locations and create markers
       this.markers = this.locations
         .filter(location => location && typeof location.lat === 'number' && typeof location.lng === 'number')
         .map(location => {
