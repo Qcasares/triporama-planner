@@ -77,7 +77,9 @@ export class MapsService {
                 text: `${(data.routes[0].duration / 60).toFixed(0)} mins`,
                 value: data.routes[0].duration
               },
-              status: 'OK'
+              status: 'OK',
+              duration_in_traffic: undefined,
+              fare: undefined
             };
           })
         );
@@ -88,13 +90,7 @@ export class MapsService {
       destinationAddresses: destinations.map(dest => `${dest.lat},${dest.lng}`),
       originAddresses: origins.map(origin => `${origin.lat},${origin.lng}`),
       rows: results.map(row => ({
-        elements: row.map(element => ({
-          distance: element.distance,
-          duration: element.duration,
-          status: element.status,
-          duration_in_traffic: undefined,
-          fare: undefined
-        }))
+        elements: row
       }))
     };
   }
