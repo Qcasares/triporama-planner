@@ -1,5 +1,5 @@
 import React from 'react';
-import { SidebarContext } from './SidebarProvider';
+import { SidebarContext } from './sidebar-context';
 
 export function useSidebar() {
   const context = React.useContext(SidebarContext);

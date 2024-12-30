@@ -1,3 +1,5 @@
+import { DistanceMatrixResponse, OSRMRoute, OSRMBounds } from '../types/maps';
+
 const OSM_TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search';
 const OSRM_URL = 'https://router.project-osrm.org/route/v1';
@@ -41,7 +43,7 @@ export class MapsService {
   async getDirections(
     origin: { lat: number; lng: number },
     destination: { lat: number; lng: number }
-  ): Promise<{ routes: any[]; bounds: any }> {
+  ): Promise<{ routes: OSRMRoute[]; bounds: OSRMBounds }> {
     const response = await fetch(
       `${OSRM_URL}/driving/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?overview=full`
     );
@@ -56,7 +58,7 @@ export class MapsService {
   async getDistance(
     origins: { lat: number; lng: number }[],
     destinations: { lat: number; lng: number }[]
-  ): Promise<{ distance: { text: string; value: number }; duration: { text: string; value: number } }[][]> {
+  ): Promise<google.maps.DistanceMatrixResponse> {
     const results = await Promise.all(
       origins.map(async (origin) => {
         return Promise.all(
@@ -74,14 +76,25 @@ export class MapsService {
               duration: {
                 text: `${(data.routes[0].duration / 60).toFixed(0)} mins`,
                 value: data.routes[0].duration
-              }
+              },
+              status: 'OK'
             };
           })
         );
       })
     );
-    
-    return results;
+
+    return {
+      destinationAddresses: destinations.map(dest => `${dest.lat},${dest.lng}`),
+      originAddresses: origins.map(origin => `${origin.lat},${origin.lng}`),
+      rows: results.map(row => ({
+        elements: row.map(element => ({
+          distance: element.distance,
+          duration: element.duration,
+          status: element.status
+        }))
+      }))
+    };
   }
 }
 

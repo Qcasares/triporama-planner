@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Location } from '../types/location';
+import { DistanceMatrixResponse } from '../types/maps';
 import { MapsService } from '../services/maps';
 import { useToast } from './use-toast';
 import L from 'leaflet';
@@ -19,7 +20,7 @@ interface UseMapReturn {
   getDistanceMatrix: (
     origins: Location[],
     destinations: Location[]
-  ) => Promise<any>;
+  ) => Promise<DistanceMatrixResponse>;
 }
 
 class MapManager {

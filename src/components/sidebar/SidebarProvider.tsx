@@ -2,18 +2,7 @@ import React from 'react';
 import { TooltipProvider } from '../ui/tooltip';
 import { cn } from '../../lib/utils';
 import { useIsMobile } from '../../hooks/use-mobile';
-
-type SidebarContext = {
-  state: "expanded" | "collapsed";
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  openMobile: boolean;
-  setOpenMobile: (open: boolean) => void;
-  isMobile: boolean;
-  toggleSidebar: () => void;
-};
-
-export const SidebarContext = React.createContext<SidebarContext | null>(null);
+import { SidebarContext } from './sidebar-context';
 
 export const SidebarProvider = React.forwardRef<
   HTMLDivElement,

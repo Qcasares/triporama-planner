@@ -27,7 +27,7 @@ export class PlacesService {
   private service: google.maps.places.PlacesService;
   private autocompleteService: google.maps.places.AutocompleteService;
   private apiKey: string;
-  private cache: Map<string, any>;
+  private cache: Map<string, unknown>;
   private readonly DEFAULT_RADIUS = 16000; // 10 miles in meters
   private readonly DEFAULT_LIMIT = 10;
   private readonly MAX_RESULTS = 60;
@@ -46,14 +46,14 @@ export class PlacesService {
     this.cache = new Map();
   }
 
-  private getCacheKey(prefix: string, ...args: any[]): string {
+  private getCacheKey(prefix: string, ...args: unknown[]): string {
     return `${prefix}:${JSON.stringify(args)}`;
   }
 
   private async fetchPlaceDetails(placeId: string): Promise<Partial<Place>> {
     const cacheKey = this.getCacheKey('details', placeId);
     if (this.cache.has(cacheKey)) {
-      return this.cache.get(cacheKey);
+      return this.cache.get(cacheKey) as Partial<Place>;
     }
 
     return new Promise((resolve, reject) => {
@@ -120,7 +120,7 @@ export class PlacesService {
 
     const cacheKey = this.getCacheKey('nearby', location, type, options, page);
     if (this.cache.has(cacheKey)) {
-      return this.cache.get(cacheKey);
+      return this.cache.get(cacheKey) as { places: Place[]; hasMore: boolean };
     }
 
     const request = {
@@ -138,7 +138,7 @@ export class PlacesService {
             const startIndex = page * this.DEFAULT_LIMIT;
             const endIndex = Math.min(startIndex + this.DEFAULT_LIMIT, this.MAX_RESULTS);
             
-            let filteredResults = results
+            const filteredResults = results
               .filter(place => 
                 (minRating === 0 || (place.rating || 0) >= minRating) &&
                 (!maxPrice || (place.price_level || 0) <= maxPrice)
@@ -202,7 +202,7 @@ export class PlacesService {
   ): Promise<Place[]> {
     const cacheKey = this.getCacheKey('text', query, location, radius);
     if (this.cache.has(cacheKey)) {
-      return this.cache.get(cacheKey);
+      return this.cache.get(cacheKey) as Place[];
     }
 
     return new Promise<Place[]>((resolve, reject) => {
@@ -266,7 +266,7 @@ export class PlacesService {
   ): Promise<google.maps.places.AutocompletePrediction[]> {
     const cacheKey = this.getCacheKey('predictions', input, location, radius);
     if (this.cache.has(cacheKey)) {
-      return this.cache.get(cacheKey);
+      return this.cache.get(cacheKey) as google.maps.places.AutocompletePrediction[];
     }
 
     const request: google.maps.places.AutocompletionRequest = {

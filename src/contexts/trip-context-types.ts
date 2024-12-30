@@ -29,16 +29,7 @@ export interface TripContextProps {
   }) => void;
 }
 
-export interface SavedLocation extends Omit<Location, 'startDate' | 'endDate'> {
-  startDate?: string;
-  endDate?: string;
-}
-
-export interface SavedTrip {
-  locations: SavedLocation[];
-}
-
-export function isValidTrip(data: unknown): data is SavedTrip {
+export function isValidTrip(data: unknown): data is Trip {
   return (
     typeof data === 'object' &&
     data !== null &&
@@ -51,6 +42,7 @@ export function isValidTrip(data: unknown): data is SavedTrip {
       'name' in loc &&
       'lat' in loc &&
       'lng' in loc &&
+      typeof loc === 'object' &&
       typeof loc.id === 'string' &&
       typeof loc.name === 'string' &&
       typeof loc.lat === 'number' &&

@@ -8,7 +8,8 @@ import { SidebarHeader } from './sidebar/SidebarHeader';
 import { SearchBar } from './sidebar/SearchBar';
 import { Button } from './ui/button';
 import { LocationFilters } from './locations/LocationFilters';
-import { TripContext, TripContextProps } from '../contexts/TripContext';
+import { TripContext } from '../contexts/TripContext';
+import type { TripContextProps } from '../contexts/trip-context-types';
 import { useContext } from 'react';
 import { LocationList } from './sidebar/LocationList';
 
