@@ -169,7 +169,7 @@ export const TripPlanner = () => {
         <div className="flex w-full">
           {isMobile ? (
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
-              <SheetTrigger asChild>
+              <SheetTrigger>
                 <Button 
                   variant="ghost" 
                   size="icon"

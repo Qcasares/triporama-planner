@@ -17,11 +17,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { 
-  CONSTANTS,
-  SidebarContext,
   useSidebar,
-  sidebarMenuButtonVariants 
-} from "./sidebar-utils"
+} from "../sidebar/use-sidebar"
+import { sidebarMenuButtonVariants } from "../sidebar/sidebar-menu-variants"
+import { CONSTANTS, SidebarContext } from "./sidebar-utils"
 
 const SidebarProvider = React.forwardRef<
   HTMLDivElement,

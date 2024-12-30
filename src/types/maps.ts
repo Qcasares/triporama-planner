@@ -75,3 +75,36 @@ export interface OSRMBounds {
     location: [number, number];
   }>;
 }
+
+export interface POI {
+  id: string;
+  name: string;
+  type: string;
+  lat: number;
+  lon: number;
+  address?: string;
+  category?: string;
+  amenity?: string;
+  distance?: number;
+  rating?: number;
+  opening_hours?: string;
+}
+
+export interface MapMarker {
+  id: string;
+  position: [number, number];
+  type: 'poi' | 'location' | 'custom';
+  title: string;
+  description?: string;
+  icon?: string;
+  popupContent?: string;
+}
+
+export interface POISearchParams {
+  lat: number;
+  lon: number;
+  radius?: number;
+  amenity?: string;
+  category?: string;
+  limit?: number;
+}
