@@ -24,9 +24,9 @@ interface UseMapReturn {
 }
 
 class MapManager {
-  private mapInstance: L.Map | null;
+  private mapInstance: L.Map | null = null;
   private markerCluster: L.MarkerClusterGroup;
-  private markers: L.Marker[];
+  private markers: L.Marker[] = [];
   private mapsService: MapsService;
   private container: HTMLDivElement;
   private tileLayerConfig: TileLayerConfig;
@@ -47,13 +47,12 @@ class MapManager {
     this.tileLayerConfig = tileLayerConfig;
     this.locations = locations;
     this.toast = toast;
-    this.initializeMap();
   }
 
-  private initializeMap() {
-    try {
-      if (!this.container) return;
+  public initialize() {
+    if (!this.container || this.mapInstance) return;
 
+    try {
       this.mapInstance = L.map(this.container, {
         center: [51.505, -0.09],
         zoom: 13,
@@ -76,56 +75,81 @@ class MapManager {
   }
 
   private addMarkers() {
-    if (!this.locations.length) return;
+    if (!this.locations?.length || !this.mapInstance) return;
 
-    const defaultIcon = L.icon({
-      iconUrl: '/placeholder.svg',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-      shadowSize: [41, 41]
-    });
-
-    this.markers = this.locations.map(location => {
-      const marker = L.marker([location.lat, location.lng], {
-        icon: defaultIcon,
-        title: location.name
+    try {
+      const defaultIcon = L.icon({
+        iconUrl: '/placeholder.svg',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        shadowSize: [41, 41]
       });
 
-      marker.bindPopup(`
-        <div class="marker-popup">
-          <h3>${location.name}</h3>
-          <p>Lat: ${location.lat.toFixed(4)}</p>
-          <p>Lng: ${location.lng.toFixed(4)}</p>
-        </div>
-      `);
+      // Clear existing markers
+      this.markers.forEach(marker => marker.remove());
+      this.markers = [];
+      this.markerCluster.clearLayers();
 
-      marker.on('click', () => {
-        this.mapInstance?.setView([location.lat, location.lng], 13);
-      });
+      this.markers = this.locations.map(location => {
+        if (!location || typeof location.lat !== 'number' || typeof location.lng !== 'number') {
+          console.warn('Invalid location data:', location);
+          return null;
+        }
 
-      return marker;
-    });
+        const marker = L.marker([location.lat, location.lng], {
+          icon: defaultIcon,
+          title: location.name
+        });
 
-    this.markerCluster.addLayers(this.markers);
-    this.mapInstance?.addLayer(this.markerCluster);
+        marker.bindPopup(`
+          <div class="marker-popup">
+            <h3>${location.name}</h3>
+            <p>Lat: ${location.lat.toFixed(4)}</p>
+            <p>Lng: ${location.lng.toFixed(4)}</p>
+          </div>
+        `);
+
+        marker.on('click', () => {
+          this.mapInstance?.setView([location.lat, location.lng], 13);
+        });
+
+        return marker;
+      }).filter((marker): marker is L.Marker => marker !== null);
+
+      this.markerCluster.addLayers(this.markers);
+      this.mapInstance.addLayer(this.markerCluster);
+    } catch (error) {
+      console.error('Error adding markers:', error);
+    }
   }
 
   private fitToMarkers() {
-    if (this.locations.length > 0 && this.mapInstance) {
-      const bounds = L.latLngBounds(
-        this.locations.map(loc => [loc.lat, loc.lng])
+    if (!this.locations?.length || !this.mapInstance) return;
+
+    try {
+      const validLocations = this.locations.filter(
+        loc => loc && typeof loc.lat === 'number' && typeof loc.lng === 'number'
       );
-      this.mapInstance.fitBounds(bounds);
+
+      if (validLocations.length > 0) {
+        const bounds = L.latLngBounds(
+          validLocations.map(loc => [loc.lat, loc.lng])
+        );
+        this.mapInstance.fitBounds(bounds);
+      }
+    } catch (error) {
+      console.error('Error fitting to markers:', error);
     }
   }
 
   public cleanup() {
     if (this.mapInstance) {
+      this.markers.forEach(marker => marker.remove());
+      this.markerCluster.clearLayers();
       this.mapInstance.remove();
       this.mapInstance = null;
-      this.markerCluster.clearLayers();
       this.markers = [];
     }
   }
@@ -133,7 +157,7 @@ class MapManager {
   public async getDistanceMatrix(
     origins: Location[],
     destinations: Location[]
-  ) {
+  ): Promise<DistanceMatrixResponse> {
     try {
       return await this.mapsService.getDistance(
         origins.map(origin => ({ lat: origin.lat, lng: origin.lng })),
@@ -149,6 +173,12 @@ class MapManager {
       throw error;
     }
   }
+
+  public updateLocations(newLocations: Location[]) {
+    this.locations = newLocations;
+    this.addMarkers();
+    this.fitToMarkers();
+  }
 }
 
 export const useMap = (
@@ -160,25 +190,35 @@ export const useMap = (
   const toast = useToast();
 
   useEffect(() => {
-    if (mapRef.current) {
+    if (!mapRef.current) return;
+
+    // Initialize map manager if it doesn't exist
+    if (!mapManager.current) {
       mapManager.current = new MapManager(
         mapRef.current,
         tileLayerConfig,
         locations,
         toast
       );
-
-      return () => {
-        mapManager.current?.cleanup();
-        mapManager.current = null;
-      };
+      mapManager.current.initialize();
+    } else {
+      // Update locations if map manager exists
+      mapManager.current.updateLocations(locations);
     }
+
+    // Cleanup function
+    return () => {
+      if (mapManager.current) {
+        mapManager.current.cleanup();
+        mapManager.current = null;
+      }
+    };
   }, [locations, tileLayerConfig, toast]);
 
   const getDistanceMatrix = async (
     origins: Location[],
     destinations: Location[]
-  ) => {
+  ): Promise<DistanceMatrixResponse> => {
     if (!mapManager.current) {
       throw new Error('Map manager not initialized');
     }
