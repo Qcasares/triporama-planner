@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Location } from '@/types/location';
+import { Location, LocationType } from '@/types/location';
 import { getLocationDetails } from '@/services/maps';
 import { useToast } from '@/hooks/use-toast';
 
@@ -43,6 +43,7 @@ export const useGeolocation = () => {
             name: details.formatted_address,
             lat: details.lat,
             lng: details.lng,
+            type: LocationType.OTHER,
           };
 
           setState({

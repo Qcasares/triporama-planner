@@ -3,7 +3,7 @@ import { Place } from '@/types/place';
 import { FilterOptions } from '@/types/filters';
 import { useApiKey } from '@/hooks/use-api-key';
 import { usePlaces } from '@/hooks/use-places';
-import { PlacesContainer } from './PlacesContainer';
+import PlacesContainer from './PlacesContainer';
 import { Location } from '@/types/location';
 
 interface PlacesManagerProps {
@@ -21,7 +21,7 @@ export const PlacesManager = ({ location }: PlacesManagerProps) => {
   
   const {
     places,
-    loading,
+    isLoading,
     favorites,
     toggleFavorite,
     addCustomPlace,
@@ -58,7 +58,7 @@ export const PlacesManager = ({ location }: PlacesManagerProps) => {
     <PlacesContainer
       location={location}
       places={places}
-      loading={loading}
+      loading={isLoading}
       favorites={favorites}
       filterOptions={filterOptions}
       isCustomPlaceDialogOpen={isCustomPlaceDialogOpen}

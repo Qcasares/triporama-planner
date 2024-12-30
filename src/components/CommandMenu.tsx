@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from '@/components/ui/command';
 import { PlusCircle, Map, List, Home, Settings, Key } from 'lucide-react';
-import { Location } from '@/types/location';
+import { Location, LocationType } from '@/types/location';
 import { useToast } from '@/hooks/use-toast';
 import { ApiKeyInput } from './ApiKeyInput';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -34,6 +34,7 @@ export const CommandMenu = ({ locations, onAddLocation, isSummaryOpen, toggleSum
           name: 'New Location',
           lat: 0,
           lng: 0,
+          type: LocationType.OTHER,
         });
         toast({
           title: "Shortcut activated",
@@ -93,6 +94,7 @@ export const CommandMenu = ({ locations, onAddLocation, isSummaryOpen, toggleSum
                   name: 'New Location',
                   lat: 0,
                   lng: 0,
+                  type: LocationType.OTHER,
                 });
               }}
             >

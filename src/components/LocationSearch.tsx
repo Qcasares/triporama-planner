@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Search } from 'lucide-react';
-import { Location } from '@/types/location';
+import { Location, LocationType } from '@/types/location';
 import { useLoadScript } from '@react-google-maps/api';
 
 interface LocationSearchProps {
@@ -39,6 +39,7 @@ export const LocationSearch = ({ onLocationSelect }: LocationSearchProps) => {
           name: place.formatted_address || place.name || 'Unknown location',
           lat: place.geometry.location.lat(),
           lng: place.geometry.location.lng(),
+          type: LocationType.OTHER,
         };
         
         onLocationSelect(newLocation);
