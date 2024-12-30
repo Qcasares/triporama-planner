@@ -58,7 +58,7 @@ export class MapsService {
   async getDistance(
     origins: { lat: number; lng: number }[],
     destinations: { lat: number; lng: number }[]
-  ): Promise<google.maps.DistanceMatrixResponse> {
+  ): Promise<DistanceMatrixResponse> {
     const results = await Promise.all(
       origins.map(async (origin) => {
         return Promise.all(
@@ -91,7 +91,9 @@ export class MapsService {
         elements: row.map(element => ({
           distance: element.distance,
           duration: element.duration,
-          status: element.status
+          status: element.status,
+          duration_in_traffic: undefined,
+          fare: undefined
         }))
       }))
     };

@@ -1,11 +1,10 @@
-import { createContext, useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '../hooks/use-toast';
 import { Trip, TripContextProps, isValidTrip } from './trip-context-types';
 import { Location, LocationType } from '../types/location';
+import { TripContext } from './trip-context';
 
 const STORAGE_KEY = 'triporama_trip';
-
-export const TripContext = createContext<TripContextProps | undefined>(undefined);
 
 export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { toast } = useToast();
@@ -61,7 +60,7 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
           // Convert ISO date strings back to Date objects
           const parsedTrip: Trip = {
-            locations: parsedData.locations.map((loc: any) => ({
+            locations: parsedData.locations.map((loc: Partial<Location>) => ({
               ...loc,
               startDate: loc.startDate ? new Date(loc.startDate) : undefined,
               endDate: loc.endDate ? new Date(loc.endDate) : undefined,
