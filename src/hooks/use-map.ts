@@ -53,8 +53,14 @@ class MapManager {
     if (!this.container || this.mapInstance) return;
 
     try {
+      // Initialize map with default center if no locations
+      const defaultCenter: [number, number] = [51.505, -0.09];
+      const initialCenter = this.locations.length > 0 
+        ? [this.locations[0].lat, this.locations[0].lng] 
+        : defaultCenter;
+
       this.mapInstance = L.map(this.container, {
-        center: [51.505, -0.09],
+        center: initialCenter as L.LatLngExpression,
         zoom: 13,
       });
 
@@ -92,31 +98,28 @@ class MapManager {
       this.markers = [];
       this.markerCluster.clearLayers();
 
-      this.markers = this.locations.map(location => {
-        if (!location || typeof location.lat !== 'number' || typeof location.lng !== 'number') {
-          console.warn('Invalid location data:', location);
-          return null;
-        }
+      this.markers = this.locations
+        .filter(location => location && typeof location.lat === 'number' && typeof location.lng === 'number')
+        .map(location => {
+          const marker = L.marker([location.lat, location.lng], {
+            icon: defaultIcon,
+            title: location.name
+          });
 
-        const marker = L.marker([location.lat, location.lng], {
-          icon: defaultIcon,
-          title: location.name
+          marker.bindPopup(`
+            <div class="marker-popup">
+              <h3>${location.name}</h3>
+              <p>Lat: ${location.lat.toFixed(4)}</p>
+              <p>Lng: ${location.lng.toFixed(4)}</p>
+            </div>
+          `);
+
+          marker.on('click', () => {
+            this.mapInstance?.setView([location.lat, location.lng], 13);
+          });
+
+          return marker;
         });
-
-        marker.bindPopup(`
-          <div class="marker-popup">
-            <h3>${location.name}</h3>
-            <p>Lat: ${location.lat.toFixed(4)}</p>
-            <p>Lng: ${location.lng.toFixed(4)}</p>
-          </div>
-        `);
-
-        marker.on('click', () => {
-          this.mapInstance?.setView([location.lat, location.lng], 13);
-        });
-
-        return marker;
-      }).filter((marker): marker is L.Marker => marker !== null);
 
       this.markerCluster.addLayers(this.markers);
       this.mapInstance.addLayer(this.markerCluster);

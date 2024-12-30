@@ -10,7 +10,9 @@ interface MapContainerProps {
 }
 
 const MapContainer = ({ locations = [], className }: MapContainerProps) => {
-  const { mapRef } = useMap(locations, getTileLayerConfig());
+  // Ensure locations is always an array
+  const safeLocations = Array.isArray(locations) ? locations : [];
+  const { mapRef } = useMap(safeLocations, getTileLayerConfig());
 
   return (
     <div className={cn("relative", className)}>
@@ -24,8 +26,8 @@ const MapContainer = ({ locations = [], className }: MapContainerProps) => {
 
 export default memo(MapContainer, (prevProps, nextProps) => {
   // Ensure we have valid arrays to compare
-  const prevLocations = prevProps.locations || [];
-  const nextLocations = nextProps.locations || [];
+  const prevLocations = Array.isArray(prevProps.locations) ? prevProps.locations : [];
+  const nextLocations = Array.isArray(nextProps.locations) ? nextProps.locations : [];
   
   // If arrays are different lengths, they're definitely different
   if (prevLocations.length !== nextLocations.length) {
