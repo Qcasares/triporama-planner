@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { DropResult } from '@hello-pangea/dnd';
 import { Place } from '@/types/place';
 import { FilterOptions } from '@/types/filters';
 import { useApiKey } from '@/hooks/use-api-key';
@@ -47,7 +48,7 @@ export const PlacesManager = ({ location }: PlacesManagerProps) => {
     setIsCustomPlaceDialogOpen(false);
   };
 
-  const handleDragEnd = (result: any) => {
+  const handleDragEnd = (result: DropResult) => {
     // Implement drag and drop functionality if needed
     console.log('Drag ended:', result);
   };

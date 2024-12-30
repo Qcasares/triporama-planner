@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { Building2, UtensilsCrossed, Landmark, ShoppingBag, Theater } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { DragDropContext } from '@hello-pangea/dnd';
+import { DragDropContext, DropResult } from '@hello-pangea/dnd';
 import { PlacesSection } from './PlacesSection';
 import { CustomPlaceDialog } from './CustomPlaceDialog';
 import { FilterOptions } from '../../types/filters';
@@ -24,7 +24,7 @@ interface PlacesContainerProps {
   onCustomPlaceDialogOpenChange: (open: boolean) => void;
   onCustomPlaceChange: (field: string, value: string) => void;
   onAddCustomPlace: () => void;
-  onDragEnd: (result: any) => void;
+  onDragEnd: (result: DropResult) => void;
 }
 
 const PlacesContainer = ({

@@ -1,7 +1,7 @@
 import React from 'react';
 import { TooltipProvider } from '../ui/tooltip';
-import { cn } from '@/lib/utils';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '../../lib/utils';
+import { useIsMobile } from '../../hooks/use-mobile';
 
 type SidebarContext = {
   state: "expanded" | "collapsed";
@@ -13,15 +13,7 @@ type SidebarContext = {
   toggleSidebar: () => void;
 };
 
-const SidebarContext = React.createContext<SidebarContext | null>(null);
-
-export function useSidebar() {
-  const context = React.useContext(SidebarContext);
-  if (!context) {
-    throw new Error("useSidebar must be used within a SidebarProvider.");
-  }
-  return context;
-}
+export const SidebarContext = React.createContext<SidebarContext | null>(null);
 
 export const SidebarProvider = React.forwardRef<
   HTMLDivElement,

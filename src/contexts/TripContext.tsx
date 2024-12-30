@@ -33,12 +33,19 @@ export interface TripContextProps {
 
 const STORAGE_KEY = 'triporama_trip';
 
-function isValidTrip(data: any): data is Trip {
+function isValidTrip(data: unknown): data is Trip {
   return (
     typeof data === 'object' &&
     data !== null &&
+    'locations' in data &&
     Array.isArray(data.locations) &&
-    data.locations.every((loc: any) =>
+    data.locations.every((loc: unknown) =>
+      typeof loc === 'object' &&
+      loc !== null &&
+      'id' in loc &&
+      'name' in loc &&
+      'lat' in loc &&
+      'lng' in loc &&
       typeof loc === 'object' &&
       typeof loc.id === 'string' &&
       typeof loc.name === 'string' &&
