@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Location } from '../types/location';
 import { LocationCard } from './locations/LocationCard';
 import { LocationCardSkeleton } from './locations/LocationCardSkeleton';
@@ -116,16 +116,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <LocationFilters filters={filters} onFilterChange={handleFilterChange} />
       <ScrollArea className="flex-1 p-3 space-y-3">
         {loading ? (
-          Array.from({ length: 3 }).map((_, i) => (
-            <LocationCardSkeleton
-              key={i}
-              className="animate-in fade-in-50 slide-in-from-left-3"
-              style={{
-                animationDelay: `${i * 50}ms`,
-                animationDuration: '200ms',
-              }}
-            />
-          ))
+          <div className="space-y-1.5 p-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <LocationCardSkeleton
+                key={i}
+                variant="initial"
+              />
+            ))}
+          </div>
         ) : filteredLocations.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 px-4 text-center motion-safe:animate-fade-in">
             <MapPin className="h-12 w-12 text-muted-foreground/50 mb-4 floating-animation" />
@@ -167,7 +165,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <div
                   {...provided.droppableProps}
                   ref={provided.innerRef}
-                  className="space-y-1.5 min-h-[50px]"
+                  className="space-y-1.5 p-3 min-h-[50px]"
                   onKeyDown={(e) => {
                     if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
                       e.preventDefault();
