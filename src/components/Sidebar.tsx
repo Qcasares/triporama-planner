@@ -42,7 +42,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [showDateFilter, setShowDateFilter] = useState(false);
   const [sortByDate, setSortByDate] = useState(false);
   const [groupByDay, setGroupByDay] = useState(false);
-  const { filters, filteredLocations = [], updateFilters } = useContext(TripContext) as TripContextProps;
+  const context = useContext(TripContext) as TripContextProps;
+  const { filters, updateFilters } = context;
+  const filteredLocations = context?.filteredLocations || [];
 
   const handleSort = () => setSortByDate(!sortByDate);
   const handleGroup = () => setGroupByDay(!groupByDay);
@@ -58,8 +60,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   }, [updateFilters]);
 
   // Ensure locations array exists
-  const safeLocations = filteredLocations || [];
-  const locationCount = safeLocations.length;
+  const locationCount = filteredLocations?.length || 0;
 
   return (
     <div className="w-full h-full flex flex-col bg-white transition-smooth">
@@ -100,7 +101,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               />
             ))}
           </div>
-        ) : safeLocations.length === 0 ? (
+        ) : filteredLocations?.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 px-4 text-center motion-safe:animate-fade-in">
             <MapPin className="h-12 w-12 text-muted-foreground/50 mb-4 floating-animation" />
             <h3 className="text-sm font-medium mb-2 motion-safe:animate-slide-up">
@@ -129,7 +130,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         ) : (
           <LocationList
-            locations={safeLocations}
+            locations={filteredLocations}
             selectedLocation={selectedLocation}
             groupByDay={groupByDay}
             onSelectLocation={onSelectLocation}
