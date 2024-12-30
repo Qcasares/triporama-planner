@@ -10,7 +10,7 @@ interface MapContainerProps {
 }
 
 const MapContainer = ({ locations = [], className }: MapContainerProps) => {
-  const { mapRef } = useMap(locations || [], getTileLayerConfig());
+  const { mapRef } = useMap(locations, getTileLayerConfig());
 
   return (
     <div className={cn("relative", className)}>
@@ -23,16 +23,27 @@ const MapContainer = ({ locations = [], className }: MapContainerProps) => {
 };
 
 export default memo(MapContainer, (prevProps, nextProps) => {
+  // Ensure we have valid arrays to compare
   const prevLocations = prevProps.locations || [];
   const nextLocations = nextProps.locations || [];
   
-  if (prevLocations.length !== nextLocations.length) return false;
+  // If arrays are different lengths, they're definitely different
+  if (prevLocations.length !== nextLocations.length) {
+    return false;
+  }
   
+  // Compare each location's properties
   return prevLocations.every((loc, index) => {
     const nextLoc = nextLocations[index];
-    return loc && nextLoc && 
+    // If either location is null/undefined, consider them different
+    if (!loc || !nextLoc) {
+      return false;
+    }
+    // Compare location properties
+    return (
       loc.id === nextLoc.id && 
       loc.lat === nextLoc.lat && 
-      loc.lng === nextLoc.lng;
+      loc.lng === nextLoc.lng
+    );
   });
 });

@@ -49,6 +49,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   }
 
   const { filters, updateFilters, filteredLocations } = context;
+  // Ensure we always have a valid array to work with
   const safeFilteredLocations = filteredLocations || [];
 
   const handleSort = () => setSortByDate(!sortByDate);
@@ -64,6 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     updateFilters(newFilters);
   }, [updateFilters]);
 
+  // Use the safe array to get the count
   const locationCount = safeFilteredLocations.length;
 
   return (
