@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useCallback } from 'react';
-import { Location } from '../types/location';
+import { Location, LocationType } from '../types/location';
 import { useToast } from '../hooks/use-toast';
 
 interface Trip {
@@ -11,6 +11,12 @@ export interface TripContextProps {
   selectedLocation: Location | undefined;
   loading: boolean;
   error: string | null;
+  filters: {
+    types: LocationType[];
+    minRating: number;
+    maxDistance: number;
+  };
+  filteredLocations: Location[];
   addLocation: (location: Location) => void;
   removeLocation: (id: string) => void;
   selectLocation: (location: Location | undefined) => void;
@@ -18,6 +24,11 @@ export interface TripContextProps {
   updateLocation: (locationId: string, updates: Partial<Omit<Location, 'id'>>) => void;
   reorderLocations: (startIndex: number, endIndex: number) => void;
   clearTrip: () => void;
+  updateFilters: (filters: {
+    types: LocationType[];
+    minRating: number;
+    maxDistance: number;
+  }) => void;
 }
 
 const STORAGE_KEY = 'triporama_trip';
@@ -45,6 +56,39 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [selectedLocation, setSelectedLocation] = useState<Location | undefined>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState({
+    types: [] as LocationType[],
+    minRating: 0,
+    maxDistance: 100
+  });
+
+  // Calculate filtered locations based on filters
+  const filteredLocations = trip.locations.filter(location => {
+    // Type filter
+    if (filters.types.length > 0 && !filters.types.includes(location.type)) {
+      return false;
+    }
+
+    // Rating filter
+    if (location.rating && location.rating < filters.minRating) {
+      return false;
+    }
+
+    // Distance filter
+    if (location.distance && location.distance > filters.maxDistance) {
+      return false;
+    }
+
+    return true;
+  });
+
+  const updateFilters = useCallback((newFilters: {
+    types: LocationType[];
+    minRating: number;
+    maxDistance: number;
+  }) => {
+    setFilters(newFilters);
+  }, []);
 
   // Load saved trip data
   useEffect(() => {
@@ -105,33 +149,68 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [trip, toast]);
 
   const addLocation = useCallback((location: Location) => {
-    setTrip(prevTrip => ({
-      ...prevTrip,
-      locations: [...prevTrip.locations, location],
-    }));
-    toast({
-      title: "Location Added",
-      description: `${location.name} has been added to your trip.`,
-    });
+    try {
+      // Validate location data
+      if (!location.name || !location.lat || !location.lng) {
+        throw new Error('Invalid location data');
+      }
+
+      setTrip(prevTrip => ({
+        ...prevTrip,
+        locations: [...prevTrip.locations, location],
+      }));
+      toast({
+        title: "Location Added",
+        description: `${location.name} has been added to your trip.`,
+      });
+      setError(null);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to add location';
+      console.error(errorMessage, error);
+      setError(errorMessage);
+      toast({
+        title: "Error Adding Location",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
   }, [toast]);
 
   const removeLocation = useCallback((id: string) => {
-    setTrip(prevTrip => {
-      const location = prevTrip.locations.find(loc => loc.id === id);
-      if (!location) return prevTrip;
+    try {
+      if (!id) {
+        throw new Error('Invalid location ID');
+      }
 
-      const newLocations = prevTrip.locations.filter(loc => loc.id !== id);
-      toast({
-        title: "Location Removed",
-        description: `${location.name} has been removed from your trip.`,
+      setTrip(prevTrip => {
+        const location = prevTrip.locations.find(loc => loc.id === id);
+        if (!location) {
+          throw new Error('Location not found');
+        }
+
+        const newLocations = prevTrip.locations.filter(loc => loc.id !== id);
+        toast({
+          title: "Location Removed",
+          description: `${location.name} has been removed from your trip.`,
+        });
+
+        return {
+          ...prevTrip,
+          locations: newLocations,
+        };
       });
-
-      return {
-        ...prevTrip,
-        locations: newLocations,
-      };
-    });
-    setSelectedLocation(prev => prev?.id === id ? undefined : prev);
+      setSelectedLocation(prev => prev?.id === id ? undefined : prev);
+      setError(null);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to remove location';
+      console.error(errorMessage, error);
+      setError(errorMessage);
+      toast({
+        title: "Error Removing Location",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
   }, [toast]);
 
   const selectLocation = useCallback((location: Location | undefined) => {
@@ -139,89 +218,132 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const updateLocationDates = useCallback((locationId: string, startDate?: Date, endDate?: Date) => {
-    setTrip(prevTrip => {
-      const location = prevTrip.locations.find(loc => loc.id === locationId);
-      if (!location) return prevTrip;
-
-      // Validate date range
-      if (startDate && endDate && startDate > endDate) {
-        toast({
-          title: "Invalid Date Range",
-          description: "Start date cannot be after end date.",
-          variant: "destructive",
-        });
-        return prevTrip;
+    try {
+      if (!locationId) {
+        throw new Error('Invalid location ID');
       }
 
-      const updatedLocations = prevTrip.locations.map(loc =>
-        loc.id === locationId
-          ? { ...loc, startDate, endDate }
-          : loc
-      );
+      setTrip(prevTrip => {
+        const location = prevTrip.locations.find(loc => loc.id === locationId);
+        if (!location) {
+          throw new Error('Location not found');
+        }
 
-      toast({
-        title: "Dates Updated",
-        description: `Updated dates for ${location.name}.`,
+        // Validate date range
+        if (startDate && endDate && startDate > endDate) {
+          throw new Error('Start date cannot be after end date');
+        }
+
+        const updatedLocations = prevTrip.locations.map(loc =>
+          loc.id === locationId
+            ? { ...loc, startDate, endDate }
+            : loc
+        );
+
+        toast({
+          title: "Dates Updated",
+          description: `Updated dates for ${location.name}.`,
+        });
+
+        return {
+          ...prevTrip,
+          locations: updatedLocations,
+        };
       });
-
-      return {
-        ...prevTrip,
-        locations: updatedLocations,
-      };
-    });
+      setError(null);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update dates';
+      console.error(errorMessage, error);
+      setError(errorMessage);
+      toast({
+        title: "Error Updating Dates",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
   }, [toast]);
 
   const updateLocation = useCallback((locationId: string, updates: Partial<Omit<Location, 'id'>>) => {
-    setTrip(prevTrip => {
-      const location = prevTrip.locations.find(loc => loc.id === locationId);
-      if (!location) return prevTrip;
+    try {
+      if (!locationId) {
+        throw new Error('Invalid location ID');
+      }
 
-      const updatedLocations = prevTrip.locations.map(loc =>
-        loc.id === locationId
-          ? { ...loc, ...updates }
-          : loc
-      );
+      setTrip(prevTrip => {
+        const location = prevTrip.locations.find(loc => loc.id === locationId);
+        if (!location) {
+          throw new Error('Location not found');
+        }
 
-      toast({
-        title: "Location Updated",
-        description: `Updated details for ${location.name}.`,
+        // Validate updates
+        if (updates.name && !updates.name.trim()) {
+          throw new Error('Location name cannot be empty');
+        }
+
+        const updatedLocations = prevTrip.locations.map(loc =>
+          loc.id === locationId
+            ? { ...loc, ...updates }
+            : loc
+        );
+
+        toast({
+          title: "Location Updated",
+          description: `Updated details for ${location.name}.`,
+        });
+
+        return {
+          ...prevTrip,
+          locations: updatedLocations,
+        };
       });
-
-      return {
-        ...prevTrip,
-        locations: updatedLocations,
-      };
-    });
+      setError(null);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update location';
+      console.error(errorMessage, error);
+      setError(errorMessage);
+      toast({
+        title: "Error Updating Location",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
   }, [toast]);
 
   const reorderLocations = useCallback((startIndex: number, endIndex: number) => {
-    setTrip(prevTrip => {
-      // Validate indices
-      if (
-        startIndex < 0 ||
-        endIndex < 0 ||
-        startIndex >= prevTrip.locations.length ||
-        endIndex >= prevTrip.locations.length
-      ) {
+    try {
+      setTrip(prevTrip => {
+        // Validate indices
+        if (
+          startIndex < 0 ||
+          endIndex < 0 ||
+          startIndex >= prevTrip.locations.length ||
+          endIndex >= prevTrip.locations.length
+        ) {
+          throw new Error('Invalid location indices');
+        }
+
+        const updatedLocations = [...prevTrip.locations];
+        const [removed] = updatedLocations.splice(startIndex, 1);
+        updatedLocations.splice(endIndex, 0, removed);
+
         toast({
-          title: "Error Reordering",
-          description: "Invalid location indices.",
-          variant: "destructive",
+          title: "Trip Reordered",
+          description: "Location order has been updated.",
         });
-        return prevTrip;
-      }
 
-      const updatedLocations = [...prevTrip.locations];
-      const [removed] = updatedLocations.splice(startIndex, 1);
-      updatedLocations.splice(endIndex, 0, removed);
-
-      toast({
-        title: "Trip Reordered",
-        description: "Location order has been updated.",
+        return { ...prevTrip, locations: updatedLocations };
       });
-
-      return { ...prevTrip, locations: updatedLocations };
-    });
+      setError(null);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to reorder locations';
+      console.error(errorMessage, error);
+      setError(errorMessage);
+      toast({
+        title: "Error Reordering Locations",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
   }, [toast]);
 
   const clearTrip = useCallback(() => {
@@ -240,6 +362,8 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
     selectedLocation,
     loading,
     error,
+    filters,
+    filteredLocations,
     addLocation,
     removeLocation,
     selectLocation,
@@ -247,6 +371,7 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
     updateLocation,
     reorderLocations,
     clearTrip,
+    updateFilters,
   };
 
   return <TripContext.Provider value={value}>{children}</TripContext.Provider>;

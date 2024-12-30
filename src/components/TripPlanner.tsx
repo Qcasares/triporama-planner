@@ -11,7 +11,7 @@ import { TripContext, TripContextProps } from '../contexts/TripContext';
 import { useToast } from '../hooks/use-toast';
 import { useOffline } from '../hooks/use-offline';
 import { ScrollArea } from './ui/scroll-area';
-import { Location } from '../types/location';
+import { Location, LocationType } from '../types/location';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 import { Menu, MapPin, Loader2, WifiOff } from 'lucide-react';
 import { Button } from './ui/button';
@@ -91,10 +91,15 @@ export const TripPlanner = () => {
       return;
     }
 
-    addLocation(location);
+    const newLocation = {
+      ...location,
+      type: LocationType.OTHER
+    };
+
+    addLocation(newLocation);
     toast({
       title: "Location added",
-      description: `${location.name} has been added to your trip.`,
+      description: `${newLocation.name} has been added to your trip.`,
       className: "animate-in fade-in-50 slide-in-from-bottom-5",
     });
     if (isMobile) {
@@ -111,6 +116,7 @@ export const TripPlanner = () => {
         name: 'New Location',
         lat: 0,
         lng: 0,
+        type: LocationType.OTHER
       })}
       onRemoveLocation={removeLocation}
       onSelectLocation={selectLocation}

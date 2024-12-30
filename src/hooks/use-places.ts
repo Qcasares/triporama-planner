@@ -126,7 +126,7 @@ export const usePlaces = (location: { lat: number; lng: number }) => {
 
       try {
         const results = await Promise.all(
-          Object.entries(placeTypes).map(async ([key, type]) => {
+          Object.entries(placeTypes).map(async ([key, type]): Promise<[string, { places: Place[]; hasMore: boolean }]> => {
             const result = await placesService.searchNearby(location, type, {
               minRating: options.minRating,
               maxPrice: options.maxPrice,
@@ -140,11 +140,11 @@ export const usePlaces = (location: { lat: number; lng: number }) => {
         setState(prev => ({
           ...prev,
           places: Object.fromEntries(
-            results.map(([key, { places, hasMore }]) => [
+            results.map(([key, result]) => [
               key,
               {
-                items: places,
-                hasMore,
+                items: result.places,
+                hasMore: result.hasMore,
                 page: 0,
                 loading: false
               }

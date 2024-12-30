@@ -1,5 +1,6 @@
 import React from 'react';
 import { Location } from '../../types/location';
+import { LocationCardSkeleton } from './LocationCardSkeleton';
 import { Button } from '../../components/ui/button';
 import { Trash2, MapPin, Flag, Star, Calendar } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -12,6 +13,8 @@ interface LocationCardProps {
   isSelected?: boolean;
   isStart?: boolean;
   isEnd?: boolean;
+  isLoading?: boolean;
+  showMapPreview?: boolean;
   onSelect?: () => void;
   onRemove?: () => void;
   onUpdateDates?: (locationId: string, startDate?: Date, endDate?: Date) => void;
@@ -22,10 +25,21 @@ export const LocationCard = ({
   isSelected,
   isStart,
   isEnd,
+  isLoading = false,
+  showMapPreview = false,
   onSelect,
   onRemove,
   onUpdateDates,
 }: LocationCardProps) => {
+  if (isLoading) {
+    return (
+      <LocationCardSkeleton 
+        variant="initial"
+        showMap={showMapPreview}
+      />
+    );
+  }
+
   return (
     <div 
       onClick={onSelect}
