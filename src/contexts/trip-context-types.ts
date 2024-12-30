@@ -14,7 +14,7 @@ export interface TripContextProps {
     minRating: number;
     maxDistance: number;
   };
-  filteredLocations: Location[];
+  filteredLocations: Location[];  // Changed from optional to required
   addLocation: (location: Location) => void;
   removeLocation: (id: string) => void;
   selectLocation: (location: Location | undefined) => void;
