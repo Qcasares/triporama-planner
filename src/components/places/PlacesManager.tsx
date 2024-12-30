@@ -21,7 +21,7 @@ export const PlacesManager = ({ location }: PlacesManagerProps) => {
   
   const {
     places: placesData,
-    isLoading,
+    loading,
     favorites,
     toggleFavorite,
     addCustomPlace,
@@ -64,7 +64,7 @@ export const PlacesManager = ({ location }: PlacesManagerProps) => {
     <PlacesContainer
       location={location}
       places={places}
-      loading={isLoading}
+      loading={loading}
       favorites={favorites}
       filterOptions={filterOptions}
       isCustomPlaceDialogOpen={isCustomPlaceDialogOpen}
