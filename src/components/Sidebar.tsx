@@ -62,7 +62,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   }, [updateFilters]);
 
   // Use the filtered locations array with a default empty array
-  const locationCount = filteredLocations?.length ?? 0;
+  const locationCount = (filteredLocations ?? []).length;
 
   return (
     <div className="w-full h-full flex flex-col bg-white transition-smooth">
