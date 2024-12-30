@@ -27,15 +27,7 @@ export const ApiKeyInput = ({ onSave }: ApiKeyInputProps) => {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <p className="text-sm text-muted-foreground mb-4">
-          Enter your Google Maps API key to enable mapping features. You can get one from the{' '}
-          <a 
-            href="https://console.cloud.google.com/google/maps-apis/credentials" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-primary hover:underline"
-          >
-            Google Cloud Console
-          </a>
+          Enter your mapping service API key to enable mapping features.
         </p>
       </div>
       <div className="flex gap-2">
@@ -43,7 +35,7 @@ export const ApiKeyInput = ({ onSave }: ApiKeyInputProps) => {
           type="password"
           value={inputKey}
           onChange={(e) => setInputKey(e.target.value)}
-          placeholder="Enter your API key"
+          placeholder="Enter your mapping service API key"
           className="flex-1"
         />
         <Button type="submit">Save Key</Button>

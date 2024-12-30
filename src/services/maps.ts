@@ -1,192 +1,91 @@
-interface DistanceResult {
-  distance: { text: string; value: number };
-  duration: { text: string; value: number };
-}
+const OSM_TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search';
+const OSRM_URL = 'https://router.project-osrm.org/route/v1';
 
-interface DirectionsResult {
-  routes: google.maps.DirectionsRoute[];
-  bounds: google.maps.LatLngBounds;
-}
-
-export const getLocationDetails = async (latitude: number, longitude: number): Promise<{
+interface LocationDetails {
   formatted_address: string;
   lat: number;
   lng: number;
   place_id?: string;
-  address_components?: google.maps.GeocoderAddressComponent[];
-}> => {
-  const mapsService = new MapsService();
-  return mapsService.getLocationDetails(latitude, longitude);
+}
+
+export const getLocationDetails = async (latitude: number, longitude: number): Promise<LocationDetails> => {
+  const response = await fetch(`${NOMINATIM_URL}?format=json&lat=${latitude}&lon=${longitude}`);
+  const data = await response.json();
+  
+  return {
+    formatted_address: data[0]?.display_name || '',
+    lat: latitude,
+    lng: longitude,
+    place_id: data[0]?.place_id
+  };
 };
 
 export class MapsService {
-  private apiKey: string;
-  private geocoder: google.maps.Geocoder;
-  private directionsService: google.maps.DirectionsService;
-  private distanceMatrixService: google.maps.DistanceMatrixService;
-  private cache: Map<string, any>;
-
-  constructor() {
-    this.apiKey = localStorage.getItem('googleMapsApiKey') || '';
-    if (!this.apiKey) {
-      throw new Error('Google Maps API key not found');
-    }
-    this.geocoder = new google.maps.Geocoder();
-    this.directionsService = new google.maps.DirectionsService();
-    this.distanceMatrixService = new google.maps.DistanceMatrixService();
-    this.cache = new Map();
+  async getLocationDetails(latitude: number, longitude: number): Promise<LocationDetails> {
+    return getLocationDetails(latitude, longitude);
   }
 
-  private getCacheKey(prefix: string, ...args: any[]): string {
-    return `${prefix}:${JSON.stringify(args)}`;
-  }
-
-  async getLocationDetails(latitude: number, longitude: number): Promise<{
-    formatted_address: string;
-    lat: number;
-    lng: number;
-    place_id?: string;
-    address_components?: google.maps.GeocoderAddressComponent[];
-  }> {
-    const cacheKey = this.getCacheKey('location', latitude, longitude);
-    if (this.cache.has(cacheKey)) {
-      return this.cache.get(cacheKey);
-    }
-
-    try {
-      const result = await this.geocoder.geocode({
-        location: { lat: latitude, lng: longitude }
-      });
-
-      if (!result.results?.[0]) {
-        throw new Error('No location details found');
-      }
-
-      const details = {
-        formatted_address: result.results[0].formatted_address,
-        lat: latitude,
-        lng: longitude,
-        place_id: result.results[0].place_id,
-        address_components: result.results[0].address_components
-      };
-
-      this.cache.set(cacheKey, details);
-      return details;
-    } catch (error) {
-      console.error('Geocoding error:', error);
-      throw new Error('Failed to get location details');
-    }
-  }
-
-  async searchAddress(address: string): Promise<{
-    formatted_address: string;
-    lat: number;
-    lng: number;
-    place_id: string;
-  }> {
-    const cacheKey = this.getCacheKey('address', address);
-    if (this.cache.has(cacheKey)) {
-      return this.cache.get(cacheKey);
-    }
-
-    try {
-      const result = await this.geocoder.geocode({ address });
-      
-      if (!result.results?.[0]) {
-        throw new Error('Address not found');
-      }
-
-      const details = {
-        formatted_address: result.results[0].formatted_address,
-        lat: result.results[0].geometry.location.lat(),
-        lng: result.results[0].geometry.location.lng(),
-        place_id: result.results[0].place_id
-      };
-
-      this.cache.set(cacheKey, details);
-      return details;
-    } catch (error) {
-      console.error('Address search error:', error);
-      throw new Error('Failed to search address');
-    }
+  async searchAddress(address: string): Promise<LocationDetails> {
+    const response = await fetch(`${NOMINATIM_URL}?format=json&q=${encodeURIComponent(address)}`);
+    const data = await response.json();
+    
+    return {
+      formatted_address: data[0]?.display_name || address,
+      lat: parseFloat(data[0]?.lat) || 0,
+      lng: parseFloat(data[0]?.lon) || 0,
+      place_id: data[0]?.place_id
+    };
   }
 
   async getDirections(
-    origin: google.maps.LatLngLiteral,
-    destination: google.maps.LatLngLiteral,
-    waypoints?: google.maps.DirectionsWaypoint[],
-    travelMode: google.maps.TravelMode = google.maps.TravelMode.DRIVING
-  ): Promise<DirectionsResult> {
-    const cacheKey = this.getCacheKey('directions', origin, destination, waypoints, travelMode);
-    if (this.cache.has(cacheKey)) {
-      return this.cache.get(cacheKey);
-    }
-
-    try {
-      const result = await this.directionsService.route({
-        origin,
-        destination,
-        waypoints,
-        travelMode,
-        optimizeWaypoints: true
-      });
-
-      const directions = {
-        routes: result.routes,
-        bounds: result.routes[0].bounds
-      };
-
-      this.cache.set(cacheKey, directions);
-      return directions;
-    } catch (error) {
-      console.error('Directions error:', error);
-      throw new Error('Failed to get directions');
-    }
+    origin: { lat: number; lng: number },
+    destination: { lat: number; lng: number }
+  ): Promise<{ routes: any[]; bounds: any }> {
+    const response = await fetch(
+      `${OSRM_URL}/driving/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?overview=full`
+    );
+    const data = await response.json();
+    
+    return {
+      routes: data.routes,
+      bounds: data.waypoints
+    };
   }
 
   async getDistance(
-    origins: google.maps.LatLngLiteral[],
-    destinations: google.maps.LatLngLiteral[],
-    travelMode: google.maps.TravelMode = google.maps.TravelMode.DRIVING
-  ): Promise<DistanceResult[][]> {
-    const cacheKey = this.getCacheKey('distance', origins, destinations, travelMode);
-    if (this.cache.has(cacheKey)) {
-      return this.cache.get(cacheKey);
-    }
-
-    try {
-      const result = await this.distanceMatrixService.getDistanceMatrix({
-        origins,
-        destinations,
-        travelMode
-      });
-
-      if (!result.rows?.[0]?.elements) {
-        throw new Error('No distance results found');
-      }
-
-      const distances = result.rows.map(row => 
-        row.elements.map(element => ({
-          distance: {
-            text: element.distance?.text || '',
-            value: element.distance?.value || 0
-          },
-          duration: {
-            text: element.duration?.text || '',
-            value: element.duration?.value || 0
-          }
-        }))
-      );
-
-      this.cache.set(cacheKey, distances);
-      return distances;
-    } catch (error) {
-      console.error('Distance matrix error:', error);
-      throw new Error('Failed to get distances');
-    }
-  }
-
-  clearCache(): void {
-    this.cache.clear();
+    origins: { lat: number; lng: number }[],
+    destinations: { lat: number; lng: number }[]
+  ): Promise<{ distance: { text: string; value: number }; duration: { text: string; value: number } }[][]> {
+    const results = await Promise.all(
+      origins.map(async (origin) => {
+        return Promise.all(
+          destinations.map(async (destination) => {
+            const response = await fetch(
+              `${OSRM_URL}/driving/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?overview=false`
+            );
+            const data = await response.json();
+            
+            return {
+              distance: {
+                text: `${(data.routes[0].distance / 1000).toFixed(1)} km`,
+                value: data.routes[0].distance
+              },
+              duration: {
+                text: `${(data.routes[0].duration / 60).toFixed(0)} mins`,
+                value: data.routes[0].duration
+              }
+            };
+          })
+        );
+      })
+    );
+    
+    return results;
   }
 }
+
+export const getTileLayerConfig = () => ({
+  url: OSM_TILE_URL,
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+});
