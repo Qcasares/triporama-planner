@@ -7,7 +7,7 @@ import { NavigationBreadcrumb } from './NavigationBreadcrumb';
 import { FloatingActionButton } from './FloatingActionButton';
 import { SidebarProvider } from './ui/sidebar';
 import { useGeolocation } from '../hooks/use-geolocation';
-import { TripContext } from '../contexts/trip-context';
+import { TripContext } from '../contexts/TripContext';
 import type { TripContextProps } from '../contexts/trip-context-types';
 import { useToast } from '../hooks/use-toast';
 import { useOffline } from '../hooks/use-offline';
