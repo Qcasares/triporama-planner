@@ -117,7 +117,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {onAddLocation && !searchQuery && (
               <Button
                 onClick={onAddLocation}
-                variant="outline"
                 className={cn(
                   'transition-smooth motion-safe:animate-slide-up',
                   'hover:bg-primary hover:text-primary-foreground',
