@@ -23,10 +23,18 @@ const MapContainer = ({ locations = [], className }: MapContainerProps) => {
 };
 
 export default memo(MapContainer, (prevProps, nextProps) => {
-  if (prevProps.locations?.length !== nextProps.locations?.length) return false;
-  return prevProps.locations?.every((loc, index) => 
-    loc.id === nextProps.locations?.[index]?.id &&
-    loc.lat === nextProps.locations?.[index]?.lat &&
-    loc.lng === nextProps.locations?.[index]?.lng
-  ) ?? true;
+  const prevLocations = prevProps.locations || [];
+  const nextLocations = nextProps.locations || [];
+  
+  if (prevLocations.length !== nextLocations.length) return false;
+  
+  return prevLocations.every((loc, index) => {
+    const nextLoc = nextLocations[index];
+    if (!nextLoc) return false;
+    return (
+      loc.id === nextLoc.id &&
+      loc.lat === nextLoc.lat &&
+      loc.lng === nextLoc.lng
+    );
+  });
 });

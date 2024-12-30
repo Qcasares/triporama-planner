@@ -1,12 +1,14 @@
+<<<<<<< HEAD
 import React, { useCallback, useState } from 'react';
 import { Location } from '../types/location';
 import { LocationCard } from './locations/LocationCard';
+=======
+import React, { useState, useCallback } from 'react';
+import { Location, LocationType } from '../types/location';
+>>>>>>> 625d877dec4b9e3659ef64f65eb173881b50e96a
 import { LocationCardSkeleton } from './locations/LocationCardSkeleton';
 import { ScrollArea } from './ui/scroll-area';
 import { MapPin } from 'lucide-react';
-import { LocationGroup } from './locations/LocationGroup';
-import { startOfDay } from 'date-fns';
-import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { cn } from '../lib/utils';
 import { SidebarHeader } from './sidebar/SidebarHeader';
 import { SearchBar } from './sidebar/SearchBar';
@@ -14,7 +16,7 @@ import { Button } from './ui/button';
 import { LocationFilters } from './locations/LocationFilters';
 import { TripContext, TripContextProps } from '../contexts/TripContext';
 import { useContext } from 'react';
-import { LocationType } from '../types/location';
+import { LocationList } from './sidebar/LocationList';
 
 interface SidebarProps {
   locations?: Location[];
@@ -30,7 +32,7 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
-  locations = [], // Set default empty array
+  locations = [],
   selectedLocation,
   loading = false,
   onAddLocation,
@@ -45,15 +47,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [showDateFilter, setShowDateFilter] = useState(false);
   const [sortByDate, setSortByDate] = useState(false);
   const [groupByDay, setGroupByDay] = useState(false);
-  const { filters, filteredLocations, updateFilters } = useContext(TripContext) as TripContextProps;
-
-  // Ensure locations is always an array
-  const safeLocations = Array.isArray(locations) ? locations : [];
+  const { filters, filteredLocations = [], updateFilters } = useContext(TripContext) as TripContextProps;
 
   const handleSort = () => setSortByDate(!sortByDate);
   const handleGroup = () => setGroupByDay(!groupByDay);
   const handleDateFilter = () => setShowDateFilter(!showDateFilter);
   const handleSettings = () => {/* TODO: Implement settings */};
+  
   const handleFilterChange = useCallback((newFilters: {
     types: LocationType[];
     minRating: number;
@@ -62,44 +62,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
     updateFilters(newFilters);
   }, [updateFilters]);
 
-  const handleDragEnd = (result: DropResult) => {
-    if (!result.destination || !onReorderLocations) return;
-    const sourceIndex = result.source.index;
-    const destinationIndex = result.destination.index;
-    if (sourceIndex === destinationIndex) return;
-    onReorderLocations(sourceIndex, destinationIndex);
-  };
-
-  const groupedLocations = React.useMemo(() => {
-    if (!groupByDay) return null;
-
-    const groups = new Map<string, Location[]>();
-    filteredLocations.forEach(location => {
-      if (!location?.startDate) return;
-
-      const day = startOfDay(new Date(location.startDate)).toISOString();
-      const group = groups.get(day) || [];
-      groups.set(day, [...group, location]);
-    });
-
-    return Array.from(groups.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([day, locations]) => ({
-        date: new Date(day),
-        locations
-      }));
-  }, [filteredLocations, groupByDay]);
-
-  const ungroupedLocations = React.useMemo(() => {
-    if (!groupByDay) return [];
-    return filteredLocations.filter(location => !location?.startDate);
-  }, [filteredLocations, groupByDay]);
-
   return (
     <div className="w-full h-full flex flex-col bg-white transition-smooth">
       <SidebarHeader
         loading={loading}
-        locationCount={safeLocations.length}
+        locationCount={locations.length}
         onAddLocation={onAddLocation}
         onSort={handleSort}
         onGroup={handleGroup}
@@ -113,7 +80,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         onSearchChange={setSearchQuery}
         onToggleDateFilter={() => setShowDateFilter(!showDateFilter)}
       />
-      <LocationFilters filters={filters} onFilterChange={handleFilterChange} />
+
+      <LocationFilters 
+        filters={filters} 
+        onFilterChange={handleFilterChange} 
+      />
+
       <ScrollArea className="flex-1 p-3 space-y-3">
         {loading ? (
           <div className="space-y-1.5 p-3">
@@ -127,16 +99,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
         ) : filteredLocations.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 px-4 text-center motion-safe:animate-fade-in">
             <MapPin className="h-12 w-12 text-muted-foreground/50 mb-4 floating-animation" />
-            <h3
-              className="text-sm font-medium mb-2 motion-safe:animate-slide-up"
-              style={{ animationDelay: '100ms' }}
-            >
+            <h3 className="text-sm font-medium mb-2 motion-safe:animate-slide-up">
               {searchQuery ? 'No matching destinations' : 'No destinations yet'}
             </h3>
-            <p
-              className="text-xs text-muted-foreground mb-4 motion-safe:animate-slide-up"
-              style={{ animationDelay: '200ms' }}
-            >
+            <p className="text-xs text-muted-foreground mb-4 motion-safe:animate-slide-up">
               {searchQuery
                 ? 'Try a different search term'
                 : 'Start planning your trip by adding your first destination'}
@@ -151,7 +117,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   'hover:scale-105 active:scale-95',
                   'shadow-sm hover:shadow-md'
                 )}
-                style={{ animationDelay: '300ms' }}
               >
                 <MapPin className="h-4 w-4 mr-2 transition-transform group-hover:scale-110" />
                 Add First Stop
@@ -159,6 +124,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             )}
           </div>
         ) : (
+<<<<<<< HEAD
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="locations">
               {(provided) => (
@@ -254,6 +220,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
               )}
             </Droppable>
           </DragDropContext>
+=======
+          <LocationList
+            locations={filteredLocations}
+            selectedLocation={selectedLocation}
+            groupByDay={groupByDay}
+            onSelectLocation={onSelectLocation}
+            onRemoveLocation={onRemoveLocation}
+            onReorderLocations={onReorderLocations}
+            onUpdateDates={onUpdateDates}
+          />
+>>>>>>> 625d877dec4b9e3659ef64f65eb173881b50e96a
         )}
       </ScrollArea>
     </div>
