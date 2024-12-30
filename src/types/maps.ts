@@ -18,6 +18,963 @@ export interface DistanceMatrixResponseElement {
     value: number;
   };
   status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text: string;
+  };
+}
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+}
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text?: string;
+  };
+>>>>>>> REPLACE>
+export interface DistanceMatrixResponse {
+  destinationAddresses: string[];
+  originAddresses: string[];
+  rows: DistanceMatrixResponseRow[];
+}
+
+export interface DistanceMatrixResponseRow {
+  elements: DistanceMatrixResponseElement[];
+}
+
+export interface DistanceMatrixResponseElement {
+  distance: {
+    text: string;
+    value: number;
+  };
+  duration: {
+    text: string;
+    value: number;
+  };
+  status: string;
+  duration_in_traffic?: {
+    text: string;
+    value: number;
+  };
+  fare?: {
+    currency: string;
+    value: number;
+    text: string;
+  };
 }
 
 export interface OSRMStep {
