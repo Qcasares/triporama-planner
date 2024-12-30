@@ -20,8 +20,8 @@ export const PlacesManager = ({ location }: PlacesManagerProps) => {
   });
   
   const {
-    places,
-    isLoading,
+    places: placesData,
+    loading: isLoading,
     favorites,
     toggleFavorite,
     addCustomPlace,
@@ -30,6 +30,12 @@ export const PlacesManager = ({ location }: PlacesManagerProps) => {
 
   const [isCustomPlaceDialogOpen, setIsCustomPlaceDialogOpen] = useState(false);
   const [customPlace, setCustomPlace] = useState({ name: '', type: '', notes: '' });
+
+  // Convert placesData to the expected format
+  const places: Record<string, Place[]> = Object.entries(placesData).reduce((acc, [key, value]) => ({
+    ...acc,
+    [key]: value.items
+  }), {});
 
   const handleCustomPlaceChange = (field: string, value: string) => {
     setCustomPlace(prev => ({ ...prev, [field]: value }));

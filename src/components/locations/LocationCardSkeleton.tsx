@@ -6,12 +6,16 @@ interface LocationCardSkeletonProps {
   variant?: 'initial' | 'refresh';
   lines?: number;
   showMap?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 export const LocationCardSkeleton = ({
   variant = 'initial',
   lines = 3,
-  showMap = false
+  showMap = false,
+  className,
+  style
 }: LocationCardSkeletonProps) => {
   const animationDuration = variant === 'initial' ? '1.5s' : '1s';
   
@@ -19,9 +23,13 @@ export const LocationCardSkeleton = ({
     <div 
       className={cn(
         "group relative px-3 py-2.5 rounded-lg border transition-smooth",
-        "bg-white/50 animate-pulse"
+        "bg-white/50 animate-pulse",
+        className
       )}
-      style={{ animationDuration }}
+      style={{ 
+        animationDuration,
+        ...style 
+      }}
     >
       <div className="flex items-start gap-3">
         <div className="flex-shrink-0">
