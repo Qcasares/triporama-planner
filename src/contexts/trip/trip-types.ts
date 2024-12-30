@@ -1,20 +1,25 @@
-import { Location, LocationType } from '../types/location';
+import { Location, LocationType } from '../../types/location';
 
 export interface Trip {
   locations: Location[];
 }
 
-export interface TripContextProps {
+export interface TripFilters {
+  types: LocationType[];
+  minRating: number;
+  maxDistance: number;
+}
+
+export interface TripContextState {
   trip: Trip;
-  selectedLocation: Location | undefined;
+  selectedLocation?: Location;
   loading: boolean;
   error: string | null;
-  filters: {
-    types: LocationType[];
-    minRating: number;
-    maxDistance: number;
-  };
-  filteredLocations: Location[];  // Changed from optional to required
+  filters: TripFilters;
+  filteredLocations: Location[];
+}
+
+export interface TripContextActions {
   addLocation: (location: Location) => void;
   removeLocation: (id: string) => void;
   selectLocation: (location: Location | undefined) => void;
@@ -22,12 +27,10 @@ export interface TripContextProps {
   updateLocation: (locationId: string, updates: Partial<Omit<Location, 'id'>>) => void;
   reorderLocations: (startIndex: number, endIndex: number) => void;
   clearTrip: () => void;
-  updateFilters: (filters: {
-    types: LocationType[];
-    minRating: number;
-    maxDistance: number;
-  }) => void;
+  updateFilters: (filters: TripFilters) => void;
 }
+
+export type TripContextValue = TripContextState & TripContextActions;
 
 export function isValidTrip(data: unknown): data is Trip {
   return (

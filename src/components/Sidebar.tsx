@@ -40,13 +40,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [showDateFilter, setShowDateFilter] = useState(false);
   const [sortByDate, setSortByDate] = useState(false);
   const [groupByDay, setGroupByDay] = useState(false);
-  const context = React.useContext(TripContext);
   
+  // Safely get context with default values
+  const context = React.useContext(TripContext);
   if (!context) {
     throw new Error('Sidebar must be used within a TripProvider');
   }
 
-  const { filters, updateFilters, filteredLocations = [] } = context;
+  const { filters, updateFilters, filteredLocations } = context;
 
   const handleSort = () => setSortByDate(!sortByDate);
   const handleGroup = () => setGroupByDay(!groupByDay);
@@ -61,8 +62,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     updateFilters(newFilters);
   }, [updateFilters]);
 
-  // Use the filtered locations array with a default empty array
-  const locationCount = filteredLocations?.length ?? 0;
+  // Ensure locationCount has a default value
+  const locationCount = (filteredLocations || []).length;
 
   return (
     <div className="w-full h-full flex flex-col bg-white transition-smooth">
@@ -103,7 +104,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               />
             ))}
           </div>
-        ) : filteredLocations.length === 0 ? (
+        ) : !filteredLocations || filteredLocations.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 px-4 text-center motion-safe:animate-fade-in">
             <MapPin className="h-12 w-12 text-muted-foreground/50 mb-4 floating-animation" />
             <h3 className="text-sm font-medium mb-2 motion-safe:animate-slide-up">
@@ -117,7 +118,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {onAddLocation && !searchQuery && (
               <Button
                 onClick={onAddLocation}
-                variant="outline"
                 className={cn(
                   'transition-smooth motion-safe:animate-slide-up',
                   'hover:bg-primary hover:text-primary-foreground',

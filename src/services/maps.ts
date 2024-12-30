@@ -97,16 +97,29 @@ export class MapsService {
 
   async getDirections(
     origin: { lat: number; lng: number },
-    destination: { lat: number; lng: number }
-  ): Promise<{ routes: OSRMRoute[]; bounds: OSRMBounds }> {
+    destination: { lat: number; lng: number },
+    waypoints: { lat: number; lng: number }[] = []
+  ) {
+    const coordinates = [
+      origin,
+      ...waypoints,
+      destination
+    ].map(point => `${point.lng},${point.lat}`).join(';');
+
     const response = await fetch(
-      `${OSRM_URL}/driving/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?overview=full`
+      `${OSRM_URL}/driving/${coordinates}?overview=full&geometries=geojson`
     );
     const data = await response.json();
     
+    if (data.code !== 'Ok') {
+      throw new Error('Failed to get directions');
+    }
+
     return {
       routes: data.routes,
-      bounds: data.waypoints
+      legs: data.routes[0].legs,
+      totalDistance: data.routes[0].distance,
+      totalDuration: data.routes[0].duration
     };
   }
 
