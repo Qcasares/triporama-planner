@@ -48,9 +48,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     throw new Error('Sidebar must be used within a TripProvider');
   }
 
-  const { filters, updateFilters, filteredLocations } = context;
-  // Ensure we always have a valid array to work with
-  const safeFilteredLocations = filteredLocations || [];
+  const { filters, updateFilters, filteredLocations = [] } = context;
 
   const handleSort = () => setSortByDate(!sortByDate);
   const handleGroup = () => setGroupByDay(!groupByDay);
@@ -65,8 +63,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     updateFilters(newFilters);
   }, [updateFilters]);
 
-  // Use the safe array to get the count
-  const locationCount = safeFilteredLocations.length;
+  // Use the filtered locations array with a default empty array
+  const locationCount = filteredLocations.length;
 
   return (
     <div className="w-full h-full flex flex-col bg-white transition-smooth">
@@ -107,7 +105,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               />
             ))}
           </div>
-        ) : safeFilteredLocations.length === 0 ? (
+        ) : filteredLocations.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 px-4 text-center motion-safe:animate-fade-in">
             <MapPin className="h-12 w-12 text-muted-foreground/50 mb-4 floating-animation" />
             <h3 className="text-sm font-medium mb-2 motion-safe:animate-slide-up">
@@ -136,7 +134,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         ) : (
           <LocationList
-            locations={safeFilteredLocations}
+            locations={filteredLocations}
             selectedLocation={selectedLocation}
             groupByDay={groupByDay}
             onSelectLocation={onSelectLocation}
