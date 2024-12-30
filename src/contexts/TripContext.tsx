@@ -60,11 +60,21 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
           // Convert ISO date strings back to Date objects
           const parsedTrip: Trip = {
-            locations: parsedData.locations.map((loc: Partial<Location>) => ({
-              ...loc,
-              startDate: loc.startDate ? new Date(loc.startDate) : undefined,
-              endDate: loc.endDate ? new Date(loc.endDate) : undefined,
-            })),
+            locations: parsedData.locations.map((loc: Partial<Location>) => {
+              if (!loc.id || !loc.name || !loc.lat || !loc.lng || !loc.type) {
+                throw new Error('Invalid location data: missing required properties');
+              }
+              return {
+                ...loc,
+                id: loc.id,
+                name: loc.name,
+                lat: loc.lat,
+                lng: loc.lng,
+                type: loc.type,
+                startDate: loc.startDate ? new Date(loc.startDate) : undefined,
+                endDate: loc.endDate ? new Date(loc.endDate) : undefined,
+              };
+            }),
           };
           
           setTrip(parsedTrip);
