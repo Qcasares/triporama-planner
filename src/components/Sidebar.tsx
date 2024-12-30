@@ -59,7 +59,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     updateFilters(newFilters);
   }, [updateFilters]);
 
-  // Ensure locations array exists
   const locationCount = filteredLocations?.length || 0;
 
   return (
