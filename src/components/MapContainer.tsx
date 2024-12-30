@@ -10,9 +10,7 @@ interface MapContainerProps {
 }
 
 const MapContainer = ({ locations = [], className }: MapContainerProps) => {
-  // Ensure locations is always an array even if undefined
-  const safeLocations = locations || [];
-  const { mapRef } = useMap(safeLocations, getTileLayerConfig());
+  const { mapRef } = useMap(locations, getTileLayerConfig());
 
   return (
     <div className={cn("relative", className)}>
