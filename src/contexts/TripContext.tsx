@@ -355,7 +355,7 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   }, [toast]);
 
-  const value = {
+  const value: TripContextProps = {
     trip,
     selectedLocation,
     loading,
