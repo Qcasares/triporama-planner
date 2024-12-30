@@ -56,11 +56,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
     updateFilters(newFilters);
   }, [updateFilters]);
 
+  // Ensure locations array exists
+  const safeLocations = filteredLocations || [];
+  const locationCount = safeLocations.length;
+
   return (
     <div className="w-full h-full flex flex-col bg-white transition-smooth">
       <SidebarHeader
         loading={loading}
-        locationCount={locations.length}
+        locationCount={locationCount}
         onAddLocation={onAddLocation}
         onSort={handleSort}
         onGroup={handleGroup}
@@ -95,7 +99,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               />
             ))}
           </div>
-        ) : filteredLocations.length === 0 ? (
+        ) : safeLocations.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 px-4 text-center motion-safe:animate-fade-in">
             <MapPin className="h-12 w-12 text-muted-foreground/50 mb-4 floating-animation" />
             <h3 className="text-sm font-medium mb-2 motion-safe:animate-slide-up">
@@ -124,7 +128,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         ) : (
           <LocationList
-            locations={filteredLocations}
+            locations={safeLocations}
             selectedLocation={selectedLocation}
             groupByDay={groupByDay}
             onSelectLocation={onSelectLocation}
