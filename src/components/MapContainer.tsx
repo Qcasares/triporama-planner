@@ -30,11 +30,6 @@ export default memo(MapContainer, (prevProps, nextProps) => {
   
   return prevLocations.every((loc, index) => {
     const nextLoc = nextLocations[index];
-    if (!nextLoc) return false;
-    return (
-      loc.id === nextLoc.id &&
-      loc.lat === nextLoc.lat &&
-      loc.lng === nextLoc.lng
-    );
+    return nextLoc && loc.id === nextLoc.id && loc.lat === nextLoc.lat && loc.lng === nextLoc.lng;
   });
 });

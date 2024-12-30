@@ -1,10 +1,8 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '../../ui/button';
-import { Input } from '../../ui/input';
-import { Separator } from '../../ui/separator';
 import { Sheet, SheetContent } from '../../ui/sheet';
-import { useSidebar } from '../SidebarProvider';
+import { useSidebar } from '../use-sidebar';
 import { PanelLeft } from 'lucide-react';
 
 export const Sidebar = React.forwardRef<
