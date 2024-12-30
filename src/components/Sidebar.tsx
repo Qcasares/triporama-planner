@@ -48,7 +48,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     throw new Error('Sidebar must be used within a TripProvider');
   }
 
-  const { filters, updateFilters, filteredLocations = [] } = context;
+  const { filters, updateFilters, filteredLocations } = context;
+  const safeFilteredLocations = filteredLocations || [];
 
   const handleSort = () => setSortByDate(!sortByDate);
   const handleGroup = () => setGroupByDay(!groupByDay);
@@ -63,7 +64,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     updateFilters(newFilters);
   }, [updateFilters]);
 
-  const locationCount = filteredLocations.length;
+  const locationCount = safeFilteredLocations.length;
 
   return (
     <div className="w-full h-full flex flex-col bg-white transition-smooth">
@@ -104,7 +105,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               />
             ))}
           </div>
-        ) : filteredLocations?.length === 0 ? (
+        ) : safeFilteredLocations.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 px-4 text-center motion-safe:animate-fade-in">
             <MapPin className="h-12 w-12 text-muted-foreground/50 mb-4 floating-animation" />
             <h3 className="text-sm font-medium mb-2 motion-safe:animate-slide-up">
@@ -133,7 +134,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         ) : (
           <LocationList
-            locations={filteredLocations}
+            locations={safeFilteredLocations}
             selectedLocation={selectedLocation}
             groupByDay={groupByDay}
             onSelectLocation={onSelectLocation}

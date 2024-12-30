@@ -10,7 +10,7 @@ interface MapContainerProps {
 }
 
 const MapContainer = ({ locations = [], className }: MapContainerProps) => {
-  const { mapRef } = useMap(locations, getTileLayerConfig());
+  const { mapRef } = useMap(locations || [], getTileLayerConfig());
 
   return (
     <div className={cn("relative", className)}>
@@ -30,11 +30,9 @@ export default memo(MapContainer, (prevProps, nextProps) => {
   
   return prevLocations.every((loc, index) => {
     const nextLoc = nextLocations[index];
-    if (!loc || !nextLoc) return false;
-    return (
+    return loc && nextLoc && 
       loc.id === nextLoc.id && 
       loc.lat === nextLoc.lat && 
-      loc.lng === nextLoc.lng
-    );
+      loc.lng === nextLoc.lng;
   });
 });
