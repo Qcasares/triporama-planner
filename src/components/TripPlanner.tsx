@@ -61,7 +61,7 @@ export const TripPlanner = () => {
     <Sidebar
       locations={trip.locations}
       selectedLocation={selectedLocation}
-      onAddLocation={handleAddLocation}
+      onAddLocation={() => handleAddLocation(currentLocation)}
       onRemoveLocation={removeLocation}
       onSelectLocation={selectLocation}
       onReorderLocations={reorderLocations}
@@ -101,7 +101,7 @@ export const TripPlanner = () => {
           
           {!isMobile && (
             <FloatingActionButton 
-              onAddLocation={handleAddLocation} 
+              onAddLocation={() => handleAddLocation(currentLocation)} 
             />
           )}
         </div>

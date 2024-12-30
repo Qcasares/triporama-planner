@@ -47,7 +47,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     throw new Error('Sidebar must be used within a TripProvider');
   }
 
-  const { filters, updateFilters, filteredLocations = [] } = context;
+  const { filters, updateFilters, filteredLocations } = context;
 
   const handleSort = () => setSortByDate(!sortByDate);
   const handleGroup = () => setGroupByDay(!groupByDay);
@@ -63,7 +63,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   }, [updateFilters]);
 
   // Ensure locationCount has a default value
-  const locationCount = filteredLocations?.length ?? 0;
+  const locationCount = (filteredLocations || []).length;
 
   return (
     <div className="w-full h-full flex flex-col bg-white transition-smooth">
