@@ -9,8 +9,6 @@ import { SearchBar } from './sidebar/SearchBar';
 import { Button } from './ui/button';
 import { LocationFilters } from './locations/LocationFilters';
 import { TripContext } from '../contexts/trip-context';
-import type { TripContextProps } from '../contexts/trip-context-types';
-import { useContext } from 'react';
 import { LocationList } from './sidebar/LocationList';
 
 interface SidebarProps {
@@ -42,7 +40,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [showDateFilter, setShowDateFilter] = useState(false);
   const [sortByDate, setSortByDate] = useState(false);
   const [groupByDay, setGroupByDay] = useState(false);
-  const context = useContext(TripContext);
+  const context = React.useContext(TripContext);
   
   if (!context) {
     throw new Error('Sidebar must be used within a TripProvider');
@@ -64,7 +62,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   }, [updateFilters]);
 
   // Use the filtered locations array with a default empty array
-  const locationCount = filteredLocations.length;
+  const locationCount = filteredLocations?.length ?? 0;
 
   return (
     <div className="w-full h-full flex flex-col bg-white transition-smooth">

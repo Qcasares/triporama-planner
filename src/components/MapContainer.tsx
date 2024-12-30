@@ -27,28 +27,4 @@ const MapContainer = ({ locations = [], className }: MapContainerProps) => {
   );
 };
 
-export default memo(MapContainer, (prevProps, nextProps) => {
-  // Ensure we have valid arrays to compare
-  const prevLocations = Array.isArray(prevProps.locations) 
-    ? prevProps.locations.filter(loc => loc && typeof loc.lat === 'number' && typeof loc.lng === 'number')
-    : [];
-  const nextLocations = Array.isArray(nextProps.locations) 
-    ? nextProps.locations.filter(loc => loc && typeof loc.lat === 'number' && typeof loc.lng === 'number')
-    : [];
-  
-  // If arrays are different lengths, they're definitely different
-  if (prevLocations.length !== nextLocations.length) {
-    return false;
-  }
-  
-  // Compare each location's properties
-  return prevLocations.every((loc, index) => {
-    const nextLoc = nextLocations[index];
-    // Compare location properties
-    return (
-      loc.id === nextLoc.id && 
-      loc.lat === nextLoc.lat && 
-      loc.lng === nextLoc.lng
-    );
-  });
-});
+export default memo(MapContainer);
