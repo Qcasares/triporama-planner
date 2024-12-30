@@ -1,6 +1,6 @@
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Location } from '@/types/location';
+import { Location, LocationType } from '@/types/location';
 
 interface FloatingActionButtonProps {
   onAddLocation: (location: Location) => void;
@@ -17,6 +17,7 @@ export const FloatingActionButton = ({ onAddLocation }: FloatingActionButtonProp
           name: 'New Location',
           lat: 0,
           lng: 0,
+          type: LocationType.OTHER,
         });
       }}
     >
