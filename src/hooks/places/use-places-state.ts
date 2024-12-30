@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Place } from '../../types/place';
+import { placeTypes } from './places-actions';
 
 export interface PlacesState {
   places: Record<string, {

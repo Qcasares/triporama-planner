@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { SidebarProvider } from './ui/sidebar';
 import { useGeolocation } from '../hooks/use-geolocation';
 import { TripContext } from '../contexts/trip-context';

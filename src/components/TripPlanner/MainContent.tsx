@@ -1,4 +1,4 @@
-import { MapContainer } from '../MapContainer';
+import MapContainer from '../MapContainer';
 import { TravelRecommendations } from '../TravelRecommendations';
 import { NavigationBreadcrumb } from '../NavigationBreadcrumb';
 import { Location } from '../../types/location';
