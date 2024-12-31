@@ -12,6 +12,10 @@ import { LoadingState } from './TripPlanner/LoadingState';
 import { MainContent } from './TripPlanner/MainContent';
 import { MobileSidebar } from './TripPlanner/MobileSidebar';
 import { useTripPlanner } from './TripPlanner/useTripPlanner';
+import { Sheet, SheetTrigger, SheetContent } from './ui/sheet';
+import { Button } from './ui/button';
+import { Menu } from 'lucide-react';
+import { cn } from '../lib/utils';
 
 export const TripPlanner = () => {
   const { currentLocation } = useGeolocation();
@@ -51,7 +55,7 @@ export const TripPlanner = () => {
       }, 20);
       return () => clearInterval(interval);
     }
-  }, [contextLoading]);
+  }, [contextLoading, setProgress]);
 
   if (contextLoading) {
     return <LoadingState progress={progress} />;
@@ -82,7 +86,6 @@ export const TripPlanner = () => {
       <SidebarProvider>
         <div className="flex w-full">
           {isMobile ? (
-<<<<<<< HEAD
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger>
                 <Button 
@@ -105,13 +108,6 @@ export const TripPlanner = () => {
                 <SidebarContent />
               </SheetContent>
             </Sheet>
-=======
-            <MobileSidebar 
-              isOpen={isOpen}
-              setIsOpen={setIsOpen}
-              SidebarContent={SidebarContent}
-            />
->>>>>>> 54d26a7fbcfd1dc051a190048cdf74c5ea0cb4ac
           ) : (
             <div className="w-80 bg-white border-r border-gray-100 shadow-lg motion-safe:animate-slide-in-from-left">
               <SidebarContent />

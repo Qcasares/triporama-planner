@@ -1,14 +1,10 @@
-import { useEffect, useRef } from 'react';
-import { Location } from '../types/location';
-import { DistanceMatrixResponse } from '../types/maps';
+import { useEffect, useRef, useCallback } from 'react';
+import { Location, LocationType } from '../types/location';
+import { DistanceMatrixResponse, OSRMRoute } from '../types/maps';
 import { MapsService } from '../services/maps';
 import { useToast } from './use-toast';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import 'leaflet.markercluster/dist/MarkerCluster.css';
-import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
-import 'leaflet-defaulticon-compatibility';
-import 'leaflet.markercluster';
 
 interface TileLayerConfig {
   url: string;
@@ -21,44 +17,38 @@ interface UseMapReturn {
     origins: Location[],
     destinations: Location[]
   ) => Promise<DistanceMatrixResponse>;
+  getDirections: (
+    origin: Location,
+    destination: Location
+  ) => Promise<OSRMRoute>;
+  centerMap: (location: Location) => void;
+  setMapTheme: (theme: 'light' | 'dark') => void;
+  getUserLocation: () => Promise<Location | null>;
 }
 
 class MapManager {
   private mapInstance: L.Map | null = null;
-  private markerCluster: L.MarkerClusterGroup;
-  private markers: L.Marker[] = [];
   private mapsService: MapsService;
   private container: HTMLDivElement;
   private tileLayerConfig: TileLayerConfig;
-  private locations: Location[];
   private toast: ReturnType<typeof useToast>;
 
   constructor(
     container: HTMLDivElement,
     tileLayerConfig: TileLayerConfig,
-    locations: Location[],
     toast: ReturnType<typeof useToast>
   ) {
     this.mapInstance = null;
-    this.markerCluster = L.markerClusterGroup();
-    this.markers = [];
     this.mapsService = new MapsService();
     this.container = container;
     this.tileLayerConfig = tileLayerConfig;
-    this.locations = locations;
     this.toast = toast;
   }
 
-  public initialize() {
+  public initialize(initialCenter: [number, number]) {
     if (!this.container || this.mapInstance) return;
 
     try {
-      // Initialize map with default center if no locations
-      const defaultCenter: [number, number] = [51.505, -0.09];
-      const initialCenter = this.locations.length > 0 
-        ? [this.locations[0].lat, this.locations[0].lng] 
-        : defaultCenter;
-
       this.mapInstance = L.map(this.container, {
         center: initialCenter as L.LatLngExpression,
         zoom: 13,
@@ -67,9 +57,6 @@ class MapManager {
       L.tileLayer(this.tileLayerConfig.url, {
         attribution: this.tileLayerConfig.attribution,
       }).addTo(this.mapInstance);
-
-      this.addMarkers();
-      this.fitToMarkers();
     } catch (error) {
       console.error('Error initializing map:', error);
       this.toast.toast({
@@ -80,60 +67,11 @@ class MapManager {
     }
   }
 
-  private addMarkers() {
-    if (!this.locations?.length || !this.mapInstance) return;
+  public fitToBounds(locations: Location[]) {
+    if (!locations?.length || !this.mapInstance) return;
 
     try {
-      const defaultIcon = L.icon({
-        iconUrl: '/placeholder.svg',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-        shadowSize: [41, 41]
-      });
-
-      // Clear existing markers
-      this.markers.forEach(marker => marker.remove());
-      this.markers = [];
-      this.markerCluster.clearLayers();
-
-      // Filter out invalid locations and create markers
-      this.markers = this.locations
-        .filter(location => location && typeof location.lat === 'number' && typeof location.lng === 'number')
-        .map(location => {
-          const marker = L.marker([location.lat, location.lng], {
-            icon: defaultIcon,
-            title: location.name
-          });
-
-          marker.bindPopup(`
-            <div class="marker-popup">
-              <h3>${location.name}</h3>
-              <p>Lat: ${location.lat.toFixed(4)}</p>
-              <p>Lng: ${location.lng.toFixed(4)}</p>
-            </div>
-          `);
-
-          marker.on('click', () => {
-            this.mapInstance?.setView([location.lat, location.lng], 13);
-          });
-
-          return marker;
-        });
-
-      this.markerCluster.addLayers(this.markers);
-      this.mapInstance.addLayer(this.markerCluster);
-    } catch (error) {
-      console.error('Error adding markers:', error);
-    }
-  }
-
-  private fitToMarkers() {
-    if (!this.locations?.length || !this.mapInstance) return;
-
-    try {
-      const validLocations = this.locations.filter(
+      const validLocations = locations.filter(
         loc => loc && typeof loc.lat === 'number' && typeof loc.lng === 'number'
       );
 
@@ -144,17 +82,14 @@ class MapManager {
         this.mapInstance.fitBounds(bounds);
       }
     } catch (error) {
-      console.error('Error fitting to markers:', error);
+      console.error('Error fitting to bounds:', error);
     }
   }
 
   public cleanup() {
     if (this.mapInstance) {
-      this.markers.forEach(marker => marker.remove());
-      this.markerCluster.clearLayers();
       this.mapInstance.remove();
       this.mapInstance = null;
-      this.markers = [];
     }
   }
 
@@ -178,15 +113,98 @@ class MapManager {
     }
   }
 
-  public updateLocations(newLocations: Location[]) {
-    this.locations = newLocations;
-    this.addMarkers();
-    this.fitToMarkers();
+  public async getDirections(
+    origin: Location,
+    destination: Location
+  ): Promise<OSRMRoute> {
+    try {
+      const result = await this.mapsService.getDirections(
+        { lat: origin.lat, lng: origin.lng },
+        { lat: destination.lat, lng: destination.lng }
+      );
+      return result.routes[0];
+    } catch (error) {
+      console.error('Error getting directions:', error);
+      this.toast.toast({
+        title: 'Error',
+        description: 'Failed to get directions.',
+        variant: 'destructive',
+      });
+      throw error;
+    }
+  }
+
+  public centerMap(location: Location) {
+    if (this.mapInstance) {
+      this.mapInstance.setView([location.lat, location.lng], 13);
+    }
+  }
+
+  public setMapTheme(theme: 'light' | 'dark') {
+    if (!this.mapInstance) return;
+
+    const lightTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    });
+
+    const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors, &copy; CARTO'
+    });
+
+    // Remove existing layers
+    this.mapInstance.eachLayer((layer) => {
+      if (layer instanceof L.TileLayer) {
+        this.mapInstance?.removeLayer(layer);
+      }
+    });
+
+    // Add new layer based on theme
+    if (theme === 'dark') {
+      darkTiles.addTo(this.mapInstance);
+    } else {
+      lightTiles.addTo(this.mapInstance);
+    }
+  }
+
+  public async getUserLocation(): Promise<Location | null> {
+    try {
+      return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+          reject(new Error('Geolocation is not supported by your browser'));
+          return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const { latitude, longitude } = position.coords;
+            const locationDetails = await this.mapsService.getLocationDetails(latitude, longitude);
+            resolve({
+              id: 'current-location',
+              name: locationDetails.formatted_address,
+              lat: latitude,
+              lng: longitude,
+              type: 'other' as LocationType
+            });
+          },
+          (error) => {
+            reject(error);
+          }
+        );
+      });
+    } catch (error) {
+      console.error('Error getting user location:', error);
+      this.toast.toast({
+        title: 'Error',
+        description: 'Failed to get user location.',
+        variant: 'destructive',
+      });
+      return null;
+    }
   }
 }
 
 export const useMap = (
-  locations: Location[],
+  initialLocations: Location[],
   tileLayerConfig: TileLayerConfig
 ): UseMapReturn => {
   const mapRef = useRef<HTMLDivElement>(null);
@@ -196,18 +214,25 @@ export const useMap = (
   useEffect(() => {
     if (!mapRef.current) return;
 
+    // Calculate initial center
+    const defaultCenter: [number, number] = [51.505, -0.09];
+    const initialCenter: [number, number] = initialLocations.length > 0 
+      ? [initialLocations[0].lat, initialLocations[0].lng] as [number, number]
+      : defaultCenter;
+
     // Initialize map manager if it doesn't exist
     if (!mapManager.current) {
       mapManager.current = new MapManager(
         mapRef.current,
         tileLayerConfig,
-        locations,
         toast
       );
-      mapManager.current.initialize();
-    } else {
-      // Update locations if map manager exists
-      mapManager.current.updateLocations(locations);
+      mapManager.current.initialize(initialCenter);
+    }
+
+    // Fit to bounds if locations exist
+    if (initialLocations.length > 0) {
+      mapManager.current.fitToBounds(initialLocations);
     }
 
     // Cleanup function
@@ -217,7 +242,7 @@ export const useMap = (
         mapManager.current = null;
       }
     };
-  }, [locations, tileLayerConfig, toast]);
+  }, [initialLocations, tileLayerConfig, toast]);
 
   const getDistanceMatrix = async (
     origins: Location[],
@@ -229,8 +254,41 @@ export const useMap = (
     return mapManager.current.getDistanceMatrix(origins, destinations);
   };
 
+  const getDirections = async (
+    origin: Location,
+    destination: Location
+  ): Promise<OSRMRoute> => {
+    if (!mapManager.current) {
+      throw new Error('Map manager not initialized');
+    }
+    return mapManager.current.getDirections(origin, destination);
+  };
+
+  const centerMap = (location: Location) => {
+    if (mapManager.current) {
+      mapManager.current.centerMap(location);
+    }
+  };
+
+  const setMapTheme = (theme: 'light' | 'dark') => {
+    if (mapManager.current) {
+      mapManager.current.setMapTheme(theme);
+    }
+  };
+
+  const getUserLocation = useCallback(async (): Promise<Location | null> => {
+    if (!mapManager.current) {
+      throw new Error('Map manager not initialized');
+    }
+    return mapManager.current.getUserLocation();
+  }, []);
+
   return {
     mapRef,
     getDistanceMatrix,
+    getDirections,
+    centerMap,
+    setMapTheme,
+    getUserLocation
   };
 };
