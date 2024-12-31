@@ -118,7 +118,7 @@ export class MapsService {
 
   async searchAddress(address: string): Promise<LocationDetails> {
     try {
-      const response = await fetch(`${NOMINATIM_URL}?format=json&q=${encodeURIComponent(address)}`);
+      const response = await fetch(`${NOMINATIM_URL}/search?format=json&q=${encodeURIComponent(address)}`);
       if (!response.ok) throw new Error('Failed to search address');
       const data = await response.json();
       

@@ -35,12 +35,31 @@ export const useTripPlanner = (
       return;
     }
 
+    // Validate location data
+    if (!location.id || !location.name || typeof location.lat !== 'number' || typeof location.lng !== 'number') {
+      toast({
+        title: "Invalid Location Data",
+        description: "Location data is incomplete or invalid. Please check the location details.",
+        variant: "destructive",
+      });
+      throw new Error('Invalid location data');
+    }
+
     const newLocation = {
       ...location,
-      type: LocationType.OTHER
+      type: location.type || LocationType.OTHER
     };
 
-    addLocation(newLocation);
+    try {
+      addLocation(newLocation);
+    } catch (error) {
+      toast({
+        title: "Error Adding Location",
+        description: "Failed to add location to trip. Please try again.",
+        variant: "destructive",
+      });
+      throw error;
+    }
     toast({
       title: "Location added",
       description: `${newLocation.name} has been added to your trip.`,

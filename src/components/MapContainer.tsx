@@ -31,6 +31,9 @@ const MapContainer = ({
   onGetUserLocation
 }: MapContainerProps) => {
   const [route, setRoute] = useState<OSRMRoute | undefined>();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
   const safeLocations = useMemo(() => 
     Array.isArray(locations) 
       ? locations.filter(loc => loc && typeof loc.lat === 'number' && typeof loc.lng === 'number')
@@ -38,41 +41,97 @@ const MapContainer = ({
     [locations]
   );
 
-  const { mapRef, getDirections, setMapTheme, centerMap, getUserLocation } = useMap(safeLocations, getTileLayerConfig());
+  const { 
+    mapRef, 
+    mapInstance, 
+    getDirections, 
+    setMapTheme, 
+    centerMap, 
+    getUserLocation 
+  } = useMap(safeLocations, getTileLayerConfig());
 
+  // Handle map initialization errors
   useEffect(() => {
-    if (theme) {
-      setMapTheme(theme);
+    if (!mapInstance) {
+      setError('Failed to initialize map. Please try again.');
     }
-  }, [theme, setMapTheme]);
+  }, [mapInstance]);
 
+  // Handle theme changes with error handling
   useEffect(() => {
-    if (centerOnLocation) {
-      centerMap(centerOnLocation);
+    try {
+      if (theme && mapInstance) {
+        setMapTheme(theme);
+      }
+    } catch (error) {
+      console.error('Error setting map theme:', error);
+      setError('Failed to set map theme.');
     }
-  }, [centerOnLocation, centerMap]);
+  }, [theme, setMapTheme, mapInstance]);
 
+  // Handle center location changes with error handling
+  useEffect(() => {
+    try {
+      if (centerOnLocation && mapInstance) {
+        centerMap(centerOnLocation);
+      }
+    } catch (error) {
+      console.error('Error centering map:', error);
+      setError('Failed to center map on location.');
+    }
+  }, [centerOnLocation, centerMap, mapInstance]);
+
+  // Handle directions with loading and error states
   useEffect(() => {
     const handleDirections = async () => {
       if (onDirectionsRequest && safeLocations.length >= 2) {
-        const newRoute = await onDirectionsRequest(safeLocations[0], safeLocations[1]);
-        setRoute(newRoute);
+        try {
+          setIsLoading(true);
+          setError(null);
+          const newRoute = await onDirectionsRequest(safeLocations[0], safeLocations[1]);
+          setRoute(newRoute);
+        } catch (error) {
+          console.error('Error getting directions:', error);
+          setError('Failed to get directions. Please try again.');
+        } finally {
+          setIsLoading(false);
+        }
       }
     };
     handleDirections();
   }, [onDirectionsRequest, safeLocations]);
 
+  // Handle user location with loading and error states
   const handleGetUserLocation = useCallback(async () => {
     if (onGetUserLocation) {
-      const location = await getUserLocation();
-      if (location) {
-        onGetUserLocation();
+      try {
+        setIsLoading(true);
+        setError(null);
+        const location = await getUserLocation();
+        if (location) {
+          onGetUserLocation();
+        }
+      } catch (error) {
+        console.error('Error getting user location:', error);
+        setError('Failed to get your location. Please ensure location services are enabled.');
+      } finally {
+        setIsLoading(false);
       }
     }
   }, [getUserLocation, onGetUserLocation]);
 
   return (
     <div className={cn("relative", className)}>
+      {error && (
+        <div className="absolute top-2 left-1/2 transform -translate-x-1/2 bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded z-50">
+          {error}
+        </div>
+      )}
+      {isLoading && (
+        <div className="absolute top-2 left-1/2 transform -translate-x-1/2 bg-blue-100 border border-blue-400 text-blue-700 px-4 py-2 rounded z-50">
+          Loading...
+        </div>
+      )}
       <div 
         ref={mapRef}
         className="w-full h-full bg-gray-100 rounded-lg"
@@ -82,6 +141,7 @@ const MapContainer = ({
           pois={pois}
           customMarkers={customMarkers}
           onMarkerClick={onMarkerClick}
+          map={mapInstance}
         />
         {route && <DirectionsLayer route={route} />}
       </div>
