@@ -39,7 +39,8 @@ export const TripPlanner = () => {
     progress,
     setProgress,
     isOffline,
-    handleAddLocation
+    handleAddLocation,
+    handleGetUserLocation
   } = useTripPlanner(currentLocation, addLocation, trip);
 
   useEffect(() => {
@@ -118,6 +119,7 @@ export const TripPlanner = () => {
             locations={trip.locations}
             selectedLocation={selectedLocation}
             isOffline={isOffline}
+            onGetUserLocation={handleGetUserLocation}
           />
           
           {!isMobile && (

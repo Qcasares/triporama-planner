@@ -16,6 +16,7 @@ interface MapContainerProps {
   onDirectionsRequest?: (origin: Location, destination: Location) => Promise<OSRMRoute>;
   theme?: 'light' | 'dark';
   centerOnLocation?: Location;
+  onGetUserLocation?: () => Promise<Location | null>;
 }
 
 const MapContainer = ({ 
@@ -26,7 +27,8 @@ const MapContainer = ({
   onMarkerClick,
   onDirectionsRequest,
   theme = 'light',
-  centerOnLocation
+  centerOnLocation,
+  onGetUserLocation
 }: MapContainerProps) => {
   const [route, setRoute] = useState<OSRMRoute | undefined>();
   const safeLocations = useMemo(() => 
@@ -36,7 +38,7 @@ const MapContainer = ({
     [locations]
   );
 
-  const { mapRef, getDirections, setMapTheme, centerMap } = useMap(safeLocations, getTileLayerConfig());
+  const { mapRef, getDirections, setMapTheme, centerMap, getUserLocation } = useMap(safeLocations, getTileLayerConfig());
 
   useEffect(() => {
     if (theme) {
@@ -59,6 +61,15 @@ const MapContainer = ({
     };
     handleDirections();
   }, [onDirectionsRequest, safeLocations]);
+
+  const handleGetUserLocation = useCallback(async () => {
+    if (onGetUserLocation) {
+      const location = await getUserLocation();
+      if (location) {
+        onGetUserLocation();
+      }
+    }
+  }, [getUserLocation, onGetUserLocation]);
 
   return (
     <div className={cn("relative", className)}>

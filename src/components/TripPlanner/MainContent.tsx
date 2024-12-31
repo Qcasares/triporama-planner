@@ -9,9 +9,10 @@ interface MainContentProps {
   locations: Location[];
   selectedLocation?: Location;
   isOffline: boolean;
+  onGetUserLocation?: () => Promise<Location | null>;
 }
 
-export const MainContent = ({ locations, selectedLocation, isOffline }: MainContentProps) => (
+export const MainContent = ({ locations, selectedLocation, isOffline, onGetUserLocation }: MainContentProps) => (
   <main className="flex-1 space-y-8 p-4 md:p-8">
     <div className="motion-safe:animate-slide-up" style={{ animationDelay: '100ms' }}>
       <NavigationBreadcrumb />
@@ -38,6 +39,7 @@ export const MainContent = ({ locations, selectedLocation, isOffline }: MainCont
       <MapContainer 
         locations={locations} 
         className="h-[400px] md:h-[500px] lg:h-[600px] w-full transition-all duration-300"
+        onGetUserLocation={onGetUserLocation}
       />
     </div>
     
