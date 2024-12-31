@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import { OSRMRoute } from '../../types/maps';
-import { decode } from '@mapbox/polyline';
+import polyline from '@mapbox/polyline';
 
 interface DirectionsLayerProps {
   route?: OSRMRoute;
@@ -23,7 +23,7 @@ const DirectionsLayer = ({
     // Get the map instance from the parent container
     const map = (document.querySelector('[class*="leaflet-container"]') as HTMLElement)?._leaflet_map;
     if (!map) return;
-    mapRef.current = map;
+    mapRef.current = map as L.Map;
 
     return () => {
       if (layerRef.current) {
@@ -42,7 +42,7 @@ const DirectionsLayer = ({
 
     try {
       // Decode the polyline geometry
-      const coordinates = decode(route.geometry).map(([lat, lng]) => [lat, lng]);
+      const coordinates = polyline.decode(route.geometry).map(([lat, lng]) => [lat, lng]);
 
       // Create and add the polyline layer
       layerRef.current = L.polyline(coordinates, {
