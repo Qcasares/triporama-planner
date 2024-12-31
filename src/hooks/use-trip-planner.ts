@@ -1,9 +1,10 @@
 import { useReducer, useCallback } from 'react';
 import { Location } from '../types/location';
+import { Trip } from '../contexts/trip/trip-types';
 import { tripPlannerReducer, initialState } from '../reducers/trip-planner';
 import { useMap } from '../hooks/use-map';
 
-export const useTripPlanner = (currentLocation: Location | null, addLocation: (location: Location) => void, trip: any) => {
+export const useTripPlanner = (currentLocation: Location | null, addLocation: (location: Location) => void, trip: Trip) => {
   const [state, dispatch] = useReducer(tripPlannerReducer, initialState);
   const { getUserLocation } = useMap([], { url: '', attribution: '' });
 

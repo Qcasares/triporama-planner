@@ -53,18 +53,30 @@ export interface OSRMStep {
 }
 
 export interface OSRMRoute {
-  distance: number;
-  duration: number;
-  geometry: string;
-  legs: Array<{
-    steps: OSRMStep[];
-    summary: string;
+  routes: Array<{
+    legs: Array<{
+      steps: OSRMStep[];
+      summary: string;
+      weight: number;
+      duration: number;
+      distance: number;
+      start_address: string;
+      end_address: string;
+    }>;
+    weight_name: string;
     weight: number;
     duration: number;
     distance: number;
+    geometry: string;
   }>;
-  weight_name: string;
-  weight: number;
+  waypoints: Array<{
+    hint: string;
+    distance: number;
+    name: string;
+    location: [number, number];
+  }>;
+  totalDistance: number;
+  totalDuration: number;
 }
 
 export interface OSRMBounds {

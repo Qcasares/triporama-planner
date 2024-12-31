@@ -97,14 +97,15 @@ export const TripSummary = () => {
           throw new Error('No route data received');
         }
 
-        const { totalDistance, totalDuration, legs } = result;
+        const { routes, totalDistance, totalDuration } = result;
+        const legs = routes[0].legs;
         
         setSummaryData({
           totalDistance: `${(totalDistance / 1000).toFixed(1)} km`,
           totalDuration: formatDuration(totalDuration),
           legs: legs.map(leg => ({
-            distance: leg.distance.text,
-            duration: leg.duration.text,
+            distance: `${(leg.distance / 1000).toFixed(1)} km`,
+            duration: formatDuration(leg.duration),
             startLocation: leg.start_address,
             endLocation: leg.end_address,
           })),

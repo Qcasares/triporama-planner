@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
-import type { TripContextProps } from './trip-context-types';
+import type { TripContextValue } from './trip/trip-types';
 
-export const TripContext = createContext<TripContextProps | undefined>(undefined);
+export const TripContext = createContext<TripContextValue | undefined>(undefined);
 
 export function useTrip() {
   const context = useContext(TripContext);

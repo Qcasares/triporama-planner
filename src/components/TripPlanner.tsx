@@ -2,7 +2,7 @@ import { useContext, useEffect } from 'react';
 import { SidebarProvider } from './ui/sidebar';
 import { useGeolocation } from '../hooks/use-geolocation';
 import { TripContext } from '../contexts/trip-context';
-import type { TripContextProps } from '../contexts/trip-context-types';
+import type { TripContextValue } from '../contexts/trip/trip-types';
 import { useIsMobile } from '../hooks/use-mobile';
 import { FloatingActionButton } from './FloatingActionButton';
 import { Sidebar } from './Sidebar';
@@ -28,7 +28,7 @@ export const TripPlanner = () => {
     selectLocation,
     reorderLocations,
     updateLocationDates,
-  } = useContext(TripContext) as TripContextProps;
+  } = useContext(TripContext) as TripContextValue;
 
   const isMobile = useIsMobile();
   const {

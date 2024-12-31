@@ -118,11 +118,10 @@ class MapManager {
     destination: Location
   ): Promise<OSRMRoute> {
     try {
-      const result = await this.mapsService.getDirections(
+      return await this.mapsService.getDirections(
         { lat: origin.lat, lng: origin.lng },
         { lat: destination.lat, lng: destination.lng }
       );
-      return result.routes[0];
     } catch (error) {
       console.error('Error getting directions:', error);
       this.toast.toast({

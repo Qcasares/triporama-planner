@@ -49,6 +49,25 @@ export const useTripPlanner = (
     setIsOpen(false);
   }, [addLocation, toast, isOffline]);
 
+  const handleGetUserLocation = useCallback(async () => {
+    if (!currentLocation) {
+      toast({
+        title: "Location unavailable",
+        description: "Unable to get your current location.",
+        variant: "destructive",
+      });
+      throw new Error('Location unavailable');
+    }
+
+    handleAddLocation(currentLocation);
+    toast({
+      title: "Current location added",
+      description: "Your current location has been added to the trip.",
+      className: "animate-in fade-in-50 slide-in-from-bottom-5",
+    });
+    return currentLocation;
+  }, [currentLocation, handleAddLocation, toast]);
+
   return {
     isSummaryOpen,
     setIsSummaryOpen,
@@ -57,6 +76,7 @@ export const useTripPlanner = (
     progress,
     setProgress,
     isOffline,
-    handleAddLocation
+    handleAddLocation,
+    handleGetUserLocation
   };
 };

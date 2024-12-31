@@ -21,9 +21,13 @@ const DirectionsLayer = ({
 
   useEffect(() => {
     // Get the map instance from the parent container
-    const map = (document.querySelector('[class*="leaflet-container"]') as HTMLElement)?._leaflet_map;
+    const container = document.querySelector('[class*="leaflet-container"]');
+    if (!container) return;
+    
+    // Type-safe way to get the map instance
+    const map = (container as any)._leaflet_map as L.Map | undefined;
     if (!map) return;
-    mapRef.current = map as L.Map;
+    mapRef.current = map;
 
     return () => {
       if (layerRef.current) {
@@ -33,7 +37,7 @@ const DirectionsLayer = ({
   }, []);
 
   useEffect(() => {
-    if (!mapRef.current || !route?.geometry) return;
+    if (!mapRef.current || !route?.routes?.[0]?.geometry) return;
 
     // Remove existing layer
     if (layerRef.current) {
@@ -42,7 +46,7 @@ const DirectionsLayer = ({
 
     try {
       // Decode the polyline geometry
-      const coordinates = polyline.decode(route.geometry).map(([lat, lng]) => [lat, lng]);
+      const coordinates = polyline.decode(route.routes[0].geometry).map(([lat, lng]) => [lat, lng]);
 
       // Create and add the polyline layer
       layerRef.current = L.polyline(coordinates, {
