@@ -109,7 +109,7 @@ const MapContainer = ({
         setError(null);
         const location = await getUserLocation();
         if (location) {
-          onGetUserLocation();
+          await onGetUserLocation();
         }
       } catch (error) {
         console.error('Error getting user location:', error);
